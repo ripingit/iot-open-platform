@@ -1,63 +1,76 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import HomeComponent from '@/components/home/home.vue'
-import AppVersionComponent from '@/components/app-version/app-version.vue'
-import DeviceCateComponent from '@/components/device-category/device-category.vue'
-import DeviceModelComponent from '@/components/device-model/device-model.vue'
-import KeyComponent from '@/components/key/key.vue'
-import UserComponent from '@/components/users/user-manage.vue'
-
-import SignInComponent from '@/components/sign-in.vue'
-import SignUpComponent from '@/components/sign-up.vue'
-import LayoutComponent from '@/components/layout/layout.vue'
-
 Vue.use(Router)
-
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
-      redirect: '/singin'
+      redirect: '/signin'
     }, {
-      path: '/singin',
-      component: SignInComponent
+      path: '/signin',
+      component: resolve => require(['@/components/sign-in'], resolve),
+      meta: { title: '登录' }
     }, {
       path: '/signup',
-      component: SignUpComponent
+      component: resolve => require(['@/components/sign-up'], resolve),
+      meta: { title: '注册' }
     }, {
-      path: '/layout',
-      component: LayoutComponent,
+      path: '/manage',
+      component: resolve => require(['@/components/layout/layout'], resolve),
       children: [
         {
           path: '',
-          redirect: '/layout/home'
+          redirect: '/manage/home'
         }, {
           path: 'home',
           name: 'home',
-          component: HomeComponent
+          component: resolve => require(['@/components/home/home'], resolve),
+          meta: { title: '首页' }
         }, {
           path: 'appVersion',
           name: 'appVersion',
-          component: AppVersionComponent
+          component: resolve => require(['@/components/app-version/app-version'], resolve),
+          meta: { title: 'app版本' }
         }, {
           path: 'category',
           name: 'category',
-          component: DeviceCateComponent
+          component: resolve => require(['@/components/device-category/device-category'], resolve),
+          meta: { title: '设备类别' }
         }, {
           path: 'model',
           name: 'model',
-          component: DeviceModelComponent
+          component: resolve => require(['@/components/device-model/device-model'], resolve),
+          meta: { title: '设备型号' }
         }, {
           path: 'key',
           name: 'key',
-          component: KeyComponent
+          component: resolve => require(['@/components/key/key'], resolve),
+          meta: { title: 'KEY管理' }
         }, {
           path: 'users',
           name: 'usersManage',
-          component: UserComponent
+          component: resolve => require(['@/components/users/user-manage'], resolve),
+          meta: { title: '用户管理' }
+        }, {
+          path: 'authention',
+          name: 'authention',
+          component: resolve => require(['@/components/layout/auth'], resolve),
+          meta: { title: '用户认证' }
         }
       ]
     }
   ]
+})
+export default router
+
+router.afterEach((route) => {
+  let documentTitle = '迈科物联开放平台'
+  route.matched.forEach((path) => {
+    if (path.meta.title) {
+      documentTitle += ` - ${path.meta.title}`
+    }
+  })
+
+  document.title = documentTitle
 })

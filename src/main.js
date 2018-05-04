@@ -6,6 +6,7 @@ import ElementUI from 'element-ui'
 
 import 'element-ui/lib/theme-chalk/index.css'
 import 'reset-css/reset.css'
+import 'font-awesome/css/font-awesome.min.css'
 
 import App from './App'
 import router from './router'

@@ -2,38 +2,32 @@
     <div class="container">
         <el-row>
              <el-col :span="24">
-                <ul class="brand">
-                    <li>
-                        <i class="el-icon-picture"></i>
-                        <span class="brand-name">迈科物联</span>
-                    </li>
-                </ul>
                 <el-menu
                     default-active="1"
-                    background-color="#545c64"
-                    text-color="#fff"
+                    background-color="#3b3f42"
+                    text-color="rgba(255, 255, 255, 0.5)"
                     active-text-color="#ffd04b">
-                    <el-menu-item index="1" @click="routeGo('/layout/home')">
+                    <el-menu-item index="1" @click="routeGo('/manage/home')">
                         <i class="el-icon-menu"></i>
                         <span slot="title">首页</span>
                     </el-menu-item>
-                    <el-menu-item index="2" @click="routeGo('/layout/users')">
+                    <el-menu-item index="2" @click="routeGo('/manage/users')">
                         <i class="el-icon-menu"></i>
                         <span slot="title">用户管理</span>
                     </el-menu-item>
-                    <el-menu-item index="3" @click="routeGo('/layout/category')">
+                    <el-menu-item index="3" @click="routeGo('/manage/category')">
                         <i class="el-icon-document"></i>
                         <span slot="title">设备类别</span>
                     </el-menu-item>
-                    <el-menu-item index="4" @click="routeGo('/layout/model')">
+                    <el-menu-item index="4" @click="routeGo('/manage/model')">
                         <i class="el-icon-setting"></i>
                         <span slot="title">设备型号</span>
                     </el-menu-item>
-                    <el-menu-item index="5" @click="routeGo('/layout/appVersion')">
+                    <el-menu-item index="5" @click="routeGo('/manage/appVersion')">
                         <i class="el-icon-setting"></i>
                         <span slot="title">APP版本</span>
                     </el-menu-item>
-                    <el-menu-item index="6" @click="routeGo('/layout/key')">
+                    <el-menu-item index="6" @click="routeGo('/manage/key')">
                         <i class="el-icon-setting"></i>
                         <span slot="title">KEY</span>
                     </el-menu-item>
@@ -63,14 +57,12 @@ export default {
 .el-menu {
     border-right: none;
 }
-.brand {
-    line-height: 3rem;
-    background: rgb(53, 57, 62);
-    color: #fff;
-    font-size: 1.6rem;
-    text-align: center;
+
+.el-menu /deep/ .el-menu-item {
+    padding-left: 2.5rem !important;
 }
-.brand .brand-name {
-    margin-left: 1rem;
+.el-menu /deep/ i {
+    font-size: 2rem;
+    margin-right: 2rem;
 }
 </style>

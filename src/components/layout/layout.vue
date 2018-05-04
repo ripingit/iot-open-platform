@@ -1,13 +1,39 @@
 <template>
-  <el-container>
-    <el-aside>
-      <MenuComponent></MenuComponent>
-    </el-aside>
-    <el-main>
-      <HeaderComponent></HeaderComponent>
-      <ContentComponent></ContentComponent>
-    </el-main>
-  </el-container>
+  <div class="container">
+    <el-row>
+      <el-col :xl="3" :lg="3" :md="3" :sm="3" :xs="5">
+        <div class="brand">
+          <i class="iconfont logo"></i><span class="brand-name">迈科物联</span>
+        </div>
+      </el-col>
+      <el-col :xl="21" :lg="21" :md="21" :sm="21" :xs="19">
+        <HeaderComponent></HeaderComponent>
+      </el-col>
+    </el-row>
+    <el-row class="content">
+      <el-col :xl="3" :lg="3" :md="3" :sm="3" :xs="5" class="left">
+         <MenuComponent></MenuComponent>
+      </el-col>
+      <el-col :xl="21" :lg="21" :md="21" :sm="21" :xs="19" class="right">
+         <ContentComponent></ContentComponent>
+      </el-col>
+    </el-row>
+  </div>
+
+  <!-- <el-container>
+    <el-header>
+      
+    </el-header>
+    <el-container>
+      <el-aside>
+       
+      </el-aside>
+      <el-main>
+       
+      </el-main>
+    </el-container>
+        
+  </el-container> -->
 </template>
 
 <script>
@@ -33,14 +59,52 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.el-container {
+/* .el-container {
   height: 100%;
 }
 .el-aside {
-  width: 15rem !important;
+  width: 18rem !important;
   overflow: hidden;
 }
 .el-main {
   padding: 0;
+  overflow: hidden;
+} */
+
+.container {
+  height: 100%;
+}
+.content {
+  overflow: hidden;
+}
+.content .left {
+  background: rgb(59, 63, 66);
+}
+.content .right {
+  background: #292c31;
+}
+.content .left, .content .right {
+  margin-bottom: -30000px;
+  padding-bottom: 30000px;
+  height: 100%;
+}
+
+.brand {
+    line-height: 5rem;
+    background: #33373a;
+    color: #fff;
+    font-size: 2rem;
+    text-align: center;
+}
+.brand .brand-name {
+    margin-left: 1rem;
+}
+.brand i.logo {
+    width: 2.6rem;
+    height: 2.6rem;
+    display: inline-block;
+    background: url('../../assets/logo.png') no-repeat center center;
+    background-size: cover;
+    vertical-align: middle;;
 }
 </style>
