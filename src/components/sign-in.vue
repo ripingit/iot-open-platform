@@ -121,10 +121,6 @@ export default {
     vertical-align: text-bottom;
   }
 
-  .el-input {
-    width: 25rem;
-  }
-
   .el-button {
     width: 100%;
     border-radius: 0;

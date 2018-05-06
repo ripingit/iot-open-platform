@@ -7,7 +7,5 @@
 <style scoped>
   .container {
     background:#292c31;
-    height: 100%;
-    overflow: auto;
   }
 </style>

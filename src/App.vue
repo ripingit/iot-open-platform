@@ -20,25 +20,25 @@ html, body, #app{
 }
 
 /** input */
-.el-input /deep/ input {
+.el-input input {
   border-radius: 0 !important;
   background: #4444448f;
   border: none;
   color: #fff;
 }
-.el-input /deep/ input:focus {
+.el-input input:focus {
   border-color: inherit
 }
 
 /** checkbox */
-.el-checkbox /deep/ .el-checkbox__inner {
+.el-checkbox .el-checkbox__inner {
   background: none !important;
   border-radius: 0;
 }
-.el-checkbox /deep/ .el-checkbox__input.is-checked .el-checkbox__inner {
+.el-checkbox .el-checkbox__input.is-checked .el-checkbox__inner {
   border-color: inherit;
 }
-.el-checkbox /deep/ .el-checkbox__label {
+.el-checkbox .el-checkbox__label {
   color: #fff !important;
 }
 </style>

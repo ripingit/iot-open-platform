@@ -41,6 +41,7 @@ export default {
     background: #3b3f42;
     color: #fff;
 }
+
 .el-input /deep/ input::-webkit-input-placeholder { color: #808080; }
 .el-input /deep/ input::-moz-placeholder { color: #808080; }
 .el-input /deep/ input:-ms-input-placeholder { color:#808080; }

@@ -19,21 +19,6 @@
       </el-col>
     </el-row>
   </div>
-
-  <!-- <el-container>
-    <el-header>
-      
-    </el-header>
-    <el-container>
-      <el-aside>
-       
-      </el-aside>
-      <el-main>
-       
-      </el-main>
-    </el-container>
-        
-  </el-container> -->
 </template>
 
 <script>
@@ -75,18 +60,13 @@ export default {
   height: 100%;
 }
 .content {
-  overflow: hidden;
+  display: flex;
 }
 .content .left {
   background: rgb(59, 63, 66);
 }
 .content .right {
   background: #292c31;
-}
-.content .left, .content .right {
-  margin-bottom: -30000px;
-  padding-bottom: 30000px;
-  height: 100%;
 }
 
 .brand {
