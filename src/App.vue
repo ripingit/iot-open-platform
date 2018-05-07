@@ -14,6 +14,7 @@ export default {
 html, body, #app{
   height: 100%;
   font-size: 10px;
+  font-family: Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,SimSun,sans-serif;
 }
 .fa {
   font: normal normal normal 16px/2.6 FontAwesome;
@@ -22,7 +23,7 @@ html, body, #app{
 /** input */
 .el-input input {
   border-radius: 0 !important;
-  background: #4444448f;
+  background: rgba(255, 255, 255, 0.2);
   border: none;
   color: #fff;
 }
@@ -40,5 +41,11 @@ html, body, #app{
 }
 .el-checkbox .el-checkbox__label {
   color: #fff !important;
+}
+.el-dialog{
+  background: #36393E;
+}
+.el-dialog__title,.el-form-item__label{
+  color: #ffffff;
 }
 </style>

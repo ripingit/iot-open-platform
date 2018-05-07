@@ -2,6 +2,8 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <!-- 默认开启360浏览器极速模式 -->
+    <meta name=renderer content=webkit>
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="stylesheet" href="https://at.alicdn.com/t/font_651572_bg4hp7qj9jjdcxr.css">
     <title></title>
@@ -11,3 +13,27 @@
     <!-- built files will be auto injected -->
   </body>
 </html>
+<script>
+  var browser=navigator.appName
+  var b_version=navigator.appVersion
+  var version=b_version.split(";");
+  var trim_Version=version[1].replace(/[ ]/g,"");
+  if (browser=="Microsoft Internet Explorer" && trim_Version=="MSIE6.0" 
+    || browser=="Microsoft Internet Explorer" && trim_Version=="MSIE7.0" 
+    || browser=="Microsoft Internet Explorer" && trim_Version=="MSIE8.0"
+    || browser=="Microsoft Internet Explorer" && trim_Version=="MSIE9.0") {
+
+      var div = document.createElement('div');
+      var anchor = document.createElement('a');
+      anchor.setAttribute('href', 'https://pc.qq.com/detail/1/detail_2661.html');
+      anchor.innerHTML = '点击下载谷歌浏览器';
+
+      div.innerHTML = '您的浏览器版本过低，无法显示我们的网站，请使用更高版本的浏览器!!!';
+      div.style.fontSize = 20 + 'px';
+      div.style.textAlign = 'center';
+      div.style.lineHeight = 100 + 'px';
+
+      div.appendChild(anchor)
+      document.body.appendChild(div)
+    }
+</script>

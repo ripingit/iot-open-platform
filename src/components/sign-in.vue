@@ -18,23 +18,25 @@
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-input
-              placeholder="请输入账号"
-              v-model="account"
-              clearable>
-              <i slot="prefix" class="el-input__icon fa fa-user-o"></i>
-            </el-input>
-          </el-col>
-        </el-row>
-        <el-row class="mt1">
-          <el-col :span="24">
-            <el-input
-              type="password"
-              placeholder="请输入密码"
-              v-model="password">
-              <i slot="prefix" class="el-input__icon fa fa-lock"></i>
-              <i slot="suffix" class="el-input__icon fa fa-eye-slash"></i>
-            </el-input>
+            <el-form :model="formData" status-icon :show-message="false" :rules="rules" ref="loginForm">
+              <el-form-item prop="account">
+                <el-input
+                  placeholder="请输入账号"
+                  v-model="formData.account"
+                  clearable>
+                  <i slot="prefix" class="el-input__icon fa fa-user-o"></i>
+                </el-input>
+              </el-form-item>
+              <el-form-item prop="password">
+                <el-input
+                  type="password"
+                  placeholder="请输入密码"
+                  v-model="formData.password">
+                  <i slot="prefix" class="el-input__icon fa fa-lock"></i>
+                  <i slot="suffix" class="el-input__icon fa fa-eye-slash"></i>
+                </el-input>
+              </el-form-item>
+            </el-form>
           </el-col>
         </el-row>
         <el-row>
@@ -55,21 +57,58 @@
         </el-row>
       </div>
     </div>
+
+    <textarea id="rsakey">-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDRxqikncjALzDx3qvj7NwGO+wd
+od+Q4DuWZr/ZS5P5ze5ahCAjh8MMm2Nx8n8SqhKuB/cY79LEiWG3EGCV2AxU1hEV
+YUCnRYiiN30nW7KNiuD6XigaiNQ/hTwBPWPykUKXTiC3tzA06iyVcyts+rIFlUJR
+1hV4oaMvB7UZeBkhRQIDAQAB
+-----END PUBLIC KEY-----
+</textarea>
   </div>
 </template>
 
 <script>
+import JSEncrypt from 'jsencrypt'
+
 export default {
   data () {
     return {
-      account: '',
-      password: '',
-      pwChecked: true
+      formData: {
+        account: '',
+        password: ''
+      },
+      pwChecked: true,
+      rules: {
+        account: [
+          { required: true, message: '请输入账号', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
     signIn () {
-      this.$router.push('/manage')
+      this.$refs['loginForm'].validate((valid) => {
+        if (valid) {
+          let encrypt = new JSEncrypt()
+          encrypt.setPublicKey(document.getElementById('rsakey').value)
+
+          let data = {
+            account: encrypt.encrypt(this.formData.account),
+            password: encrypt.encrypt(this.formData.password)
+          }
+          this.$http.get(`/aaa/getdevice`, data).then(res => {
+            // 返回mock.js 中模板格式数据
+            this.vmMsgSuccess('成功')
+          }).catch(e => {
+            console.error(`${e}`)
+          })
+          this.$router.push('/manage')
+        }
+      })
     }
   }
 }
@@ -85,8 +124,8 @@ export default {
   .panel {
     position: absolute;
     left: 50%;
-    height: 100%;;
-    margin-left: -12.5rem;
+    height: 100%;
+    margin-left: -12rem;
     display: flex;
     align-items: center;
   }
@@ -94,7 +133,16 @@ export default {
     width: 100%;
     text-align: center;
     color: #fff;
-    margin-top: -20rem;
+  }
+  @media (min-width: 1366px) {
+    .panel-pos {
+      margin-top:-20rem;
+    }
+  }
+  @media (max-width: 1366px) and (orientation: landscape) {
+    .panel-pos {
+      margin-top: 0;
+    }
   }
 
   .panel .brand {
@@ -146,7 +194,11 @@ export default {
     color: #3193e6;
     font-size: 1.4rem;
   }
-  .mt1 {
-    margin-top: 1px;
+  .el-form-item {
+    margin-bottom: 1px;
+  }
+
+  #rsakey {
+    display: none;
   }
 </style>

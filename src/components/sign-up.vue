@@ -11,64 +11,49 @@
             </p>
           </el-col>
         </el-row>
-        <el-row :gutter="14">
-          <el-col :span="6"><span class="sign-up-label">账号</span></el-col>
-          <el-col :span="18">
-            <el-input
-              placeholder="请输入手机号/邮箱"
-              v-model="account"
-              clearable>
-            </el-input>
-          </el-col>
-        </el-row>
-        <el-row class="mt1" :gutter="14">
-          <el-col :span="6"><span class="sign-up-label">验证码</span></el-col>
-          <el-col :span="18" class="code-panel">
-            <el-input
-              placeholder="请输入验证码"
-              v-model="password">
-            </el-input>
-            <el-button type="primary">获取验证码</el-button>
-          </el-col>
-        </el-row>
-        <el-row class="mt1" :gutter="14">
-          <el-col :span="6"><span class="sign-up-label">输入密码</span></el-col>
-          <el-col :span="18">
-            <el-input
-              type="password"
-              placeholder="请输入密码"
-              v-model="password">
-              <i slot="suffix" class="el-input__icon fa fa-eye-slash"></i>
-            </el-input>
-          </el-col>
-        </el-row>
-        <el-row class="mt1" :gutter="14">
-          <el-col :span="6"><span class="sign-up-label">确认密码</span></el-col>
-          <el-col :span="18">
-            <el-input
-              type="password"
-              placeholder="请再次输入密码"
-              v-model="password">
-              <i slot="suffix" class="el-input__icon fa fa-eye-slash"></i>
-            </el-input>
-          </el-col>
-        </el-row>
-        <el-row :gutter="14">
-          <el-col :span="6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
-          <el-col :span="18" class="forgot">
-             <el-checkbox v-model="pwChecked">同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a></el-checkbox>
-          </el-col>
-        </el-row>
-        <el-row :gutter="14">
-          <el-col :span="6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
-          <el-col :span="18">
-             <el-button class="btn-signup" type="primary" >注册</el-button>
-          </el-col>
-        </el-row>
-        <el-row :gutter="14">
-          <el-col :span="6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
-          <el-col :span="18">
-             <router-link to="/signin" class="sign-up">已有账号？去登录</router-link>
+        <el-row>
+          <el-col :span="24">
+            <el-form :model="formData" status-icon ref="signUpForm" :rules="rules" label-position="right" label-width="100px">
+              <el-form-item label="账号" prop="account" class="row">
+                <el-input
+                  placeholder="请输入手机号/邮箱"
+                  v-model="formData.account"
+                  clearable>
+                </el-input>
+              </el-form-item>
+              <el-form-item label="验证码" prop="vertificateCode" class="code-panel row">
+                <el-input
+                  placeholder="请输入验证码"
+                  v-model="formData.vertificateCode">
+                </el-input>
+                <el-button type="primary" size="mini">获取验证码</el-button>
+              </el-form-item>
+              <el-form-item label="输入密码" prop="password" class="row">
+                <el-input
+                  type="password"
+                  placeholder="请输入密码"
+                  v-model="formData.password">
+                  <i slot="suffix" class="el-input__icon fa fa-eye-slash"></i>
+                </el-input>
+              </el-form-item>
+              <el-form-item label="确认密码" prop="password">
+                <el-input
+                  type="password"
+                  placeholder="请再次输入密码"
+                  v-model="formData.password">
+                  <i slot="suffix" class="el-input__icon fa fa-eye-slash"></i>
+                </el-input>
+              </el-form-item>
+              <el-form-item class="forgot">
+                <el-checkbox v-model="formData.protocolChecked">同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a></el-checkbox>
+              </el-form-item>
+              <el-form-item>
+                <el-button class="btn-signup" type="primary" @click="signUp">注册</el-button>
+              </el-form-item>
+              <el-form-item>
+                <router-link to="/signin" class="sign-up">已有账号？去登录</router-link>
+              </el-form-item>
+            </el-form>
           </el-col>
         </el-row>
       </div>
@@ -77,23 +62,86 @@
 </template>
 
 <script>
+import { validateEmail, validatePhone } from '../lib/validate.js'
 export default {
   data () {
+    let validateAccount = (rule, value, callback) => {
+      if (value == '') {
+        callback(new Error('请输入账号'))
+      } else {
+        let isEmail = validateEmail(value)
+        let isPhone = validatePhone(value)
+        if (!isEmail && !isPhone) {
+          callback(new Error('请输入正确的账号'))
+        }
+        callback()
+      }
+    }
+
+    let validateIsEmpty = (rule, value, callback) => {
+      if (value == '') { 
+        if (rule.field == 'vertificateCode') { callback(new Error('请输入验证码')) }
+        else if (rule.field == 'password') { callback(new Error('请输入密码')) }
+      }
+      callback()
+    }
+
     return {
-      account: '',
-      password: '',
-      pwChecked: true
+      formData: {
+        account: '',
+        password: '',
+        vertificateCode: '',
+        protocolChecked: true
+      },
+      rules: {
+        account: [
+          { validator: validateAccount, trigger: 'blur' }
+        ],
+        password: [
+          { validator: validateIsEmpty, trigger: 'blur' },
+          { min: 8, max: 50, message: '长度在 8 到 50 个字符', trigger: 'blur' }
+        ],
+        vertificateCode: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
-    signIn () {
-      this.$router.push('/manage')
+    signUp () {
+      this.$refs['signUpForm'].validate((valid) => {
+        if (valid) {
+          this.$http.get(`/aaa/getdevice`, this.formData).then( res => {
+            console.log(res)
+          })
+        }
+      });
+      
     }
   }
 }
 </script>
 
 <style scoped>
+   @media (min-width: 414px) {
+     .panel {
+       width: 34rem;
+       /* left: 50%;
+       margin-left: -19rem; */
+       padding-right: 5rem;
+
+     }
+   }
+
+   @media (max-width: 414px) {
+    .panel {
+      width: auto;
+      padding-right: 2rem;
+    }
+   }
+
+
+
   .container {
     height: 100%;
     position: relative;
@@ -101,13 +149,11 @@ export default {
     background-size: cover;
   }
   .panel {
-    position: absolute;
-    left: 50%;
-    width: 34rem;
     height: 100%;;
-    margin-left: -19rem;
     display: flex;
     align-items: center;
+    margin: 0 auto;
+    
   }
   .panel-pos {
     width: 100%;
@@ -131,13 +177,20 @@ export default {
   .btn-signup {
     width: 100%;
     border-radius: 0;
-    margin: 2rem 0;
+    margin: 1rem 0;
   }
 
-  .sign-up-label {
+  .el-form-item /deep/ .el-form-item__label {
     line-height: 40px;
-    float: right;
     font-size: 1.6rem;
+    color: #fff;
+  }
+
+  .el-form-item {
+    margin-bottom: 0;
+  }
+  .row {
+    margin-bottom: 5px;
   }
 
   .forgot {
@@ -151,19 +204,16 @@ export default {
     color: #3193e6;
     font-size: 1.4rem;
   }
-  .mt1 {
-    margin-top: 5px;
-  }
   .code-panel{
     position: relative;
   }
 
   .code-panel .el-button {
-    padding: .5rem;
     position: absolute;
-    right: 1.2rem;
+    right: 1rem;
     top: 0.6rem;
-    font-size: 1.2rem;
+    font-size: 1rem;
     background: #1f7ecf;
+    border: none;
   }
 </style>

@@ -49,9 +49,15 @@
       <el-col :span="24">
         <el-steps :active="1" process-status="process" finish-status="success">
           <el-step title="注册迈科账号" description="请牢记用户名和密码"></el-step>
-          <el-step title="申请认证" description="提交相关营业执照申请迈科智能认证" @click.native="showDialog"></el-step>
+          <el-step title="申请认证" description="提交相关营业执照申请迈科智能认证"></el-step>
           <el-step title="等待审核" description="申请将在24小时之内反馈结果"></el-step>
           <el-step title="申请KEY" description="认证可查看到独有的KEY请牢记"></el-step>
+        </el-steps>
+        <el-steps class="step-operation">
+          <el-step></el-step>
+          <el-step @click.native="showDialog"></el-step>
+          <el-step></el-step>
+          <el-step></el-step>
         </el-steps>
       </el-col>
     </el-row>
@@ -233,6 +239,51 @@ export default {
     width: 11rem;
   }
 
+  .step-operation { margin-top: 1.5rem; }
+  .step-operation .el-step:first-child /deep/ .el-step__head,
+  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__line,
+  .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__line,
+  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon .el-step__icon-inner,
+  .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__icon .el-step__icon-inner,
+  .step-operation .el-step:nth-child(4) /deep/ .el-step__head .el-step__icon .el-step__icon-inner {
+    display: none;
+  }
+
+  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon {
+    width: 7.8rem;
+    height: 2.5rem;
+    border: solid 1px #3da0f4;
+    border-radius: 0;
+    background: transparent;
+  }
+  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon::after {
+    content: '提交认证';
+    color: #3da0f4;
+    font-size:14px;
+  }
+  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon:active {
+    border: none;
+    background: #3da0f4;
+  }
+  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon:active::after {
+    color: #fff;
+  }
+
+  .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__icon,
+  .step-operation .el-step:nth-child(4) /deep/ .el-step__head .el-step__icon {
+    width: 7.8rem;
+    height: 2.5rem;
+    border: none;
+    background: transparent;
+  }
+
+  .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__icon::after,
+  .step-operation .el-step:nth-child(4) /deep/ .el-step__head .el-step__icon::after {
+    content: '认证后查看';
+    color: #ff6870;
+    position: absolute;
+    left: 0;
+  }
   .el-dialog .note {
     position: absolute;
     top: 48px;

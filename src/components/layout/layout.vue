@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <el-row>
+    <el-row class="header">
       <el-col :xl="3" :lg="3" :md="3" :sm="3" :xs="5">
         <div class="brand">
           <i class="iconfont logo"></i><span class="brand-name">迈科物联</span>
@@ -59,8 +59,16 @@ export default {
 .container {
   height: 100%;
 }
+.header{
+  position: absolute;
+  width: 100%;
+  z-index: 999;
+}
+
 .content {
   display: flex;
+  height: 100%;
+  padding-top: 5rem;
 }
 .content .left {
   background: rgb(59, 63, 66);
