@@ -6,13 +6,13 @@
         <el-input
           placeholder="请输入关键字进行搜索"
           v-model="keyword">
-          <i slot="prefix" class="el-input__icon el-icon-search"></i>
+          <i slot="prefix" class="iconfont icon-sousuo"></i>
         </el-input>
       </el-col>
       <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="10">
         <div class="info">
-          <i class="fa fa-envelope-o tips" aria-hidden="true"></i>
-          <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+          <i class="iconfont icon-xiaoxi tips" aria-hidden="true"></i>
+          <i class="iconfont icon-bangzhu" aria-hidden="true"></i>
           <a @click="routeGo">135****2561</a>
         </div>
       </el-col>
@@ -40,6 +40,7 @@ export default {
     line-height: 5rem;
     background: #3b3f42;
     color: #fff;
+    width: auto;
 }
 
 .el-input /deep/ input::-webkit-input-placeholder { color: #808080; }
@@ -59,10 +60,12 @@ export default {
   cursor: pointer;
 }
 .info i {
-  margin-right: 4rem;
+  margin-right: 4.4rem;
   cursor: pointer;
   position: relative;
   opacity: 0.5;
+  font-size: 2.2rem;
+  vertical-align: middle;
 }
 .info .tips::after {
   content: '';
@@ -71,7 +74,7 @@ export default {
   border-radius: 50%;
   border: 3px solid #d60707;
   position: absolute;
-  top: 1rem;
-  right: -0.3rem;
+  top: 0.2rem;
+  right: 0rem;
 }
 </style>

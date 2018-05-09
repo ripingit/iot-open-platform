@@ -66,7 +66,7 @@ import { validateEmail, validatePhone } from '../lib/validate.js'
 export default {
   data () {
     let validateAccount = (rule, value, callback) => {
-      if (value == '') {
+      if (value === '') {
         callback(new Error('请输入账号'))
       } else {
         let isEmail = validateEmail(value)
@@ -79,9 +79,12 @@ export default {
     }
 
     let validateIsEmpty = (rule, value, callback) => {
-      if (value == '') { 
-        if (rule.field == 'vertificateCode') { callback(new Error('请输入验证码')) }
-        else if (rule.field == 'password') { callback(new Error('请输入密码')) }
+      if (value === '') {
+        if (rule.field === 'vertificateCode') {
+          callback(new Error('请输入验证码'))
+        } else if (rule.field === 'password') {
+          callback(new Error('请输入密码'))
+        }
       }
       callback()
     }
@@ -111,12 +114,11 @@ export default {
     signUp () {
       this.$refs['signUpForm'].validate((valid) => {
         if (valid) {
-          this.$http.get(`/aaa/getdevice`, this.formData).then( res => {
+          this.$http.get(`/aaa/getdevice`, this.formData).then(res => {
             console.log(res)
           })
         }
-      });
-      
+      })
     }
   }
 }
@@ -126,10 +128,7 @@ export default {
    @media (min-width: 414px) {
      .panel {
        width: 34rem;
-       /* left: 50%;
-       margin-left: -19rem; */
        padding-right: 5rem;
-
      }
    }
 
@@ -139,8 +138,6 @@ export default {
       padding-right: 2rem;
     }
    }
-
-
 
   .container {
     height: 100%;
@@ -153,7 +150,6 @@ export default {
     display: flex;
     align-items: center;
     margin: 0 auto;
-    
   }
   .panel-pos {
     width: 100%;

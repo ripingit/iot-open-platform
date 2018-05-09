@@ -1,20 +1,20 @@
 <template>
   <div class="container">
     <el-row class="header">
-      <el-col :xl="3" :lg="3" :md="3" :sm="3" :xs="5">
+      <el-col :span="3" class="header-left">
         <div class="brand">
           <i class="iconfont logo"></i><span class="brand-name">迈科物联</span>
         </div>
       </el-col>
-      <el-col :xl="21" :lg="21" :md="21" :sm="21" :xs="19">
+      <el-col :span="21">
         <HeaderComponent></HeaderComponent>
       </el-col>
     </el-row>
     <el-row class="content">
-      <el-col :xl="3" :lg="3" :md="3" :sm="3" :xs="5" class="left">
+      <el-col :xl="3" :lg="3" :md="3" :sm="3" :xs="3" class="left">
          <MenuComponent></MenuComponent>
       </el-col>
-      <el-col :xl="21" :lg="21" :md="21" :sm="21" :xs="19" class="right">
+      <el-col :xl="21" :lg="21" :md="21" :sm="21" :xs="21" class="right">
          <ContentComponent></ContentComponent>
       </el-col>
     </el-row>
@@ -44,24 +44,31 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-/* .el-container {
-  height: 100%;
+@media (max-width:1366px) {
+  .container {
+    width: 1366px;
+  }
+  .header{
+    width: 1366px;
+  }
+  .brand {
+    width:170px;
+    padding-right: 2px;
+    padding-bottom: 1px;
+  }
 }
-.el-aside {
-  width: 18rem !important;
-  overflow: hidden;
+
+@media (min-width:1366px) {
+  .header{
+    width: 100%;
+  }
 }
-.el-main {
-  padding: 0;
-  overflow: hidden;
-} */
 
 .container {
   height: 100%;
 }
 .header{
   position: absolute;
-  width: 100%;
   z-index: 999;
 }
 

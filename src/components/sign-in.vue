@@ -24,7 +24,7 @@
                   placeholder="请输入账号"
                   v-model="formData.account"
                   clearable>
-                  <i slot="prefix" class="el-input__icon fa fa-user-o"></i>
+                  <i slot="prefix" class="iconfont icon-yonghuming"></i>
                 </el-input>
               </el-form-item>
               <el-form-item prop="password">
@@ -32,7 +32,7 @@
                   type="password"
                   placeholder="请输入密码"
                   v-model="formData.password">
-                  <i slot="prefix" class="el-input__icon fa fa-lock"></i>
+                  <i slot="prefix" class="iconfont icon-mima"></i>
                   <i slot="suffix" class="el-input__icon fa fa-eye-slash"></i>
                 </el-input>
               </el-form-item>
@@ -81,10 +81,10 @@ export default {
       pwChecked: true,
       rules: {
         account: [
-          { required: true, message: '请输入账号', trigger: 'blur' }
+          // { required: true, message: '请输入账号', trigger: 'blur' }
         ],
         password: [
-          { required: true, message: '请输入密码', trigger: 'blur' }
+          // { required: true, message: '请输入密码', trigger: 'blur' }
         ]
       }
     }
@@ -122,10 +122,9 @@ export default {
     background-size: cover;
   }
   .panel {
-    position: absolute;
-    left: 50%;
     height: 100%;
-    margin-left: -12rem;
+    margin: 0 auto;
+    padding: 0 2rem;
     display: flex;
     align-items: center;
   }
@@ -134,14 +133,20 @@ export default {
     text-align: center;
     color: #fff;
   }
-  @media (min-width: 1366px) {
+  @media (min-width: 1080px) {
     .panel-pos {
       margin-top:-20rem;
     }
+    .panel {
+      width: 25rem;
+    }
   }
-  @media (max-width: 1366px) and (orientation: landscape) {
+  @media (max-width: 1080px) and (orientation: landscape) {
     .panel-pos {
       margin-top: 0;
+    }
+    .panel {
+      width: 34rem;
     }
   }
 

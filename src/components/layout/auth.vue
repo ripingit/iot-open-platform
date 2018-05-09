@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="main">
     <el-row>
       <el-col :span="24">
         <div class="big-font">申</div>
@@ -152,7 +152,7 @@ export default {
 </script>
 
 <style scoped>
-  .container {
+  .main {
     padding: 5rem 6rem;
     color: #fff;
   }
