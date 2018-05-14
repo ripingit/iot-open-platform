@@ -1,44 +1,28 @@
 <template>
   <transition name="bounce" mode="out-in">
-    <div class="device-category">
+    <div class="admin">
       <el-row>
         <el-col :span="24" style="position: relative">
           <el-col :span="21">
-            <p class="device-category-title-1">设备类别</p>
-            <p class="device-category-title-2">EQUIPMENT CATEGORY</p>
+            <p class="admin-title-1">管理员</p>
+            <p class="admin-title-2">ADMIN ISTRATORS</p>
           </el-col>
           <el-col :span="3" style="position: absolute;top: 2.1rem;right:0rem;z-index: 10">
-            <el-button type="primary" style="width: 4.5rem;height: 4.5rem;" icon="el-icon-plus" circle @click="addDevice()"></el-button>
+            <el-button type="primary" style="width: 4.5rem;height: 4.5rem;" icon="el-icon-plus" circle @click="addAdmin()"></el-button>
             <el-button type="danger" style="width: 4.5rem;height: 4.5rem;" icon="el-icon-delete" circle @click="Delete()"></el-button>
           </el-col>
         </el-col>
       </el-row>
-      <el-row class="device-category-content">
-        <el-col :span="24">
-          <el-form :inline="true" :model="formInline" class="demo-form-inline">
-            <el-form-item label="">
-              <el-date-picker
-                class="time"
-                v-model="formInline.ChoiceTime"
-                type="daterange"
-                :editable="false"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期">
-              </el-date-picker>
-            </el-form-item>
-            <el-form-item label="">
-              <el-select v-model="formInline.company" placeholder="请选择">
-                <el-option label="区域一" value="shanghai"></el-option>
-                <el-option label="区域二" value="beijing"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="onSubmit">查询</el-button>
-            </el-form-item>
-          </el-form>
+      <el-row class="admin-content">
+        <el-col :span="10" style="margin-bottom: 2rem;width: 25rem;">
+          <el-input
+            style="background:transparent;border: 1px solid #808080;border-radius:4px;"
+            placeholder="点击此处搜索"
+            v-model="inputVal">
+            <i slot="prefix" class="el-input__icon el-icon-search" @click="SearchData()"></i>
+          </el-input>
         </el-col>
-        <el-col :span="24" class="device-category-table">
+        <el-col :span="24" class="admin-table">
           <el-col :span="24">
             <el-table
               v-loading="isLoading"
@@ -56,23 +40,32 @@
               </el-table-column>
               <el-table-column
                 prop="name"
-                label="类别名称">
+                label="姓名">
               </el-table-column>
               <el-table-column
                 prop="address"
-                label="类别代码">
+                label="角色">
               </el-table-column>
               <el-table-column
                 prop="address"
-                label="添加时间">
+                label="创建时间">
               </el-table-column>
               <el-table-column
                 prop="address"
-                label="提交人">
+                label="最后一次登录">
               </el-table-column>
               <el-table-column
-                prop="address"
-                label="审核人">
+                prop=""
+                label="操作"
+                width="180">
+                <template slot-scope="scope">
+                  <el-button type="primary"
+                            style="background: rgb(94,94,94);border-color: rgb(94,94,94);"
+                            icon="el-icon-edit" circle @click="editAdmin(scope.row)"></el-button>
+                  <el-button type="danger"
+                            style="background: rgb(94,94,94);border-color: rgb(94,94,94);"
+                            icon="el-icon-refresh" circle></el-button>
+                </template>
               </el-table-column>
             </el-table>
           </el-col>
@@ -90,20 +83,34 @@
       <el-row>
         <el-col :span="24">
           <el-dialog
-            title="添加类别"
+            :title="dialogTitle"
             :visible.sync="dialogVisible"
             width="53rem"
             center
             :before-close="handleClose">
-            <el-form label-width="80px" :model="formAdd">
-              <el-form-item label="类别名称">
-                <el-input v-model="formAdd.name"></el-input>
-              </el-form-item>
-              <el-form-item label="类别代码">
-                <el-input v-model="formAdd.name1"></el-input>
+            <el-form label-width="80px" :model="formAdd" style="text-align: center">
+                  <el-form-item label="用户">
+                    <el-select style="width:28rem" v-model="formAdd.name" placeholder="请选择">
+                      <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="用户权限">
+                    <el-select style="width:28rem" v-model="formAdd.name" placeholder="请选择">
+                      <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
               </el-form-item>
               <el-form-item label="" style="margin-top: 4rem;">
-                <el-button type="primary" style="width: 100%;" @click="dialogVisible = false">确 定</el-button>
+                <el-button type="primary" style="width:28rem;" @click="dialogVisible = false">确 定</el-button>
               </el-form-item>
             </el-form>
           </el-dialog>
@@ -118,14 +125,27 @@ export default {
     return {
       isLoading: false,
       dialogVisible: false,
-      formInline: {
-        ChoiceTime: '',
-        company: ''
-      },
+      inputVal: '',
+      dialogTitle: '',
       formAdd: {
-        name: '',
-        name1: ''
+        name: ''
       },
+      options: [{
+        value: '选项1',
+        label: '黄金糕'
+      }, {
+        value: '选项2',
+        label: '双皮奶'
+      }, {
+        value: '选项3',
+        label: '蚵仔煎'
+      }, {
+        value: '选项4',
+        label: '龙须面'
+      }, {
+        value: '选项5',
+        label: '北京烤鸭'
+      }],
       tableData: [{
         date: '2016-05-02',
         name: '王小虎',
@@ -150,10 +170,19 @@ export default {
     onSubmit () {
       console.log('submit!')
     },
-    addDevice () {
-      this.dialogVisible = true
-    },
     Delete () {
+
+    },
+    SearchData () {
+      console.log('搜索')
+    },
+    addAdmin () {
+      this.dialogVisible = true
+      this.dialogTitle = '添加管理员'
+    },
+    editAdmin () {
+      this.dialogVisible = true
+      this.dialogTitle = '编辑管理员'
     },
     handleSelectionChange (val) {
       this.multipleSelection = val
@@ -168,26 +197,31 @@ export default {
 }
 </script>
 <style scoped>
-  .device-category{
+  .admin{
     color: #ffffff;
     padding:1.8rem 2rem;
   }
-  .device-category-title-1{
+  .admin-title-1{
     font-size: 1.8rem;
   }
-  .device-category-title-2{
+  .admin-title-2{
     padding-top: 0.35rem;
     font-size: 1rem;
     color: #808080;
   }
-  .device-category-content{
+  .admin-content{
     margin-top: 1rem;
     border-radius: .1rem;
     padding: 3rem;
     background-color:#36393E;
   }
-  .device-category-table{
+  .admin-table{
     color: #ffffff;
     min-height:52rem;
+  }
+</style>
+<style>
+  .admin .el-input input{
+    background:transparent;border: 1px solid #808080;border-radius:4px;
   }
 </style>

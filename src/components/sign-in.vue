@@ -6,7 +6,7 @@
           <el-col :span="24">
             <div class="brand">
               <p>
-                <i class="iconfont logo"></i>
+                <i class="iconfont icon-wulianwang logo"></i>
                 <span>迈科物联开放平台</span>
               </p>
               <p>
@@ -91,6 +91,10 @@ export default {
   },
   methods: {
     signIn () {
+      let loading = this.vmLoadingFull()
+
+      sessionStorage['isLogin'] = true
+      // 记住连续错误登录次数，超过一定次数后三小时内禁止登录
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
           let encrypt = new JSEncrypt()
@@ -102,11 +106,12 @@ export default {
           }
           this.$http.get(`/aaa/getdevice`, data).then(res => {
             // 返回mock.js 中模板格式数据
-            this.vmMsgSuccess('成功')
+            loading.close()
+            this.$router.push('/manage')
           }).catch(e => {
+            loading.close()
             console.error(`${e}`)
           })
-          this.$router.push('/manage')
         }
       })
     }
@@ -115,10 +120,18 @@ export default {
 </script>
 
 <style scoped>
+
+@media (min-width: 1366px) {
+  .panel-pos {
+    margin-top: -20rem;
+  }
+}
+
+/* @media (min-width: 720px) { */
   .container {
     height: 100%;
     position: relative;
-    background: url('../assets/bg.jpg') no-repeat;
+    background: url('../assets/img/bg.jpg') no-repeat;
     background-size: cover;
   }
   .panel {
@@ -127,51 +140,32 @@ export default {
     padding: 0 2rem;
     display: flex;
     align-items: center;
+    width: 25rem;
   }
   .panel-pos {
     width: 100%;
     text-align: center;
     color: #fff;
   }
-  @media (min-width: 1080px) {
-    .panel-pos {
-      margin-top:-20rem;
-    }
-    .panel {
-      width: 25rem;
-    }
-  }
-  @media (max-width: 1080px) and (orientation: landscape) {
-    .panel-pos {
-      margin-top: 0;
-    }
-    .panel {
-      width: 34rem;
-    }
-  }
-
   .panel .brand {
-    font-size: 3rem;
-    padding: 4rem 0;
+    font-size: 2.5rem;
+    padding: 3rem 0;
   }
-
   .panel .brand span.name-en {
-    font-size: 1.2rem;
+    font-size: 1rem;
     letter-spacing: 0.2rem;
     color: #a8a8a8;
     vertical-align: text-top;
   }
-
+  .panel .brand i.logo {
+    font-size: 2.5rem;
+    vertical-align: text-bottom;
+  }
   .panel .brand i.logo,
   .panel .brand i.placeholder {
-    width: 3rem;
-    height: 3rem;
+    width: 2.5rem;
+    height: 2.5rem;
     display: inline-block;
-  }
-
-  .panel .brand i.logo {
-    background: url('../assets/logo.png') no-repeat center center;
-    vertical-align: text-bottom;
   }
 
   .el-button {
@@ -191,17 +185,18 @@ export default {
     float: right;
     color: #fff;
     text-decoration: none;
-    font-size: 1.4rem;
+    font-size: 1.17rem;
     margin-top: 0.2rem;
   }
 
   .sign-up {
     color: #3193e6;
-    font-size: 1.4rem;
+    font-size: 1.17rem;
   }
   .el-form-item {
     margin-bottom: 1px;
   }
+/* } */
 
   #rsakey {
     display: none;

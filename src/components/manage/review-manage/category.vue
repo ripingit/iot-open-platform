@@ -3,7 +3,7 @@
     <div class="content-container">
       <el-row>
         <el-col :span="24">
-            <p class="title-cn">审核管理-公司</p>
+            <p class="title-cn">审核管理-类别</p>
             <p class="title-en">AUDIT MANAGEMENT</p>
         </el-col>
       </el-row>
@@ -18,7 +18,7 @@
                   type="date"
                   placeholder="请选择提交时间">
                 </el-date-picker>
-                <el-select v-model="value" placeholder="请选择">
+                <el-select placeholder="请选择">
                   <el-option
                     v-for="item in options"
                     :key="item.value"
@@ -46,8 +46,12 @@
                   </el-table-column>
                   <el-table-column
                     prop="name"
-                    label="公司名称"
+                    label="类别名称"
                     width="180">
+                  </el-table-column>
+                  <el-table-column
+                    prop="address"
+                    label="提交用户">
                   </el-table-column>
                   <el-table-column
                     prop="address"
@@ -59,7 +63,7 @@
                   </el-table-column>
                   <el-table-column
                     prop="address"
-                    label="说明">
+                    label="备注">
                   </el-table-column>
                   <el-table-column
                     prop="address"
@@ -86,41 +90,23 @@
         </el-col>
       </el-row>
 
-      <el-dialog title="资质审核" :visible.sync="isDetailDialogVisible" center>
+      <el-dialog title="类别详情" :visible.sync="isDetailDialogVisible" center>
         <el-row class="label-row">
-          <el-col :span="2" :sm="3" class="label-name">公司名称</el-col>
+          <el-col :span="2" :sm="3" class="label-name">类别名称</el-col>
           <el-col :span="22" :sm="21" class="label-value">
-            四川晨烨大同科技股份有限公司
+            NVR
           </el-col>
         </el-row>
         <el-row class="label-row">
-          <el-col :span="2" :sm="3" class="label-name">证件号</el-col>
+          <el-col :span="2" :sm="3" class="label-name">类别代码</el-col>
           <el-col :span="22" :sm="21" class="label-value">
-            6207223100001
+            NVR21053
           </el-col>
         </el-row>
         <el-row class="label-row">
-          <el-col :span="2" :sm="3" class="label-name">证件住所</el-col>
+          <el-col :span="2" :sm="3" class="label-name">配置参数</el-col>
           <el-col :span="22" :sm="21" class="label-value">
-            四川省成都市天府新区办证中心
-          </el-col>
-        </el-row>
-        <el-row class="label-row">
-          <el-col :span="2" :sm="3" class="label-name">通讯地址</el-col>
-          <el-col :span="22" :sm="21" class="label-value">
-            四川省成都市天府新区峄山大道24号0912
-          </el-col>
-        </el-row>
-        <el-row class="label-row">
-          <el-col :span="2" :sm="3" class="label-name">联系电话</el-col>
-          <el-col :span="22" :sm="21" class="label-value">
-            028-2654845
-          </el-col>
-        </el-row>
-        <el-row class="label-row">
-          <el-col :span="2" :sm="3" class="label-name">营业执照</el-col>
-          <el-col :span="22" :sm="21" class="label-value">
-          <img src="" alt="">
+            多路摄像、云台机、组合开关、情景按钮
           </el-col>
         </el-row>
         <el-row class="label-sug">
@@ -128,7 +114,7 @@
           <el-input
               type="textarea"
               :rows="4"
-              placeholder="请输入驳回理由"
+              placeholder="请说明"
               v-model="form.name">
             </el-input>
           </el-col>
@@ -226,7 +212,6 @@ export default {
 </script>
 
 <style scoped>
-
 /** 定制 start */
 .el-dialog__wrapper /deep/ .el-dialog{
   width: 54.17rem;

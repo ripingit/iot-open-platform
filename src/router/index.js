@@ -92,6 +92,26 @@ const router = new Router({
               name: 'reviewCompany',
               component: resolve => require(['@/components/manage/review-manage/company'], resolve),
               meta: { title: '审核管理-公司' }
+            }, {
+              path: 'reviewFirmware',
+              name: 'reviewFirmware',
+              component: resolve => require(['@/components/manage/review-manage/firmware'], resolve),
+              meta: { title: '审核管理-固件' }
+            }, {
+              path: 'reviewCategory',
+              name: 'reviewCategory',
+              component: resolve => require(['@/components/manage/review-manage/category'], resolve),
+              meta: { title: '审核管理-类别' }
+            }, {
+              path: 'reviewModel',
+              name: 'reviewModel',
+              component: resolve => require(['@/components/manage/review-manage/model'], resolve),
+              meta: { title: '审核管理-型号' }
+            }, {
+              path: 'admins',
+              name: 'admins',
+              component: resolve => require(['@/components/manage/admin/admin'], resolve),
+              meta: { title: '管理员' }
             }
           ]
         }, {
@@ -104,6 +124,21 @@ const router = new Router({
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  let filter = ['/signin', '/signup']
+
+  if (filter.includes(to.fullPath)) {
+    next(); return
+  }
+
+  if (!sessionStorage['isLogin']) {
+    next('/signin')
+  } else {
+    next()
+  }
+})
+
 export default router
 
 router.afterEach((route) => {

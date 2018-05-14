@@ -1,151 +1,152 @@
 <template>
-  <div class="container">
-    <el-row class="h_nav">
-      <h5>概况</h5>
-      <p>SURVEY</p>
-    </el-row>
-    <el-row class="item_content">
-      <el-col :span="8" class="item_section">
-        <div class="item_section_box">
-          <div>
-            <el-row type="flex" align="bottom" class="item_tip">
-              <span>今日注册用户</span>
-            </el-row>
-            <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
-            </el-row>
+  <transition name="bounce" mode="out-in">
+    <div class="container">
+      <el-row class="h_nav">
+        <h5>概况</h5>
+        <p>SURVEY</p>
+      </el-row>
+      <el-row class="item_content">
+        <el-col :span="8" class="item_section">
+          <div class="item_section_box">
+            <div>
+              <el-row type="flex" align="bottom" class="item_tip">
+                <span>今日注册用户</span>
+              </el-row>
+              <el-row type="flex" justify="center" align="middle" class="item_text">
+                <span>2521</span>
+              </el-row>
+            </div>
           </div>
-        </div>
-        <div class="item_section_box">
-          <div>
-            <el-row type="flex" align="bottom" class="item_tip">
-              <span>总注册用户</span>
-            </el-row>
-            <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
-            </el-row>
+          <div class="item_section_box">
+            <div>
+              <el-row type="flex" align="bottom" class="item_tip">
+                <span>总注册用户</span>
+              </el-row>
+              <el-row type="flex" justify="center" align="middle" class="item_text">
+                <span>2521</span>
+              </el-row>
+            </div>
           </div>
-        </div>
-        <div class="item_section_box">
-          <div>
-            <el-row type="flex" align="bottom" class="item_tip">
-              <span>在线设备</span>
-            </el-row>
-            <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
-            </el-row>
+          <div class="item_section_box">
+            <div>
+              <el-row type="flex" align="bottom" class="item_tip">
+                <span>在线设备</span>
+              </el-row>
+              <el-row type="flex" justify="center" align="middle" class="item_text">
+                <span>2521</span>
+              </el-row>
+            </div>
           </div>
-        </div>
-        <div class="item_section_box">
-          <div>
-            <el-row type="flex" align="bottom" class="item_tip">
-              <span>设备总数</span>
-            </el-row>
-            <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
-            </el-row>
+          <div class="item_section_box">
+            <div>
+              <el-row type="flex" align="bottom" class="item_tip">
+                <span>设备总数</span>
+              </el-row>
+              <el-row type="flex" justify="center" align="middle" class="item_text">
+                <span>2521</span>
+              </el-row>
+            </div>
           </div>
-        </div>
-        <div class="item_section_box">
-          <div>
-            <el-row type="flex" align="bottom" class="item_tip">
-              <span>今日下载数</span>
-            </el-row>
-            <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
-            </el-row>
+          <div class="item_section_box">
+            <div>
+              <el-row type="flex" align="bottom" class="item_tip">
+                <span>今日下载数</span>
+              </el-row>
+              <el-row type="flex" justify="center" align="middle" class="item_text">
+                <span>2521</span>
+              </el-row>
+            </div>
           </div>
-        </div>
-        <div class="item_section_box">
-          <div>
-            <el-row type="flex" align="bottom" class="item_tip">
-              <span>APP总下载数</span>
-            </el-row>
-            <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
-            </el-row>
+          <div class="item_section_box">
+            <div>
+              <el-row type="flex" align="bottom" class="item_tip">
+                <span>APP总下载数</span>
+              </el-row>
+              <el-row type="flex" justify="center" align="middle" class="item_text">
+                <span>2521</span>
+              </el-row>
+            </div>
           </div>
-        </div>
-      </el-col>
-      <el-col :span="16" class="item_section item_chart">
-        <el-row type="flex" align="middle" class="item_chart_head">
-          <el-col :span="5">
-            <el-date-picker
-              style="width: 100%"
-              v-model="timeValue"
-              type="date"
-              placeholder="选择日期">
-            </el-date-picker>
-          </el-col>
-          <el-col :span="5" :offset="1">
-            <el-select v-model="selectValue" placeholder="选择指标">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-          </el-col>
-          <el-col :offset="1" :span="13">
-            <el-checkbox-group v-model="checkList">
-              <el-checkbox label="前一日"></el-checkbox>
-              <el-checkbox label="上周同期"></el-checkbox>
-            </el-checkbox-group>
-          </el-col>
-        </el-row>
-        <el-row type="flex" align="middle" justify="center" class="item_chart_label">
-          <span>设备在线：1252202（2018-02-05 08:00-09:00）</span>
-          <span>打开APP：1252202（2018-02-05 08:00-09:00）</span>
-        </el-row>
-        <el-row class="item_chart_content">
-          <chart :options="polar" style="width:100%;height: 100%"></chart>
-        </el-row>
-      </el-col>
-    </el-row>
-    <el-row class="item_table">
-      <el-table
-        :data="tableData2"
-        max-height="330"
-        style="width: 100%">
-        <el-table-column
-          prop="date"
-          label="时间"
-          min-width="160">
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          label="新增用户"
-          min-width="160">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="用户总数"
-          min-width="160">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="新增设备"
-          min-width="160">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="设备总数"
-          min-width="160">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="活跃用户"
-          min-width="160">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="增值服务"
-          min-width="160">
-        </el-table-column>
-      </el-table>
-    </el-row>
-  </div>
+        </el-col>
+        <el-col :span="16" class="item_section item_chart">
+          <el-row type="flex" align="middle" class="item_chart_head">
+            <el-col :span="5">
+              <el-date-picker
+                style="width: 100%"
+                v-model="timeValue"
+                type="date"
+                placeholder="选择日期">
+              </el-date-picker>
+            </el-col>
+            <el-col :span="5" :offset="1">
+              <el-select v-model="selectValue" placeholder="选择指标">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </el-col>
+            <el-col :offset="1" :span="13">
+              <el-checkbox-group v-model="checkList">
+                <el-checkbox label="前一日"></el-checkbox>
+                <el-checkbox label="上周同期"></el-checkbox>
+              </el-checkbox-group>
+            </el-col>
+          </el-row>
+          <el-row type="flex" align="middle" justify="center" class="item_chart_label">
+            <span>设备在线：1252202（2018-02-05 08:00-09:00）</span>
+            <span>打开APP：1252202（2018-02-05 08:00-09:00）</span>
+          </el-row>
+          <el-row class="item_chart_content">
+            <chart :options="polar" style="width:100%;height: 100%"></chart>
+          </el-row>
+        </el-col>
+      </el-row>
+      <el-row class="item_table">
+        <el-table
+          :data="tableData2"
+          style="width: 100%">
+          <el-table-column
+            prop="date"
+            label="时间"
+            min-width="160">
+          </el-table-column>
+          <el-table-column
+            prop="name"
+            label="新增用户"
+            min-width="160">
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            label="用户总数"
+            min-width="160">
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            label="新增设备"
+            min-width="160">
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            label="设备总数"
+            min-width="160">
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            label="活跃用户"
+            min-width="160">
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            label="增值服务"
+            min-width="160">
+          </el-table-column>
+        </el-table>
+      </el-row>
+    </div>
+  </transition>
 </template>
 <script>
 import 'echarts/lib/chart/line'
@@ -318,23 +319,23 @@ export default {
 </script>
 <style scoped>
   .container {
-    margin: 2rem;
+    margin: 1.67rem 2.5rem;
   }
 
   .h_nav h5 {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     color: #fff;
   }
 
   .h_nav p {
-    font-size: 1rem;
+    font-size: .83rem;
     color: #808080;
-    margin-top: .4rem;
+    margin-top: .33rem;
   }
 
   .item_content {
     width: 100%;
-    height: 46rem;
+    height: 44.41rem;
   }
 
   .item_section {
@@ -348,7 +349,7 @@ export default {
     width: 50%;
     height: 33.3333%;
     float: left;
-    padding: 1.7rem 1.7rem 0 0;
+    padding: 1.5rem 1.5rem 0 0;
   }
 
   .item_section_box > div {
@@ -356,20 +357,20 @@ export default {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    border-radius: .6rem;
+    border-radius: .5rem;
     height: 100%;
   }
 
   .item_tip {
-    padding-left: 1.5rem;
+    padding-left: 1.33rem;
     height:18%;
     color: #b3b3b3;
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 
   .item_text {
     height:82%;
-    font-size: 3.4rem;
+    font-size: 2.83rem;
     font-weight:bolder;
   }
 
@@ -386,8 +387,9 @@ export default {
   }
 
   .item_chart {
-    height: 44.3rem;
-    margin-top: 1.7rem;
+    height: 42.91rem;
+    margin-top: 1.5rem;
+    border-radius: .5rem;
     background-color: #36393e;
   }
 
@@ -397,15 +399,24 @@ export default {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
   }
+  .el-input /deep/ .el-input__icon {
+    line-height: 1;
+  }
+
+  .el-input /deep/ input, .el-select /deep/ input {
+    height: 2.17rem;
+    background: none;
+    border: solid 1px rgba(255, 255, 255, 0.4);
+  }
   .item_chart_label{
     height:3rem;
     color: #ffffff;
-    font-size:1.2rem;
-    padding:0 2rem;
+    font-size:1rem;
+    padding:0 1rem;
   }
   .item_chart_label>span{
     position: relative;
-    padding-left: 2.4rem;
+    padding-left: 2.17rem;
   }
   .item_chart_label>span:last-child{
     margin-left:10%;
@@ -422,8 +433,8 @@ export default {
     transform: translateY(-50%);
     content: '';
     display: inline-block;
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1rem;
+    height: 1rem;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -433,28 +444,17 @@ export default {
     background-color: #3da0f4;
   }
   .item_chart_label>span:last-child:before{
-    border: .2rem solid #3da0f4;
+    border: .16rem solid #3da0f4;
   }
   .item_chart_content {
-    height: 34.7rem;
+    height: 33.7rem;
   }
-
-  .el-input /deep/ .el-input__icon {
-    line-height: 1;
-  }
-
-  .el-input /deep/ input, .el-select /deep/ input {
-    height: 2.6rem;
-    background: none;
-    border: solid 1px rgba(255, 255, 255, 0.4);
-  }
-
   .item_table {
-    margin-top: 1.7rem;
+    margin-top: 1.5rem;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    padding: .5rem 5rem;
+    padding: 2rem 4.5rem;
     background-color: #36393e;
   }
 </style>

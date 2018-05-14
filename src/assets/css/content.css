@@ -1,0 +1,67 @@
+.content-container {
+  padding: 1.67rem 2.5rem;
+  color: #fff;
+}
+
+.title-cn {
+  font-size: 1.5rem;
+}
+.title-en {
+  font-size: 0.83rem;
+  color: #808080;
+  margin-top: 0.33rem;
+}
+.table {
+  padding: 2.5rem 4.67rem;
+  background: #36393e;
+  border-radius: 6px;
+  margin-top: 1.83rem;
+}
+.el-table {
+  margin-top: 2.5rem;
+}
+
+.el-select, .btn-search {
+  margin-left: 1.5rem;
+}
+.btn-circle {
+  background: rgb(94, 94, 94);
+  color: #fff;
+  opacity: 0.6;
+  border: none;
+}
+.btn-circle-delete {
+  width: 4.5rem;
+  height: 4.5rem;
+  position: absolute;
+  top: -4.67rem;
+  right: 6.63rem;
+}
+
+/** 过渡动画 */
+.bounce-enter-active {
+  animation: bounce-in .5s;
+}
+.bounce-leave-active {
+  animation: bounce-out .5s;
+}
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-100px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes bounce-out {
+  0% {
+    opacity: 1;
+    transform: translateY(-100px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+}

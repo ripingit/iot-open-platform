@@ -1,21 +1,21 @@
 <template>
   <div class="container">
     <el-row class="header">
-      <el-col :span="3" class="header-left">
+      <el-col :xl="3" :lg="4">
         <div class="brand">
-          <i class="iconfont logo"></i><span class="brand-name">迈科物联</span>
+          <i class="iconfont icon-wulianwang logo"></i><span class="brand-name">迈科物联</span>
         </div>
       </el-col>
-      <el-col :span="21">
-        <HeaderComponent></HeaderComponent>
+      <el-col :xl="21" :lg="20">
+        <HeaderComponent v-on:menu-toggle="menuToggle"></HeaderComponent>
       </el-col>
     </el-row>
     <el-row class="content">
-      <el-col :xl="3" :lg="3" :md="3" :sm="3" :xs="3" class="left">
-         <MenuComponent></MenuComponent>
+      <el-col :xl="3" :lg="4" class="left">
+        <MenuComponent class="position" :class="isShowMenu ? '' : 'menu'" v-on:menu-toggle="menuToggle"></MenuComponent>
       </el-col>
-      <el-col :xl="21" :lg="21" :md="21" :sm="21" :xs="21" class="right">
-         <ContentComponent></ContentComponent>
+      <el-col :xl="21" :lg="20" class="right">
+        <ContentComponent></ContentComponent>
       </el-col>
     </el-row>
   </div>
@@ -28,78 +28,97 @@ import ContentComponent from './content.vue'
 
 export default {
   data () {
-    return {}
+    return {
+      isShowMenu: false
+    }
   },
   components: { MenuComponent, HeaderComponent, ContentComponent },
-  created () {
-    this.$http.get(`/aaa/getdevice`).then(res => {
-      // 返回mock.js 中模板格式数据
-      console.log(res.data)
-    }).catch(e => {
-      console.error(`${e}`)
-    })
+  methods: {
+    menuToggle () {
+      this.isShowMenu = !this.isShowMenu
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-@media (max-width:1366px) {
-  .container {
-    width: 1366px;
-  }
-  .header{
-    width: 1366px;
-  }
-  .brand {
-    width:170px;
-    padding-right: 2px;
-    padding-bottom: 1px;
-  }
-}
 
-@media (min-width:1366px) {
-  .header{
+@media (max-width:1200px) {
+  .menu {
+    display: none;
+  }
+  .position {
+    z-index: 99;
+    position: absolute;
     width: 100%;
   }
 }
 
-.container {
-  height: 100%;
-}
-.header{
-  position: absolute;
-  z-index: 999;
-}
-
-.content {
-  display: flex;
-  height: 100%;
-  padding-top: 5rem;
-}
-.content .left {
-  background: rgb(59, 63, 66);
-}
-.content .right {
-  background: #292c31;
-}
-
-.brand {
-    line-height: 5rem;
+@media (max-width:1366px) { /**小于笔记本屏幕 */
+  .container {
+    width: 1366px;
+  }
+  .brand {
+    line-height: 4.67rem;
     background: #33373a;
     color: #fff;
-    font-size: 2rem;
+    font-size: 1.33rem;
     text-align: center;
-}
-.brand .brand-name {
+    margin-right: -0.08rem;
+  }
+  .brand .brand-name {
     margin-left: 1rem;
-}
-.brand i.logo {
-    width: 2.6rem;
-    height: 2.6rem;
+    vertical-align: middle;
+  }
+  .brand i.logo {
+    font-size: 1.8rem;
     display: inline-block;
-    background: url('../../assets/logo.png') no-repeat center center;
-    background-size: cover;
+    vertical-align: middle;
+  }
+  .content {
+    top: -0.08rem;
+  }
+}
+
+@media (min-width:1366px) { /**大于笔记本屏幕 */
+  .header{
+    width: 100%;
+  }
+  .container {
+    overflow: hidden;
+    height: 100%;
+  }
+  .header{
+    position: absolute;
+    z-index: 999;
+  }
+  .brand {
+    line-height: 4.67rem;
+    background: #33373a;
+    color: #fff;
+    font-size: 1.33rem;
+    text-align: center;
+  }
+  .brand .brand-name {
+    margin-left: 1rem;
+    vertical-align: middle;
+  }
+  .brand i.logo {
+    font-size: 1.8rem;
+    display: inline-block;
     vertical-align: middle;;
+  }
+  .content {
+    display: flex;
+    height: 100%;
+    padding-top: 4.67rem;
+  }
+  .content .left {
+    background: rgb(59, 63, 66);
+  }
+  .content .right {
+    background: #292c31;
+  }
 }
 </style>

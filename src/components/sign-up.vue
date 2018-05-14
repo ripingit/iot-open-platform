@@ -6,14 +6,13 @@
           <el-col :span="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
           <el-col :span="20">
             <p class="brand">
-              <i class="iconfont logo"></i>
-              <span>注册</span>
+              <i class="iconfont icon-wulianwang logo"></i><span>注册</span>
             </p>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-form :model="formData" status-icon ref="signUpForm" :rules="rules" label-position="right" label-width="100px">
+            <el-form :model="formData" status-icon ref="signUpForm" :rules="rules" label-position="right" label-width="80px">
               <el-form-item label="账号" prop="account" class="row">
                 <el-input
                   placeholder="请输入手机号/邮箱"
@@ -125,24 +124,11 @@ export default {
 </script>
 
 <style scoped>
-   @media (min-width: 414px) {
-     .panel {
-       width: 34rem;
-       padding-right: 5rem;
-     }
-   }
-
-   @media (max-width: 414px) {
-    .panel {
-      width: auto;
-      padding-right: 2rem;
-    }
-   }
-
+/* @media (min-width: 720px) { */
   .container {
     height: 100%;
     position: relative;
-    background: url('../assets/bg.jpg') no-repeat;
+    background: url('../assets/img/bg.jpg') no-repeat;
     background-size: cover;
   }
   .panel {
@@ -150,24 +136,23 @@ export default {
     display: flex;
     align-items: center;
     margin: 0 auto;
+    width: 31.67rem;
   }
   .panel-pos {
     width: 100%;
     text-align: center;
     color: #fff;
-    margin-top: -20rem;
   }
 
   .panel .brand {
-    font-size: 3rem;
-    padding: 6rem 0;
+    font-size: 2.5rem;
+    padding: 5rem 0;
   }
   .panel .brand i.logo {
-    width: 3rem;
-    height: 3rem;
+    font-size: 2.5rem;
     display: inline-block;
-    background: url('../assets/logo.png') no-repeat center center;
-    vertical-align: text-bottom;
+    vertical-align: bottom;
+    margin-right: 1.33rem;
   }
 
   .btn-signup {
@@ -178,15 +163,16 @@ export default {
 
   .el-form-item /deep/ .el-form-item__label {
     line-height: 40px;
-    font-size: 1.6rem;
+    font-size: 1.17rem;
     color: #fff;
+    padding-right: 1.17rem;
   }
 
   .el-form-item {
     margin-bottom: 0;
   }
   .row {
-    margin-bottom: 5px;
+    margin-bottom: 0.5rem;
   }
 
   .forgot {
@@ -198,7 +184,7 @@ export default {
 
   .sign-up {
     color: #3193e6;
-    font-size: 1.4rem;
+    font-size: 1.17rem;
   }
   .code-panel{
     position: relative;
@@ -206,10 +192,14 @@ export default {
 
   .code-panel .el-button {
     position: absolute;
-    right: 1rem;
+    width: 6.67rem;
+    height: 2.17rem;
+    right: 0.67rem;
     top: 0.6rem;
     font-size: 1rem;
     background: #1f7ecf;
     border: none;
+    padding: 0.56rem 0.83rem;
   }
+/* } */
 </style>

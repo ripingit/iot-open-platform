@@ -11,18 +11,71 @@ export default {
 </script>
 
 <style>
-/* @media (max-width:1366px) {
+@media (max-width:1366px) {
   html, body {
     width: 1366px;
   }
-} */
+}
+
+::selection {
+  background: #00c4b6;
+  color: #f7f7f7;
+}
+
 html, body, #app{
   height: 100%;
-  font-size: 10px;
+  font-size: 12px;
   font-family: Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,SimSun,sans-serif;
 }
 .fa {
   font: normal normal normal 16px/2.6 FontAwesome;
+}
+
+/** alert */
+.el-message--success {
+  background-color: #2acba7;
+  border-color: #2acba7;
+}
+.el-message--warning {
+  background-color: #E6A23C;
+  border-color: #E6A23C;
+}
+.el-message--error {
+  background-color: #F56C6C;
+  border-color: #F56C6C;
+}
+.el-message .el-icon-success,
+.el-message .el-icon-warning,
+.el-message .el-icon-error,
+.el-message__closeBtn,
+.el-message--success .el-message__content,
+.el-message--warning .el-message__content,
+.el-message--error .el-message__content {
+  color: #fff;
+}
+
+/** message-box */
+.el-message-box__wrapper /deep/ .el-message-box {
+  background-color: #36393E;
+  border: 1px solid #36393E;
+}
+.el-message-box__wrapper /deep/ .el-message-box__content {
+  color: #fff;
+}
+.el-message-box__wrapper /deep/ .el-button {
+  background: #909399;
+  color: #fff;
+  border: 1px solid #909399;
+}
+.el-message-box__wrapper /deep/ .el-button--primary {
+  background: #1f7ecf;
+  color: #fff;
+  border: 1px solid #1f7ecf;
+}
+
+/** loading */
+.el-loading-mask {
+  background-color: rgba(0, 0, 0, 0.66) !important;
 }
 
 /** input */
@@ -156,6 +209,9 @@ padding: 25px 66px;
 }
 .el-dialog__headerbtn{
   font-size:18px;
+}
+.el-dialog__headerbtn .el-dialog__close{
+  color: #ffffff;
 }
 
 /*分页*/

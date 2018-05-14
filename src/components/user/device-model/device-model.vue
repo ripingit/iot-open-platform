@@ -1,247 +1,253 @@
 <template>
-  <div class="device-model">
-    <el-row>
-      <el-col :span="24" style="position: relative">
-        <el-col :span="21">
-          <p class="device-model-title-1">设备型号</p>
-          <p class="device-model-title-2">UNIT TYPE</p>
+  <transition name="bounce" mode="out-in">
+    <div class="device-model">
+      <el-row>
+        <el-col :span="24" style="position: relative">
+          <el-col :span="21">
+            <p class="device-model-title-1">设备型号</p>
+            <p class="device-model-title-2">UNIT TYPE</p>
+          </el-col>
+          <el-col :span="3" style="position: absolute;top: 2.1rem;right:0rem;z-index: 10">
+            <el-button type="primary" style="width: 4.5rem;height: 4.5rem;" icon="el-icon-plus" circle @click="addDevice()"></el-button>
+          </el-col>
         </el-col>
-        <el-col :span="3" style="position: absolute;top: 2.3rem;right:0rem;z-index: 10">
-          <el-button type="primary" style="padding: 1.3rem;" icon="el-icon-plus" circle @click="addDevice()"></el-button>
+      </el-row>
+      <el-row class="device-model-content">
+        <el-col :span="10" class="device-model-Search" style="margin-bottom: 2rem;width: 25rem;">
+          <el-input
+            placeholder="点击此处搜索"
+            v-model="inputVal">
+            <i slot="prefix" class="el-input__icon el-icon-search" @click="SearchData()"></i>
+          </el-input>
         </el-col>
-      </el-col>
-    </el-row>
-    <el-row class="device-model-content">
-      <el-col :span="5" style="margin-bottom: 2rem">
-        <el-input
-          placeholder="点击此处搜索"
-          v-model="inputVal">
-          <i slot="prefix" class="el-input__icon el-icon-search" @click="SearchData()"></i>
-        </el-input>
-      </el-col>
-      <el-col :span="24" class="device-model-table">
+        <el-col :span="24" class="device-model-table">
+          <el-col :span="24">
+            <el-table
+              v-loading="isLoading"
+              element-loading-text="拼命加载中"
+              :data="tableData"
+              style="width: 100%;">
+              <el-table-column
+                prop="date"
+                label="编号">
+              </el-table-column>
+              <el-table-column
+                prop="name"
+                label="型号">
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                label="型号代码">
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                label="连接方式">
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                label="图1">
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                label="图2">
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                label="审核状态">
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                label="配置状态">
+              </el-table-column>
+              <el-table-column
+                prop=""
+                label="操作"
+                width="180">
+                <template slot-scope="scope">
+                  <el-button type="primary"
+                            style="background: rgb(94,94,94);border-color: rgb(94,94,94);"
+                            icon="el-icon-edit" circle @click="editDevice(scope.row)"></el-button>
+                  <el-button type="danger"
+                            style="background: rgb(94,94,94);border-color: rgb(94,94,94);"
+                            icon="el-icon-delete" circle></el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-col>
+        </el-col>
+        <el-col :span="24" style="text-align: center">
+          <el-pagination
+            @current-change="handleCurrentChange"
+            :current-page.sync="currentPage"
+            :page-size="100"
+            layout="prev, pager, next, jumper"
+            :total="1000">
+          </el-pagination>
+        </el-col>
+      </el-row>
+      <el-row>
         <el-col :span="24">
-          <el-table
-            v-loading="isLoading"
-            element-loading-text="拼命加载中"
-            :data="tableData"
-            style="width: 100%;">
-            <el-table-column
-              prop="date"
-              label="编号">
-            </el-table-column>
-            <el-table-column
-              prop="name"
-              label="型号">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="型号代码">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="连接方式">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="图1">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="图2">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="审核状态">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="配置状态">
-            </el-table-column>
-            <el-table-column
-              prop=""
-              label="操作"
-              width="180">
-              <template slot-scope="scope">
-                <el-button type="primary"
-                           style="background: rgb(94,94,94);border-color: rgb(94,94,94);"
-                           icon="el-icon-edit" circle @click="editDevice(scope.row)"></el-button>
-                <el-button type="danger"
-                           style="background: rgb(94,94,94);border-color: rgb(94,94,94);"
-                           icon="el-icon-delete" circle></el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+          <el-dialog
+            :title="dialogTitle"
+            :visible.sync="dialogVisible"
+            width="53rem"
+            center
+            :before-close="handleClose">
+            <el-form label-width="68px" :model="formAdd" style="text-align: center">
+              <el-form-item label="型号名称" class="required">
+                <el-input style="width:30rem" v-model="formAdd.name"></el-input>
+              </el-form-item>
+              <el-form-item label="型号代码" class="required">
+                <el-input style="width:30rem" v-model="formAdd.name1"></el-input>
+              </el-form-item>
+              <el-form-item label="连接方式" class="required">
+                <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+                  <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="设备类别" class="required">
+                <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+                  <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="效果图1">
+                <el-col :span="24" style="width: 28rem;">
+                  <div class="device-model-uploadImg"></div>
+                  <div style="display: inline-block;vertical-align: top">
+                    <el-upload
+                      action="https://jsonplaceholder.typicode.com/posts/">
+                      <el-button class="btn-upload" size="small" type="primary">上传</el-button>
+                    </el-upload>
+                  </div>
+                  <div style="display: inline-block;color: #cecece;margin-left:.5rem;text-align: left">
+                    <div>底色：白色</div>
+                    <div style="margin-top: -1.5rem">尺寸：210*180</div>
+                    <div style="margin-top: -1.3rem">图片大小不超过2M</div>
+                  </div>
+                </el-col>
+              </el-form-item>
+              <el-form-item label="效果图2">
+                <el-col :span="24" style="width: 28rem;">
+                  <div class="device-model-uploadImg"></div>
+                  <div style="display: inline-block;vertical-align: top">
+                    <el-upload
+                      action="https://jsonplaceholder.typicode.com/posts/">
+                      <el-button class="btn-upload" size="small" type="primary">上传</el-button>
+                    </el-upload>
+                  </div>
+                  <div style="display: inline-block;color: #cecece;margin-left: .5rem;text-align: left">
+                    <p>底色：白色</p>
+                    <p style="margin-top: -1.5rem">尺寸：388*250</p>
+                    <p style="margin-top: -1.3rem">图片大小不超过2M</p>
+                  </div>
+                </el-col>
+              </el-form-item>
+              <el-form-item label="" style="margin-top: 4rem;">
+                <el-button type="primary" style="width:30rem;" @click="dialogVisible = false">提 交</el-button>
+              </el-form-item>
+            </el-form>
+          </el-dialog>
         </el-col>
-      </el-col>
-      <el-col :span="24" style="text-align: center">
-        <el-pagination
-          @current-change="handleCurrentChange"
-          :current-page.sync="currentPage"
-          :page-size="100"
-          layout="prev, pager, next, jumper"
-          :total="1000">
-        </el-pagination>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="24">
+      </el-row>
+      <el-row>
         <el-dialog
-          :title="dialogTitle"
-          :visible.sync="dialogVisible"
-          width="50%"
+          title="型号配置"
+          :visible.sync="editDialog"
+          width="53rem"
           center
+          style="margin-top: -6vh;"
           :before-close="handleClose">
-          <el-form label-width="80px" :model="formAdd">
-            <el-form-item label="型号名称" class="required">
-              <el-input v-model="formAdd.name"></el-input>
-            </el-form-item>
-            <el-form-item label="型号代码" class="required">
-              <el-input v-model="formAdd.name1"></el-input>
-            </el-form-item>
-            <el-form-item label="连接方式" class="required">
-              <el-select style="width: 100%" v-model="formAdd.name1" placeholder="请选择">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="设备类别" class="required">
-              <el-select style="width: 100%" v-model="formAdd.name1" placeholder="请选择">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="效果图1">
-              <el-col :span="24">
-                <div class="device-model-uploadImg"></div>
-                <div style="display: inline-block;vertical-align: top">
-                  <el-upload
-                    action="https://jsonplaceholder.typicode.com/posts/">
-                    <el-button class="btn-upload" size="small" type="primary">上传</el-button>
-                  </el-upload>
-                </div>
-                <div style="display: inline-block;color: #cecece;margin-left: .4rem;">
-                  <div>底色：白色</div><div>尺寸：210*180</div>
-                </div>
-              </el-col>
-            </el-form-item>
-            <el-form-item label="效果图2">
-              <el-col :span="24">
-                <div class="device-model-uploadImg"></div>
-                <div style="display: inline-block;vertical-align: top">
-                  <el-upload
-                    action="https://jsonplaceholder.typicode.com/posts/">
-                    <el-button class="btn-upload" size="small" type="primary">上传</el-button>
-                  </el-upload>
-                </div>
-                <div style="display: inline-block;color: #cecece;margin-left: .4rem;">
-                  <div>底色：白色</div><div>尺寸：388*250</div>
-                </div>
-              </el-col>
-            </el-form-item>
-            <el-form-item label="" style="margin-top: 4rem;">
-              <el-button type="primary" style="width: 100%;" @click="dialogVisible = false">提 交</el-button>
-            </el-form-item>
-          </el-form>
+          <el-row class="device-model-editdialog">
+            <el-col :span="24" style="padding:0 0 1rem 2.5rem;">
+              <div>型号名称：K258</div>
+              <div>连接方式：蓝牙、红外、中控</div>
+            </el-col>
+            <el-col :span="24" class="device-model-editdialog-title">1.IPC分类</el-col>
+            <el-col :span="24">
+              <el-form label-width="100px" :model="formAdd">
+                <el-form-item label="设备分类">
+                  <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="解码方式" style="margin-top: -1rem;">
+                  <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="设备通道数" style="margin-top: -1rem;">
+                  <el-input style="width:30rem" v-model="formAdd.name"></el-input>
+                </el-form-item>
+                <el-form-item label="校正解码">
+                  <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="音频模式" style="margin-top: -1rem;">
+                  <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-form>
+            </el-col>
+            <el-col :span="24" class="device-model-editdialog-title">2.情景按钮</el-col>
+            <el-col :span="24">
+              <el-form label-width="100px" :model="formAdd">
+                <el-form-item label="按钮数量" style="margin-top: -1rem;">
+                  <el-input style="width:30rem" v-model="formAdd.name"></el-input>
+                </el-form-item>
+              </el-form>
+            </el-col>
+            <el-col :span="24" class="device-model-editdialog-title">3.组合开关</el-col>
+            <el-col :span="24">
+              <el-form label-width="100px" :model="formAdd">
+                <el-form-item label="开关数量" style="margin-top: -1rem;">
+                  <el-input style="width:30rem" v-model="formAdd.name"></el-input>
+                </el-form-item>
+              </el-form>
+            </el-col>
+            <el-col :span="24">
+              <el-form label-width="100px" :model="formAdd">
+                <el-form-item label="">
+                  <el-button type="primary" style="width:30rem;margin-top: 1rem" @click="dialogVisible = false">提 交</el-button>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
         </el-dialog>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-dialog
-        title="型号配置"
-        :visible.sync="editDialog"
-        width="44%"
-        center
-        style="margin-top: -6vh;"
-        :before-close="handleClose">
-        <el-row class="device-model-editdialog">
-          <el-col :span="24" style="padding:0 0 1rem 2.5rem;">
-            <div>型号名称：K258</div>
-            <div>连接方式：蓝牙、红外、中控</div>
-          </el-col>
-          <el-col :span="24" class="device-model-editdialog-title">1.IPC分类</el-col>
-          <el-col :span="24">
-            <el-form label-width="100px" :model="formAdd">
-              <el-form-item label="设备分类">
-                <el-select style="width: 100%" v-model="formAdd.name1" placeholder="请选择">
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="解码方式">
-                <el-select style="width: 100%" v-model="formAdd.name1" placeholder="请选择">
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="设备通道数">
-                <el-input v-model="formAdd.name"></el-input>
-              </el-form-item>
-              <el-form-item label="校正解码">
-                <el-select style="width: 100%" v-model="formAdd.name1" placeholder="请选择">
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="音频模式">
-                <el-select style="width: 100%" v-model="formAdd.name1" placeholder="请选择">
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-form>
-          </el-col>
-          <el-col :span="24" class="device-model-editdialog-title">2.情景按钮</el-col>
-          <el-col :span="24">
-            <el-form label-width="100px" :model="formAdd">
-              <el-form-item label="按钮数量">
-                <el-input v-model="formAdd.name"></el-input>
-              </el-form-item>
-            </el-form>
-          </el-col>
-          <el-col :span="24" class="device-model-editdialog-title">3.组合开关</el-col>
-          <el-col :span="24">
-            <el-form label-width="100px" :model="formAdd">
-              <el-form-item label="开关数量">
-                <el-input v-model="formAdd.name"></el-input>
-              </el-form-item>
-            </el-form>
-          </el-col>
-          <el-col :span="24">
-            <el-form label-width="100px" :model="formAdd">
-              <el-form-item label="">
-                <el-button type="primary" style="width: 100%;" @click="dialogVisible = false">提 交</el-button>
-              </el-form-item>
-            </el-form>
-          </el-col>
-        </el-row>
-      </el-dialog>
-    </el-row>
-  </div>
+      </el-row>
+    </div>
+  </transition>
 </template>
 <script>
 export default {
@@ -342,16 +348,16 @@ export default {
  }
   .device-model-editdialog-title{
     border-top: 1px solid #4c4c4c;
-    padding-top:1rem;
+    padding:1rem 0;
   }
   .device-model-uploadImg{
     display: inline-block;
-    width: 12rem;
-    height: 7.2rem;
+    width:8rem;
+    height: 6rem;
     background:rgba(255, 255, 255, 0.2);
   }
   .el-dialog .btn-upload {
-    height: 7.2rem;
+    height: 6rem;
     width: 3rem;
     border-radius: 0;
     padding: 0;
@@ -359,5 +365,22 @@ export default {
     background: #1f7ecf;
     border: none;
     margin-left: .4rem;
+  }
+</style>
+<style>
+  .device-model .required{
+    position: relative;
+  }
+  .device-model .required > .el-form-item__label:before{
+    content: '*';
+    color: red;
+    font-size:1.8rem;
+    top:.2rem;
+    right:1rem;
+    z-index: 9;
+    position: absolute;
+  }
+  .device-model .device-model-Search .el-input input{
+    background:transparent;border: 1px solid #808080;border-radius:4px;
   }
 </style>

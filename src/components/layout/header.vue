@@ -1,15 +1,19 @@
 <template>
-  <div class="container">
+  <div class="header-container">
     <el-row>
-      <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="10">&nbsp;</el-col>
-      <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="4">
+      <el-col :span="8">
+        <div class="menu">
+          <i class="menu-icon el-icon-menu" @click="$emit('menu-toggle')"></i>
+        </div>
+      </el-col>
+      <el-col :span="8">
         <el-input
           placeholder="请输入关键字进行搜索"
           v-model="keyword">
           <i slot="prefix" class="iconfont icon-sousuo"></i>
         </el-input>
       </el-col>
-      <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="10">
+      <el-col :span="8">
         <div class="info">
           <i class="iconfont icon-xiaoxi tips" aria-hidden="true"></i>
           <i class="iconfont icon-bangzhu" aria-hidden="true"></i>
@@ -36,8 +40,22 @@ export default {
 </script>
 
 <style scoped>
-.container {
-    line-height: 5rem;
+@media (max-width:1200px) {
+  .menu-icon {
+    font-size: 2rem;
+    padding-left: 2.5rem;
+    display: inline-block !important;
+  }
+}
+
+.menu {
+  display: -webkit-inline-box;
+}
+.menu-icon {
+  display: none;
+}
+.header-container {
+    line-height: 4.67rem;
     background: #3b3f42;
     color: #fff;
     width: auto;
