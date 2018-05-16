@@ -13,37 +13,37 @@
         <el-row>
           <el-col :span="24">
             <el-form :model="formData" status-icon ref="signUpForm" :rules="rules" label-position="right" label-width="80px">
-              <el-form-item label="账号" prop="account" class="row">
+              <el-form-item label="账号" prop="user_name" class="row">
                 <el-input
                   placeholder="请输入手机号/邮箱"
-                  v-model="formData.account"
+                  v-model="formData.user_name"
                   clearable>
                 </el-input>
               </el-form-item>
-              <el-form-item label="验证码" prop="vertificateCode" class="code-panel row">
+              <el-form-item label="验证码" prop="vcode" class="code-panel row">
                 <el-input
                   placeholder="请输入验证码"
-                  v-model="formData.vertificateCode">
+                  v-model="formData.vcode">
                 </el-input>
-                <el-button type="primary" size="mini">获取验证码</el-button>
+                <el-button :disabled="isSendCode" :class="isSendCode ? 'disabled' : ''" type="primary" size="mini" @click="getVerificationCode">{{ codeBtnText }}</el-button>
               </el-form-item>
-              <el-form-item label="输入密码" prop="password" class="row">
+              <el-form-item label="输入密码" prop="text_pass" class="row">
                 <el-input
                   type="password"
                   placeholder="请输入密码"
-                  v-model="formData.password">
-                  <i slot="suffix" class="el-input__icon fa fa-eye-slash"></i>
+                  v-model="formData.text_pass">
+                  <i slot="suffix" class="iconfont icon-chakanmima_guan"></i>
                 </el-input>
               </el-form-item>
-              <el-form-item label="确认密码" prop="password">
+              <el-form-item label="确认密码" prop="confirmPassword">
                 <el-input
                   type="password"
                   placeholder="请再次输入密码"
-                  v-model="formData.password">
-                  <i slot="suffix" class="el-input__icon fa fa-eye-slash"></i>
+                  v-model="formData.confirmPassword">
+                  <i slot="suffix" class="iconfont icon-chakanmima_guan"></i>
                 </el-input>
               </el-form-item>
-              <el-form-item class="forgot">
+              <el-form-item class="forgot" prop="protocolChecked">
                 <el-checkbox v-model="formData.protocolChecked">同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a></el-checkbox>
               </el-form-item>
               <el-form-item>
@@ -62,6 +62,8 @@
 
 <script>
 import { validateEmail, validatePhone } from '../lib/validate.js'
+import { CODE_POST, SIGNUP_POST } from '../lib/api.js'
+
 export default {
   data () {
     let validateAccount = (rule, value, callback) => {
@@ -79,42 +81,107 @@ export default {
 
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
-        if (rule.field === 'vertificateCode') {
+        if (rule.field === 'vcode') {
           callback(new Error('请输入验证码'))
-        } else if (rule.field === 'password') {
+        } else if (rule.field === 'text_pass') {
           callback(new Error('请输入密码'))
         }
       }
       callback()
     }
 
+    let validatePassPass = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.formData.text_pass) {
+        callback(new Error('两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
+    let validateProtocol = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请勾选同意《迈科智能用户协议》'))
+      } else {
+        callback()
+      }
+    }
+
     return {
+      isSendCode: false,
+      codeBtnText: '获取验证码',
       formData: {
-        account: '',
-        password: '',
-        vertificateCode: '',
+        user_name: '',
+        text_pass: '',
+        confirmPassword: '',
+        vcode: '',
         protocolChecked: true
       },
       rules: {
-        account: [
+        user_name: [
           { validator: validateAccount, trigger: 'blur' }
         ],
-        password: [
+        text_pass: [
           { validator: validateIsEmpty, trigger: 'blur' },
           { min: 8, max: 50, message: '长度在 8 到 50 个字符', trigger: 'blur' }
         ],
-        vertificateCode: [
+        confirmPassword: [
+          { validator: validatePassPass, trigger: 'blur' }
+        ],
+        vcode: [
           { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        protocolChecked: [
+          { validator: validateProtocol }
         ]
       }
     }
   },
   methods: {
+    /** 获取验证码 */
+    getVerificationCode () {
+      if (!this.formData.user_name) {
+        this.vmMsgWarning('请填写手机号或邮箱'); return
+      }
+      let data = this.createFormData({
+        type: 1,
+        user_name: this.formData.user_name
+      })
+
+      let reset = () => {
+        this.isSendCode = false
+        this.codeBtnText = '获取验证码'
+        clearInterval(timer)
+      }
+      let time = 59
+      this.isSendCode = true
+      this.codeBtnText = time + '秒后可重发'
+      let timer = setInterval(() => {
+        if (time <= 1) { reset(); return }
+        time = time - 1
+        this.codeBtnText = time + '秒后可重发'
+      }, 1000)
+      this.$http.post(CODE_POST, data).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.vmMsgSuccess('验证码已发送！')
+        } else {
+          reset()
+        }
+      }).catch((e) => {
+        this.vmMsgError('网络错误！')
+        reset()
+      })
+    },
     signUp () {
       this.$refs['signUpForm'].validate((valid) => {
         if (valid) {
-          this.$http.get(`/aaa/getdevice`, this.formData).then(res => {
-            console.log(res)
+          this.$http.post(SIGNUP_POST, this.createFormData(this.formData)).then(res => {
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('注册成功！')
+              this.$router.push('/signin')
+            }
+          }).catch(() => {
+            this.vmMsgError('网络错误！')
           })
         }
       })
@@ -124,6 +191,13 @@ export default {
 </script>
 
 <style scoped>
+@media (min-width: 1366px) {
+  .panel-pos {
+    margin-top: -20rem;
+    margin-left: -4.67rem;
+  }
+}
+
 /* @media (min-width: 720px) { */
   .container {
     height: 100%;
@@ -192,7 +266,6 @@ export default {
 
   .code-panel .el-button {
     position: absolute;
-    width: 6.67rem;
     height: 2.17rem;
     right: 0.67rem;
     top: 0.6rem;
@@ -200,6 +273,9 @@ export default {
     background: #1f7ecf;
     border: none;
     padding: 0.56rem 0.83rem;
+  }
+  .code-panel .el-button.disabled {
+    background: #949494 !important;
   }
 /* } */
 </style>

@@ -21,7 +21,7 @@ const router = new Router({
       children: [
         {
           path: '',
-          redirect: '/manage/authention'
+          redirect: '/manage/user/authention'
         }, {
           path: 'home',
           name: 'home',
@@ -32,6 +32,16 @@ const router = new Router({
           component: resolve => require(['@/components/user/layout'], resolve),
           children: [
             {
+              path: 'authention',
+              name: 'authention',
+              component: resolve => require(['@/components/user/auth'], resolve),
+              meta: { title: '用户认证' }
+            }, {
+              path: 'resetPass',
+              name: 'resetPass',
+              component: resolve => require(['@/components/user/edit-password'], resolve),
+              meta: { title: '修改密码' }
+            }, {
               path: 'model',
               name: 'model',
               component: resolve => require(['@/components/user/device-model/device-model'], resolve),
@@ -114,11 +124,6 @@ const router = new Router({
               meta: { title: '管理员' }
             }
           ]
-        }, {
-          path: 'authention',
-          name: 'authention',
-          component: resolve => require(['@/components/layout/auth'], resolve),
-          meta: { title: '用户认证' }
         }
       ]
     }

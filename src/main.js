@@ -7,14 +7,13 @@ import ElementUI from 'element-ui'
 
 import 'element-ui/lib/theme-chalk/index.css'
 import 'reset-css/reset.css'
-import 'font-awesome/css/font-awesome.min.css'
 
 import App from './App'
 import router from './router'
 import CommonApi from './lib/common-api'
 
 // 提交代码到仓库或者打包发布时请注释
-import './mock/mock.js'
+// import './mock/mock.js'
 
 Vue.config.productionTip = false
 Vue.prototype.$http = axios

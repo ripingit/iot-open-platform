@@ -85,32 +85,26 @@
       </el-row>
     </div>
     <el-dialog
-      title=""
+      title="KEY信息"
+      center
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
       :append-to-body="true"
       :before-close="handleClose" class="key_dialog">
-      <el-row type="flex" justify="center">
-        <el-col :span="17">
-          <el-row class="key_dialog_head">
-            <h3>KEY信息</h3>
-            <p>* 每个账号独有一个ID和KEY，请保存并牢记，切勿泄露给他人</p>
-          </el-row>
-          <el-row>
-            <el-form :model="ruleForm" ref="ruleForm" label-width="50px">
-              <el-form-item label="ID">
-                <el-input readonly v-model="ruleForm.name"></el-input>
-              </el-form-item>
-              <el-form-item label="KEY">
-                <el-input readonly v-model="ruleForm.name"></el-input>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="confirm" style="width:100%;">确定</el-button>
-              </el-form-item>
-            </el-form>
-          </el-row>
-        </el-col>
+      <el-row class="key_dialog_head">
+        <p>* 每个账号独有一个ID和KEY，请保存并牢记，切勿泄露给他人</p>
       </el-row>
+      <el-form :model="ruleForm" ref="ruleForm" label-width="100px">
+      <el-form-item label="ID" class="form-row">
+        <el-input readonly v-model="ruleForm.name"></el-input>
+      </el-form-item>
+      <el-form-item label="KEY" class="form-row">
+        <el-input readonly v-model="ruleForm.name"></el-input>
+      </el-form-item>
+      <el-form-item style="margin-top: 4.33rem">
+        <el-button type="primary" class="btn-submit" @click="confirm">确定</el-button>
+      </el-form-item>
+    </el-form>
     </el-dialog>
   </div>
 </template>
@@ -210,24 +204,16 @@ export default {
 .key_dialog /deep/ .el-dialog{
   width:65.33rem;
 }
-.key_dialog_head{
-  text-align: center;
-}
-.key_dialog_head h3{
-  font-size:1.5rem;
-  color: #ffffff;
-}
+
 .key_dialog_head p{
   font-size:1rem;
   color: #e36068;
+  text-align: center;
 }
 .key_dialog .el-form{
   margin-top:3.33rem;
 }
 .key_dialog /deep/ .el-dialog__body{
-  padding: 2rem 0 5.5rem;
-}
-.key_dialog .el-button{
-  margin-top:3.5rem;
+  padding-top:0;
 }
 </style>

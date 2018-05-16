@@ -1,158 +1,158 @@
 <template>
-  <transition name="bounce" mode="out-in">
-    <div class="container">
-      <el-row class="h_nav">
-        <h5>概况</h5>
-        <p>SURVEY</p>
-      </el-row>
-      <el-row class="item_content">
-        <el-col :span="8" class="item_section">
-          <div class="item_section_box">
-            <div>
-              <el-row type="flex" align="bottom" class="item_tip">
-                <span>今日注册用户</span>
-              </el-row>
-              <el-row type="flex" justify="center" align="middle" class="item_text">
-                <span>2521</span>
-              </el-row>
-            </div>
+  <div class="container">
+    <el-row class="h_nav">
+      <h5>概况</h5>
+      <p>SURVEY</p>
+    </el-row>
+    <el-row class="item_content">
+      <el-col :span="8" class="item_section">
+        <div class="item_section_box">
+          <div>
+            <el-row type="flex" align="bottom" class="item_tip">
+              <span>今日注册用户</span>
+            </el-row>
+            <el-row type="flex" justify="center" align="middle" class="item_text">
+              <span>2521</span>
+            </el-row>
           </div>
-          <div class="item_section_box">
-            <div>
-              <el-row type="flex" align="bottom" class="item_tip">
-                <span>总注册用户</span>
-              </el-row>
-              <el-row type="flex" justify="center" align="middle" class="item_text">
-                <span>2521</span>
-              </el-row>
-            </div>
+        </div>
+        <div class="item_section_box">
+          <div>
+            <el-row type="flex" align="bottom" class="item_tip">
+              <span>总注册用户</span>
+            </el-row>
+            <el-row type="flex" justify="center" align="middle" class="item_text">
+              <span>2521</span>
+            </el-row>
           </div>
-          <div class="item_section_box">
-            <div>
-              <el-row type="flex" align="bottom" class="item_tip">
-                <span>在线设备</span>
-              </el-row>
-              <el-row type="flex" justify="center" align="middle" class="item_text">
-                <span>2521</span>
-              </el-row>
-            </div>
+        </div>
+        <div class="item_section_box">
+          <div>
+            <el-row type="flex" align="bottom" class="item_tip">
+              <span>在线设备</span>
+            </el-row>
+            <el-row type="flex" justify="center" align="middle" class="item_text">
+              <span>2521</span>
+            </el-row>
           </div>
-          <div class="item_section_box">
-            <div>
-              <el-row type="flex" align="bottom" class="item_tip">
-                <span>设备总数</span>
-              </el-row>
-              <el-row type="flex" justify="center" align="middle" class="item_text">
-                <span>2521</span>
-              </el-row>
-            </div>
+        </div>
+        <div class="item_section_box">
+          <div>
+            <el-row type="flex" align="bottom" class="item_tip">
+              <span>设备总数</span>
+            </el-row>
+            <el-row type="flex" justify="center" align="middle" class="item_text">
+              <span>2521</span>
+            </el-row>
           </div>
-          <div class="item_section_box">
-            <div>
-              <el-row type="flex" align="bottom" class="item_tip">
-                <span>今日下载数</span>
-              </el-row>
-              <el-row type="flex" justify="center" align="middle" class="item_text">
-                <span>2521</span>
-              </el-row>
-            </div>
+        </div>
+        <div class="item_section_box">
+          <div>
+            <el-row type="flex" align="bottom" class="item_tip">
+              <span>今日下载数</span>
+            </el-row>
+            <el-row type="flex" justify="center" align="middle" class="item_text">
+              <span>2521</span>
+            </el-row>
           </div>
-          <div class="item_section_box">
-            <div>
-              <el-row type="flex" align="bottom" class="item_tip">
-                <span>APP总下载数</span>
-              </el-row>
-              <el-row type="flex" justify="center" align="middle" class="item_text">
-                <span>2521</span>
-              </el-row>
-            </div>
+        </div>
+        <div class="item_section_box">
+          <div>
+            <el-row type="flex" align="bottom" class="item_tip">
+              <span>APP总下载数</span>
+            </el-row>
+            <el-row type="flex" justify="center" align="middle" class="item_text">
+              <span>2521</span>
+            </el-row>
           </div>
-        </el-col>
-        <el-col :span="16" class="item_section item_chart">
-          <el-row type="flex" align="middle" class="item_chart_head">
-            <el-col :span="5">
-              <el-date-picker
-                style="width: 100%"
-                v-model="timeValue"
-                type="date"
-                placeholder="选择日期">
-              </el-date-picker>
-            </el-col>
-            <el-col :span="5" :offset="1">
-              <el-select v-model="selectValue" placeholder="选择指标">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-            </el-col>
-            <el-col :offset="1" :span="13">
-              <el-checkbox-group v-model="checkList">
-                <el-checkbox label="前一日"></el-checkbox>
-                <el-checkbox label="上周同期"></el-checkbox>
-              </el-checkbox-group>
-            </el-col>
-          </el-row>
-          <el-row type="flex" align="middle" justify="center" class="item_chart_label">
-            <span>设备在线：1252202（2018-02-05 08:00-09:00）</span>
-            <span>打开APP：1252202（2018-02-05 08:00-09:00）</span>
-          </el-row>
-          <el-row class="item_chart_content">
-            <chart :options="polar" style="width:100%;height: 100%"></chart>
-          </el-row>
-        </el-col>
-      </el-row>
-      <el-row class="item_table">
-        <el-table
-          :data="tableData2"
-          style="width: 100%">
-          <el-table-column
-            prop="date"
-            label="时间"
-            min-width="160">
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            label="新增用户"
-            min-width="160">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="用户总数"
-            min-width="160">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="新增设备"
-            min-width="160">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="设备总数"
-            min-width="160">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="活跃用户"
-            min-width="160">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="增值服务"
-            min-width="160">
-          </el-table-column>
-        </el-table>
-      </el-row>
-    </div>
-  </transition>
+        </div>
+      </el-col>
+      <el-col :span="16" class="item_section item_chart">
+        <el-row type="flex" align="middle" class="item_chart_head">
+          <el-col :span="5">
+            <el-date-picker
+              style="width: 100%"
+              v-model="timeValue"
+              type="date"
+              placeholder="选择日期">
+            </el-date-picker>
+          </el-col>
+          <el-col :span="5" :offset="1">
+            <el-select v-model="selectValue" placeholder="选择指标">
+              <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </el-col>
+          <el-col :offset="1" :span="13">
+            <el-checkbox-group v-model="checkList">
+              <el-checkbox label="前一日"></el-checkbox>
+              <el-checkbox label="上周同期"></el-checkbox>
+            </el-checkbox-group>
+          </el-col>
+        </el-row>
+        <el-row type="flex" align="middle" justify="center" class="item_chart_label">
+          <span>设备在线：1252202（2018-02-05 08:00-09:00）</span>
+          <span>打开APP：1252202（2018-02-05 08:00-09:00）</span>
+        </el-row>
+        <el-row class="item_chart_content">
+          <chart :options="polar" style="width:100%;height: 100%"></chart>
+        </el-row>
+      </el-col>
+    </el-row>
+    <el-row class="item_table">
+      <el-table
+        :data="tableData2"
+        style="width: 100%">
+        <el-table-column
+          prop="date"
+          label="时间"
+          min-width="160">
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          label="新增用户"
+          min-width="160">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="用户总数"
+          min-width="160">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="新增设备"
+          min-width="160">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="设备总数"
+          min-width="160">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="活跃用户"
+          min-width="160">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="增值服务"
+          min-width="160">
+        </el-table-column>
+      </el-table>
+    </el-row>
+  </div>
 </template>
 <script>
 import 'echarts/lib/chart/line'
 import 'echarts/lib/component/tooltip'
 import 'echarts/lib/component/title'
 import 'echarts/lib/component/legend'
+
+import '@/assets/css/content.css'
 
 export default {
   data () {
@@ -405,8 +405,6 @@ export default {
 
   .el-input /deep/ input, .el-select /deep/ input {
     height: 2.17rem;
-    background: none;
-    border: solid 1px rgba(255, 255, 255, 0.4);
   }
   .item_chart_label{
     height:3rem;

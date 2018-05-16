@@ -93,15 +93,17 @@
             width="53rem"
             center
             :before-close="handleClose">
-            <el-form label-width="68px" :model="formAdd" style="text-align: center">
-              <el-form-item label="型号名称" class="required">
-                <el-input style="width:30rem" v-model="formAdd.name"></el-input>
+            <el-form label-width="100px" :model="formAdd">
+              <el-form-item label="型号名称" class="form-row">
+                <el-input v-model="formAdd.name"></el-input>
+                <span class="form-tip">*</span>
               </el-form-item>
-              <el-form-item label="型号代码" class="required">
-                <el-input style="width:30rem" v-model="formAdd.name1"></el-input>
+              <el-form-item label="型号代码" class="form-row">
+                <el-input v-model="formAdd.name1"></el-input>
+                <span class="form-tip">*</span>
               </el-form-item>
-              <el-form-item label="连接方式" class="required">
-                <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+              <el-form-item label="连接方式" class="form-row">
+                <el-select v-model="formAdd.name1" placeholder="请选择">
                   <el-option
                     v-for="item in options"
                     :key="item.value"
@@ -109,9 +111,10 @@
                     :value="item.value">
                   </el-option>
                 </el-select>
+                <span class="form-tip">*</span>
               </el-form-item>
-              <el-form-item label="设备类别" class="required">
-                <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+              <el-form-item label="设备类别" class="form-row">
+                <el-select v-model="formAdd.name1" placeholder="请选择">
                   <el-option
                     v-for="item in options"
                     :key="item.value"
@@ -119,9 +122,10 @@
                     :value="item.value">
                   </el-option>
                 </el-select>
+                <span class="form-tip">*</span>
               </el-form-item>
-              <el-form-item label="效果图1">
-                <el-col :span="24" style="width: 28rem;">
+              <el-form-item label="效果图1" class="form-row" >
+                <el-col :span="24" style="line-height:1">
                   <div class="device-model-uploadImg"></div>
                   <div style="display: inline-block;vertical-align: top">
                     <el-upload
@@ -130,14 +134,14 @@
                     </el-upload>
                   </div>
                   <div style="display: inline-block;color: #cecece;margin-left:.5rem;text-align: left">
-                    <div>底色：白色</div>
-                    <div style="margin-top: -1.5rem">尺寸：210*180</div>
-                    <div style="margin-top: -1.3rem">图片大小不超过2M</div>
+                    <p>底色：白色</p>
+                    <p style="margin-top: 1.5rem">尺寸：210*180</p>
+                    <p style="margin-top: 1.3rem">图片大小不超过2M</p>
                   </div>
                 </el-col>
               </el-form-item>
-              <el-form-item label="效果图2">
-                <el-col :span="24" style="width: 28rem;">
+              <el-form-item label="效果图2" class="form-row">
+                <el-col :span="24">
                   <div class="device-model-uploadImg"></div>
                   <div style="display: inline-block;vertical-align: top">
                     <el-upload
@@ -152,8 +156,8 @@
                   </div>
                 </el-col>
               </el-form-item>
-              <el-form-item label="" style="margin-top: 4rem;">
-                <el-button type="primary" style="width:30rem;" @click="dialogVisible = false">提 交</el-button>
+              <el-form-item style="margin-top: 4rem;">
+                <el-button type="primary" class="btn-submit" @click="dialogVisible = false">提 交</el-button>
               </el-form-item>
             </el-form>
           </el-dialog>
@@ -175,8 +179,8 @@
             <el-col :span="24" class="device-model-editdialog-title">1.IPC分类</el-col>
             <el-col :span="24">
               <el-form label-width="100px" :model="formAdd">
-                <el-form-item label="设备分类">
-                  <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+                <el-form-item label="设备分类" class="form-row">
+                  <el-select v-model="formAdd.name1" placeholder="请选择">
                     <el-option
                       v-for="item in options"
                       :key="item.value"
@@ -185,8 +189,8 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="解码方式" style="margin-top: -1rem;">
-                  <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+                <el-form-item label="解码方式" class="form-row">
+                  <el-select v-model="formAdd.name1" placeholder="请选择">
                     <el-option
                       v-for="item in options"
                       :key="item.value"
@@ -195,11 +199,11 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="设备通道数" style="margin-top: -1rem;">
-                  <el-input style="width:30rem" v-model="formAdd.name"></el-input>
+                <el-form-item label="设备通道数" class="form-row">
+                  <el-input v-model="formAdd.name"></el-input>
                 </el-form-item>
-                <el-form-item label="校正解码">
-                  <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+                <el-form-item label="校正解码" class="form-row">
+                  <el-select v-model="formAdd.name1" placeholder="请选择">
                     <el-option
                       v-for="item in options"
                       :key="item.value"
@@ -208,8 +212,8 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="音频模式" style="margin-top: -1rem;">
-                  <el-select style="width:30rem" v-model="formAdd.name1" placeholder="请选择">
+                <el-form-item label="音频模式" class="form-row">
+                  <el-select v-model="formAdd.name1" placeholder="请选择">
                     <el-option
                       v-for="item in options"
                       :key="item.value"
@@ -223,23 +227,23 @@
             <el-col :span="24" class="device-model-editdialog-title">2.情景按钮</el-col>
             <el-col :span="24">
               <el-form label-width="100px" :model="formAdd">
-                <el-form-item label="按钮数量" style="margin-top: -1rem;">
-                  <el-input style="width:30rem" v-model="formAdd.name"></el-input>
+                <el-form-item label="按钮数量" class="form-row">
+                  <el-input v-model="formAdd.name"></el-input>
                 </el-form-item>
               </el-form>
             </el-col>
             <el-col :span="24" class="device-model-editdialog-title">3.组合开关</el-col>
             <el-col :span="24">
               <el-form label-width="100px" :model="formAdd">
-                <el-form-item label="开关数量" style="margin-top: -1rem;">
-                  <el-input style="width:30rem" v-model="formAdd.name"></el-input>
+                <el-form-item label="开关数量" class="form-row">
+                  <el-input v-model="formAdd.name"></el-input>
                 </el-form-item>
               </el-form>
             </el-col>
             <el-col :span="24">
               <el-form label-width="100px" :model="formAdd">
                 <el-form-item label="">
-                  <el-button type="primary" style="width:30rem;margin-top: 1rem" @click="dialogVisible = false">提 交</el-button>
+                  <el-button type="primary" class="btn-submit" style="margin-top: 4.33rem" @click="dialogVisible = false">提 交</el-button>
                 </el-form-item>
               </el-form>
             </el-col>
@@ -347,8 +351,9 @@ export default {
    font-size: 14px;
  }
   .device-model-editdialog-title{
-    border-top: 1px solid #4c4c4c;
+    border-top: 1px solid #808080;
     padding:1rem 0;
+    margin: 1rem 0;
   }
   .device-model-uploadImg{
     display: inline-block;

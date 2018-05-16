@@ -17,7 +17,16 @@
         <div class="info">
           <i class="iconfont icon-xiaoxi tips" aria-hidden="true"></i>
           <i class="iconfont icon-bangzhu" aria-hidden="true"></i>
-          <a @click="routeGo">135****2561</a>
+          <div class="user-control">
+            <p v-on:click.stop="showSetPanel">135****2561</p>
+            <transition name="slide">
+              <ul class="control-panel" v-show="isPanelShow">
+                <li @click="routeGo('/manage/user/authention')">认证</li>
+                <li @click="routeGo('/manage/user/resetPass')">修改密码</li>
+                <li @click="signOut">退出</li>
+              </ul>
+            </transition>
+          </div>
         </div>
       </el-col>
     </el-row>
@@ -25,15 +34,39 @@
 </template>
 
 <script>
+import { SIGN_OUT_POST } from '../../lib/api.js'
 export default {
   data () {
     return {
-      keyword: ''
+      keyword: '',
+      isPanelShow: false
     }
   },
+  created () {
+    document.addEventListener('click', () => {
+      this.isPanelShow = false
+    })
+  },
   methods: {
-    routeGo () {
-      this.$router.push('/manage/authention')
+    showSetPanel () {
+      this.isPanelShow = !this.isPanelShow
+    },
+    routeGo (route) {
+      this.$router.push(route)
+    },
+    signOut () {
+      this.vmConfirm({
+        msg: '确认要退出登录吗？',
+        confirmCallback: () => {
+          this.$http.post(SIGN_OUT_POST).then(res => {
+            sessionStorage.removeItem('isLogin')
+            this.$router.push('/signin')
+            this.vmMsgSuccess('退出成功！')
+          }).catch(() => {
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
     }
   }
 }
@@ -72,10 +105,35 @@ export default {
 .info {
   text-align: right;
 }
-.info a {
+.info .user-control {
   border-left: 1px solid #8e8e8e;
   padding: 0 6rem;
   cursor: pointer;
+  display: inline-block;
+  position: relative;
+}
+.info .user-control p{
+  line-height: 1;
+}
+.info .user-control .control-panel {
+  position: absolute;
+  background: #2f2f2f;
+  box-shadow: 0px 4px 2px 0px #000;
+  width: 10rem;
+  text-align: center;
+  left: 3.5rem;
+  top: 2rem;
+}
+.info .user-control .control-panel li {
+  line-height: 3.5rem;
+  border-top: 1px solid #3c3c3c;
+  transition: all 1s ease-out;
+}
+.info .user-control .control-panel li:first-child {
+  border-top: none;
+}
+.info .user-control .control-panel li:hover {
+  background: #1b1b1b;
 }
 .info i {
   margin-right: 4.4rem;
@@ -94,5 +152,34 @@ export default {
   position: absolute;
   top: 0.2rem;
   right: 0rem;
+}
+
+/** 过渡动画 */
+.slide-enter-active {
+  animation: enter .3s;
+}
+.slide-leave-active {
+  animation: leave .3s;
+}
+
+@keyframes enter {
+  0% {
+    transform: scale(0);
+    transform-origin: 50% 0% 0px;
+  }
+  100% {
+    transform: scale(1);
+    transform-origin: 50% 0% 0px;
+  }
+}
+@keyframes leave {
+  0% {
+    transform: scale(1);
+    transform-origin: 50% 0% 0px;
+  }
+  100% {
+    transform: scale(0);
+    transform-origin: 50% 0% 0px;
+  }
 }
 </style>

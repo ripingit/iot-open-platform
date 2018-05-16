@@ -21,9 +21,18 @@
   margin-top: 2.5rem;
 }
 
-.el-select, .btn-search {
+.table .el-select,
+.table .btn-search {
   margin-left: 1.5rem;
 }
+
+.table .el-input input {
+  border-radius: 4px !important;
+  background: transparent;
+  color: #fff;
+  border: 1px solid #808080;
+}
+
 .btn-circle {
   background: rgb(94, 94, 94);
   color: #fff;
@@ -37,14 +46,22 @@
   top: -4.67rem;
   right: 6.63rem;
 }
+.btn-circle-add {
+  width: 4.5rem;
+  height: 4.5rem;
+  position: absolute;
+  top: -4.67rem;
+  right: 13.5rem;
+}
 
 /** 过渡动画 */
 .bounce-enter-active {
-  animation: bounce-in .5s;
+  animation: bounce-in .3s;
 }
 .bounce-leave-active {
-  animation: bounce-out .5s;
+  animation: bounce-out .3s;
 }
+
 @keyframes bounce-in {
   0% {
     opacity: 0;

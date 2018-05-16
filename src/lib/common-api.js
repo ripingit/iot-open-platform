@@ -34,7 +34,7 @@ exports.install = function (Vue, options) {
       confirmCallback(data)
     }).catch((e) => {
       if (e !== 'cancel') {
-        this.vmMsgError(e.message || e)
+        vm.vmMsgError(e.message || e)
       }
       cancelCallback && cancelCallback()
     })
@@ -89,11 +89,38 @@ exports.install = function (Vue, options) {
   }
 
   /**
+   * 创建FormData提交对象
+   * @param { 调用接口时所需参数 } obj
+   */
+  Vue.prototype.createFormData = function (obj) {
+    let formData = new FormData()
+    for (let key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        formData.append(key, obj[key])
+      }
+    }
+    return formData
+  }
+
+  /**
    * 对调用后台接口后返回的数据进行统一处理
    * @param { data } 接口返回数据
-   * @param { callback } 回调
    */
-  Vue.prototype.vmResponseHandler = (data, callback) => {
-    if (data.status === 1) {} else if (data.status === 2) {}
+  Vue.prototype.vmResponseHandler = (res) => {
+    if (res.status === 200) {
+      let data = res.data
+      if (!data.status) {
+        vm.vmMsgError(data.msg)
+        return false
+      } else if (!data || (data instanceof Array && data.length === 0)) {
+        // || (data instanceof Object && Object.keys(data).length === 0)
+        vm.vmMsgError('数据为空')
+        return false
+      }
+      return res.data
+    } else {
+      vm.vmMsgError('获取数据出错!')
+      return false
+    }
   }
 }

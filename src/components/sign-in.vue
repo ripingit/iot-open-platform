@@ -33,7 +33,7 @@
                   placeholder="请输入密码"
                   v-model="formData.password">
                   <i slot="prefix" class="iconfont icon-mima"></i>
-                  <i slot="suffix" class="el-input__icon fa fa-eye-slash"></i>
+                  <i slot="suffix" class="iconfont icon-chakanmima_guan"></i>
                 </el-input>
               </el-form-item>
             </el-form>
@@ -41,7 +41,7 @@
         </el-row>
         <el-row>
           <el-col :span="24" class="forgot">
-             <el-checkbox v-model="pwChecked">记住密码</el-checkbox>
+             <el-checkbox v-model="pwChecked" @click="rememberPass">记住密码</el-checkbox>
              <router-link to="">忘记密码？</router-link>
           </el-col>
         </el-row>
@@ -70,6 +70,7 @@ YUCnRYiiN30nW7KNiuD6XigaiNQ/hTwBPWPykUKXTiC3tzA06iyVcyts+rIFlUJR
 
 <script>
 import JSEncrypt from 'jsencrypt'
+import { SIGNIN_POST, TOKEN_POST } from '../lib/api.js'
 
 export default {
   data () {
@@ -81,36 +82,64 @@ export default {
       pwChecked: true,
       rules: {
         account: [
-          // { required: true, message: '请输入账号', trigger: 'blur' }
+          { required: true, message: '请输入账号', trigger: 'blur' }
         ],
         password: [
-          // { required: true, message: '请输入密码', trigger: 'blur' }
+          { required: true, message: '请输入密码', trigger: 'blur' }
         ]
       }
     }
   },
+  created () {
+    let pwdChecked = localStorage['_ck']
+    this.pwChecked = !pwdChecked ? true : Boolean(pwdChecked)
+
+    if (this.pwChecked) {
+      this.formData.account = localStorage['_acd']
+    }
+
+    this.getToken()
+  },
   methods: {
+    rememberPass () {
+      localStorage['_ck'] = this.pwChecked
+    },
+    getToken () {
+      this.$http.post(TOKEN_POST).then(res => {
+        if (this.vmResponseHandler(res)) {
+          sessionStorage['token'] = res.data.token
+        }
+      }).catch(() => {
+        this.vmMsgError('网络错误！')
+      })
+    },
     signIn () {
       let loading = this.vmLoadingFull()
-
-      sessionStorage['isLogin'] = true
-      // 记住连续错误登录次数，超过一定次数后三小时内禁止登录
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
+          if (this.pwChecked) {
+            localStorage['_acd'] = this.formData.account
+          } else {
+            localStorage.removeItem('_acd')
+          }
+
           let encrypt = new JSEncrypt()
           encrypt.setPublicKey(document.getElementById('rsakey').value)
 
-          let data = {
-            account: encrypt.encrypt(this.formData.account),
-            password: encrypt.encrypt(this.formData.password)
-          }
-          this.$http.get(`/aaa/getdevice`, data).then(res => {
-            // 返回mock.js 中模板格式数据
+          let token = sessionStorage['token']
+          let data = this.createFormData({
+            user_name: this.formData.account,
+            password: encrypt.encrypt(token + this.formData.password)
+          })
+          this.$http.post(SIGNIN_POST, data).then(res => {
             loading.close()
-            this.$router.push('/manage')
+            if (this.vmResponseHandler(res)) {
+              sessionStorage['isLogin'] = true
+              this.$router.push('/manage')
+            }
           }).catch(e => {
+            this.vmMsgError('网络错误！')
             loading.close()
-            console.error(`${e}`)
           })
         }
       })
