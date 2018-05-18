@@ -186,7 +186,7 @@ export default {
 <style scoped>
 /** 本页定制 start */
 .el-dialog__wrapper /deep/ .el-dialog{
-  width: 54rem;
+  width: 50rem;
 }
 .el-dialog .btn-submit {
   margin-top: 4.33rem;

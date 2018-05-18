@@ -25,7 +25,7 @@
                   placeholder="请输入验证码"
                   v-model="formData.vcode">
                 </el-input>
-                <el-button :disabled="isSendCode" :class="isSendCode ? 'disabled' : ''" type="primary" size="mini" @click="getVerificationCode">{{ codeBtnText }}</el-button>
+                <CheckCodeComponent :isReset="toResetBtnCode" v-on:emit-statu="getVerificationCode"></CheckCodeComponent>
               </el-form-item>
               <el-form-item label="输入密码" prop="text_pass" class="row">
                 <el-input
@@ -61,10 +61,12 @@
 </template>
 
 <script>
-import { validateEmail, validatePhone } from '../lib/validate.js'
-import { CODE_POST, SIGNUP_POST } from '../lib/api.js'
+import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
+import { validateEmail, validatePhone } from '@/lib/validate.js'
+import { CODE_POST, SIGNUP_POST } from '@/lib/api.js'
 
 export default {
+  components: { CheckCodeComponent },
   data () {
     let validateAccount = (rule, value, callback) => {
       if (value === '') {
@@ -108,8 +110,7 @@ export default {
     }
 
     return {
-      isSendCode: false,
-      codeBtnText: '获取验证码',
+      toResetBtnCode: false,
       formData: {
         user_name: '',
         text_pass: '',
@@ -141,35 +142,22 @@ export default {
     /** 获取验证码 */
     getVerificationCode () {
       if (!this.formData.user_name) {
+        this.toResetBtnCode = true
         this.vmMsgWarning('请填写手机号或邮箱'); return
       }
       let data = this.createFormData({
         type: 1,
         user_name: this.formData.user_name
       })
-
-      let reset = () => {
-        this.isSendCode = false
-        this.codeBtnText = '获取验证码'
-        clearInterval(timer)
-      }
-      let time = 59
-      this.isSendCode = true
-      this.codeBtnText = time + '秒后可重发'
-      let timer = setInterval(() => {
-        if (time <= 1) { reset(); return }
-        time = time - 1
-        this.codeBtnText = time + '秒后可重发'
-      }, 1000)
       this.$http.post(CODE_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.vmMsgSuccess('验证码已发送！')
         } else {
-          reset()
+          this.toResetBtnCode = true
         }
       }).catch((e) => {
         this.vmMsgError('网络错误！')
-        reset()
+        this.toResetBtnCode = true
       })
     },
     signUp () {
@@ -202,7 +190,7 @@ export default {
   .container {
     height: 100%;
     position: relative;
-    background: url('../assets/img/bg.jpg') no-repeat;
+    background: url('../../assets/img/bg.jpg') no-repeat;
     background-size: cover;
   }
   .panel {
@@ -267,6 +255,7 @@ export default {
   .code-panel .el-button {
     position: absolute;
     height: 2.17rem;
+    width: auto;
     right: 0.67rem;
     top: 0.6rem;
     font-size: 1rem;

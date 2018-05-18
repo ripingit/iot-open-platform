@@ -42,7 +42,7 @@
         <el-row>
           <el-col :span="24" class="forgot">
              <el-checkbox v-model="pwChecked" @click="rememberPass">记住密码</el-checkbox>
-             <router-link to="">忘记密码？</router-link>
+             <a @click="forgotPass">忘记密码？</a>
           </el-col>
         </el-row>
         <el-row>
@@ -65,19 +65,105 @@ YUCnRYiiN30nW7KNiuD6XigaiNQ/hTwBPWPykUKXTiC3tzA06iyVcyts+rIFlUJR
 1hV4oaMvB7UZeBkhRQIDAQAB
 -----END PUBLIC KEY-----
 </textarea>
+
+    <el-dialog
+      title="找回密码"
+      :visible.sync="isForgotVisible"
+      width="50rem"
+      center>
+      <el-form :model="formDataCheck" status-icon ref="checkForm" :rules="rulesCheck" label-position="right" label-width="100px">
+        <el-form-item label="账号" prop="user_name" class="form-row">
+          <el-input
+            placeholder="请输入手机号/邮箱"
+            v-model="formDataCheck.user_name"
+            clearable>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="验证码" prop="vcode" class="form-row">
+          <el-input
+            placeholder="请输入验证码"
+            v-model="formDataCheck.vcode"
+            clearable
+            style="width: 15rem">
+          </el-input>
+          <CheckCodeComponent class="btn-code" :isReset="toResetBtnCode" v-on:emit-statu="getCheckCode"></CheckCodeComponent>
+        </el-form-item>
+        <el-form-item label="新密码" prop="new_pass" class="form-row">
+          <el-input
+            type="password"
+            placeholder="请输入新密码"
+            v-model="formDataCheck.new_pass"
+            clearable>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="确认新密码" prop="confirmPass" class="form-row">
+          <el-input
+            type="password"
+            placeholder="请再次输入新密码"
+            v-model="formDataCheck.confirmPass"
+            clearable>
+          </el-input>
+        </el-form-item>
+        <el-form-item class="form-row" style="margin-top: 2rem">
+          <el-button type="primary" class="btn-submit" @click="changePassword">确定</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
 import JSEncrypt from 'jsencrypt'
-import { SIGNIN_POST, TOKEN_POST } from '../lib/api.js'
+import { validateEmail, validatePhone } from '@/lib/validate.js'
+import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST } from '@/lib/api.js'
 
 export default {
+  components: { CheckCodeComponent },
   data () {
+    let validatePass = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.formDataCheck.new_pass) {
+        callback(new Error('两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
+    let validateIsEmpty = (rule, value, callback) => {
+      if (value === '') {
+        if (rule.field === 'vcode') {
+          callback(new Error('请输入验证码'))
+        } else if (rule.field === 'confirmPass' || rule.field === 'new_pass') {
+          callback(new Error('请输入密码'))
+        }
+      }
+      callback()
+    }
+    let validateAccount = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入账号'))
+      } else {
+        let isEmail = validateEmail(value)
+        let isPhone = validatePhone(value)
+        if (!isEmail && !isPhone) {
+          callback(new Error('请输入正确的账号'))
+        }
+        callback()
+      }
+    }
     return {
+      isForgotVisible: false,
+      toResetBtnCode: false,
       formData: {
         account: '',
         password: ''
+      },
+      formDataCheck: {
+        user_name: '',
+        vcode: '',
+        new_pass: '',
+        confirmPass: ''
       },
       pwChecked: true,
       rules: {
@@ -86,6 +172,21 @@ export default {
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' }
+        ]
+      },
+      rulesCheck: {
+        user_name: [
+          { validator: validateAccount, trigger: 'blur' }
+        ],
+        new_pass: [
+          { validator: validateIsEmpty, trigger: 'blur' },
+          { min: 8, max: 50, message: '长度在 8 到 50 个字符', trigger: 'blur' }
+        ],
+        confirmPass: [
+          { validator: validatePass, trigger: 'blur' }
+        ],
+        vcode: [
+          { validator: validateIsEmpty, trigger: 'blur' }
         ]
       }
     }
@@ -114,9 +215,10 @@ export default {
       })
     },
     signIn () {
-      let loading = this.vmLoadingFull()
+      // sessionStorage['isLogin'] = true
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
+          let loading = this.vmLoadingFull()
           if (this.pwChecked) {
             localStorage['_acd'] = this.formData.account
           } else {
@@ -143,6 +245,44 @@ export default {
           })
         }
       })
+    },
+
+    forgotPass () {
+      this.isForgotVisible = true
+    },
+    getCheckCode () {
+      if (!this.formDataCheck.user_name) {
+        this.toResetBtnCode = true
+        this.vmMsgWarning('请填写手机号或邮箱'); return
+      }
+      let data = this.createFormData({
+        type: 2,
+        user_name: this.formDataCheck.user_name
+      })
+      this.$http.post(CODE_POST, data).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.vmMsgSuccess('验证码已发送！')
+        } else {
+          this.toResetBtnCode = true
+        }
+      }).catch((e) => {
+        this.vmMsgError('网络错误！')
+        this.toResetBtnCode = true
+      })
+    },
+    changePassword () {
+      this.$refs['checkForm'].validate((valid) => {
+        if (valid) {
+          this.$http.post(LOST_PASS_POST, this.createFormData(this.formDataCheck)).then(res => {
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('您的密码已成功重置！')
+              this.isForgotVisible = false
+            }
+          }).catch(() => {
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
     }
   }
 }
@@ -160,7 +300,7 @@ export default {
   .container {
     height: 100%;
     position: relative;
-    background: url('../assets/img/bg.jpg') no-repeat;
+    background: url('../../assets/img/bg.jpg') no-repeat;
     background-size: cover;
   }
   .panel {
@@ -197,7 +337,7 @@ export default {
     display: inline-block;
   }
 
-  .el-button {
+  .panel .el-button {
     width: 100%;
     border-radius: 0;
     margin: 2rem 0;
@@ -227,6 +367,11 @@ export default {
   }
 /* } */
 
+  .btn-code {
+    width: 9.7rem;
+    height: 3.33rem;
+    margin: 0;
+  }
   #rsakey {
     display: none;
   }

@@ -67,43 +67,61 @@
 
     <el-dialog title="提交审核" :visible.sync="isDialogVisible" center>
       <p class="note">* 所有填写的信息要与营业执照上保持一致</p>
-      <el-form label-position="right" label-width="100px">
-        <el-form-item class="form-row" label="公司名" prop="name">
-          <el-input v-model="form.name" auto-complete="off" placeholder="请输入公司全称"></el-input>
+      <el-form :model="form" status-icon ref="authForm" :rules="rules" label-position="right" label-width="100px">
+        <el-form-item label="公司名" prop="name" class="form-row">
+          <el-input
+            placeholder="请输入公司全称"
+            v-model="form.name"
+            clearable>
+          </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="证件号码" prop="name">
-          <el-input v-model="form.name" auto-complete="off" placeholder="请输入单位证件号码"></el-input>
+        <el-form-item label="证件号码" prop="agency_code" class="form-row">
+          <el-input
+            placeholder="请输入单位证件号码"
+            v-model="form.agency_code">
+          </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="证件住所" prop="name">
-          <el-input v-model="form.name" auto-complete="off" placeholder="请输入证件所在地"></el-input>
+        <el-form-item label="通讯地址" prop="addr" class="form-row">
+          <el-input
+            placeholder="请输入通讯地址"
+            v-model="form.addr">
+          </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="通讯地址" prop="name">
-          <el-input v-model="form.name" auto-complete="off" placeholder="请输入证件通讯地址"></el-input>
+        <el-form-item label="联系电话" prop="tel" class="form-row">
+          <el-input
+            placeholder="请输入联系电话"
+            v-model="form.tel">
+          </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="联系电话" prop="name">
-          <el-input v-model="form.name" auto-complete="off" placeholder="请输入联系电话"></el-input>
-          <span class="form-tip">*</span>
-        </el-form-item>
-        <el-form-item class="form-row" label="营业执照" prop="name">
-          <span class="form-img-cert">
+        <el-form-item label="营业执照" prop="cert" class="form-row">
+          <span class="form-img-cert" v-if="isUploading">
+            {{uploadProgress || picTip}}
           </span>
+          <img v-else class="form-img-cert" :src="picPath"/>
           <div class="form-btn-upload">
             <el-upload
-              action="https://jsonplaceholder.typicode.com/posts/">
+              :action="uploadPath"
+              name="photo"
+              accept=".jpg"
+              :before-upload="onBeforeUpload"
+              :on-success="onUploadSuccess"
+              :on-progress="onUploadProgress"
+              :on-error="onUploadError"
+              :show-file-list="false">
               <el-button class="btn-upload" size="small" type="primary">上传</el-button>
             </el-upload>
           </div>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row">
-           <el-checkbox v-model="pwChecked">同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a></el-checkbox>
+        <el-form-item prop="protocolChecked" class="form-row">
+          <el-checkbox v-model="form.protocolChecked">同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a></el-checkbox>
         </el-form-item>
         <el-form-item class="form-row">
-           <el-button class="btn-submit" type="primary" >提交</el-button>
+           <el-button class="btn-submit" type="primary" @click="authenticate">提交</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -112,21 +130,123 @@
 
 <script>
 import '@/assets/css/content.css'
+import { CERT_UPLOAD_POST, PARTNER_AUTH_POST } from '../../lib/api.js'
+import { validatePhone, validateFixPhone, validateBusinessLicense } from '../../lib/validate.js'
 
 export default {
   data () {
+    let validateIsEmpty = (rule, value, callback) => {
+      if (rule.field === 'protocolChecked') {
+        if (!value) { callback(new Error('请输入勾选同意迈科智能用户协议')) }
+      }
+      if (value === '') {
+        if (rule.field === 'name') {
+          callback(new Error('请输入公司名称'))
+        } else if (rule.field === 'addr') {
+          callback(new Error('请输入通讯地址'))
+        } else if (rule.field === 'agency_code') {
+          callback(new Error('请输入证件号码'))
+        } else if (rule.field === 'tel') {
+          callback(new Error('请输入联系电话'))
+        } else if (rule.field === 'cert') {
+          callback(new Error('请上传营业执照'))
+        }
+      } else {
+        if (rule.field === 'tel') {
+          if (!validatePhone(value) && !validateFixPhone(value)) {
+            callback(new Error('请输入正确的电话号码'))
+          }
+        }
+        if (rule.field === 'agency_code') {
+          if (!validateBusinessLicense(value)) {
+            callback(new Error('请输入正确的营业执照号码'))
+          }
+        }
+      }
+      callback()
+    }
     return {
+      uploadPath: CERT_UPLOAD_POST,
       isDialogVisible: false,
-      formLabelWidth: '120px',
+      protocolChecked: false,
+      uploadProgress: '',
+      isUploading: true,
+      picPath: '',
+      picTip: '格式为 jpg 且小于2M',
       form: {
         name: '',
-        region: '区域一'
+        addr: '',
+        agency_code: '',
+        tel: '',
+        protocolChecked: true,
+        cert: ''
+      },
+      rules: {
+        name: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        addr: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        agency_code: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        tel: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        protocolChecked: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        cert: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ]
       }
     }
   },
   methods: {
     showDialog () {
       this.isDialogVisible = true
+    },
+
+    authenticate () {
+      this.$refs['authForm'].validate((valid) => {
+        if (valid) {
+          this.$http.post(PARTNER_AUTH_POST, this.createFormData(this.form)).then(res => {
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('提交成功！')
+              this.isDialogVisible = false
+              this.isUploading = true
+              this.uploadProgress = ''
+              this.$refs['authForm'].resetFields()
+            }
+          }).catch(() => {
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
+    },
+    onBeforeUpload (file) {
+      let sizeM = file.size / 1024 / 1024
+      if (file.type !== 'image/jpeg' || sizeM > 2) {
+        this.vmMsgError('请上传后缀为.jpg且小于2M的图片')
+        return false
+      }
+    },
+    onUploadSuccess (response, file, fileList) {
+      this.uploadProgress = ''
+      if (!response.status) {
+        this.vmMsgError(response.msg); return
+      }
+      this.isUploading = false
+      this.picPath = file.url
+      this.form.cert = file.url
+    },
+    onUploadProgress (event, file, fileList) {
+      this.isUploading = true
+      this.uploadProgress = '已上传' + event.percent + '%'
+    },
+    onUploadError (err, file, fileList) {
+      this.vmMsgError(err)
     }
   }
 }
@@ -227,9 +347,31 @@ export default {
 
   .el-steps /deep/ .el-step__title.is-success,
   .el-steps /deep/ .el-step__title.is-process,
-  .el-steps /deep/ .el-step__title.is-wait{
+  .el-steps /deep/ .el-step__title.is-wait,
+  .el-steps /deep/ .el-step__head.is-success{
     color: #fff !important;
   }
+  .el-steps /deep/ .el-step__head.is-success .el-step__icon.is-text,
+  .el-steps /deep/ .el-step__head.is-success .el-step__line {
+    background: #2acba7;
+    border: none;
+  }
+  .el-steps /deep/ .el-step__head.is-process .el-step__icon.is-text {
+    border: 0.17rem solid #2acba7;
+    background: #36393e;
+    color: transparent;
+  }
+  .el-steps /deep/ .el-step__head.is-process .el-step__line,
+  .el-steps /deep/ .el-step__head.is-wait .el-step__line {
+    background-color: #808080
+  }
+
+  .el-steps /deep/ .el-step__head.is-wait .el-step__icon.is-text {
+    border: 0.17rem solid #808080;
+    background: #36393e;
+    color: transparent;
+  }
+
   .el-steps /deep/ .el-step__description.is-success,
   .el-steps /deep/ .el-step__description.is-process {
     color: #9f9f9f;
@@ -291,10 +433,12 @@ export default {
     position: absolute;
     left: 0;
   }
-
+.el-dialog__wrapper /deep/ .el-dialog{
+  width: 50rem;
+}
 .el-dialog .note {
   position: absolute;
-  top: 4.3rem;
+  top: 5rem;
   width: 100%;
   left: 0;
   text-align: center;
@@ -307,6 +451,9 @@ export default {
   height: 8rem;
   background: #636363;
   vertical-align: middle;
+  color: #fff;
+  text-align: center;
+  line-height: 8rem;
 }
 .el-dialog .form-btn-upload {
   display: inline-block;

@@ -1,5 +1,13 @@
 /* element-ui 样式覆盖文件 */
 
+/** button */
+.el-button {
+  width: 100%;
+  border-radius: 0;
+  background: #1f7ecf;
+  border: none;
+}
+
 /** alert */
 .el-message--success {
   background-color: #2acba7;
@@ -23,7 +31,7 @@
   color: #fff;
 }
 
-/** message-box */
+/** confirm-box */
 .el-message-box__wrapper /deep/ .el-message-box {
   background-color: #36393E;
   border: 1px solid #36393E;
@@ -35,6 +43,7 @@
   background: #909399;
   color: #fff;
   border: 1px solid #909399;
+  width: auto;
 }
 .el-message-box__wrapper /deep/ .el-button--primary {
   background: #1f7ecf;
@@ -161,6 +170,9 @@
 .el-table .el-table__body tr:hover>td {
   background:transparent;
 }
+.el-table .el-button {
+  width: auto;
+}
 
 /* 后续删除 */
 .el-dialog__title,.el-form-item__label{
@@ -192,7 +204,7 @@ padding: 25px 66px;
 .el-dialog .el-input,
 .el-dialog .el-select ,
 .el-dialog__wrapper /deep/ .el-textarea {
-  width: 85%;
+  width: 25rem;
   border: none; 
 }
 
@@ -224,7 +236,7 @@ padding: 25px 66px;
   padding-left: 1.6rem;
 }
 .el-dialog .btn-submit {
-  width: 85%;
+  width: 25rem;
   border-radius: 0;
   background: #1f7ecf;
   border: none;

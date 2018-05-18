@@ -18,7 +18,7 @@
           <i class="iconfont icon-xiaoxi tips" aria-hidden="true"></i>
           <i class="iconfont icon-bangzhu" aria-hidden="true"></i>
           <div class="user-control">
-            <p v-on:click.stop="showSetPanel">135****2561</p>
+            <p v-on:click.stop="showSetPanel">{{userAccount}}</p>
             <transition name="slide">
               <ul class="control-panel" v-show="isPanelShow">
                 <li @click="routeGo('/manage/user/authention')">认证</li>
@@ -35,17 +35,31 @@
 
 <script>
 import { SIGN_OUT_POST } from '../../lib/api.js'
+import { validatePhone } from '../../lib/validate.js'
 export default {
   data () {
     return {
       keyword: '',
-      isPanelShow: false
+      isPanelShow: false,
+      userAccount: ''
     }
   },
   created () {
     document.addEventListener('click', () => {
       this.isPanelShow = false
     })
+
+    let account = localStorage['_acd']
+    let start = account.slice(0, 3)
+    if (validatePhone(account)) {
+      let end = account.slice(8)
+      this.userAccount = start + '****' + end
+    } else {
+      let index = account.indexOf('@')
+      let end = account.slice(index)
+      let length = account.slice(3, index + 1).length
+      this.userAccount = start + ('*'.repeat(length)) + end
+    }
   },
   methods: {
     showSetPanel () {
@@ -107,7 +121,7 @@ export default {
 }
 .info .user-control {
   border-left: 1px solid #8e8e8e;
-  padding: 0 6rem;
+  padding: 0 4rem;
   cursor: pointer;
   display: inline-block;
   position: relative;
@@ -123,6 +137,7 @@ export default {
   text-align: center;
   left: 3.5rem;
   top: 2rem;
+  z-index: 20;
 }
 .info .user-control .control-panel li {
   line-height: 3.5rem;

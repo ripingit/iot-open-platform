@@ -19,6 +19,7 @@ export default {
 }
 
 html, body, #app{
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
   height: 100%;
   font-size: 12px;
   font-family: Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,SimSun,sans-serif;

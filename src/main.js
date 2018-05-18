@@ -15,6 +15,15 @@ import CommonApi from './lib/common-api'
 // 提交代码到仓库或者打包发布时请注释
 // import './mock/mock.js'
 
+// 拦截接口响应
+axios.interceptors.response.use((res) => {
+  if (res.data.status === 0) {
+    res.data.msg = '请重新登录！'
+    router.push('/signin')
+  }
+  return res
+})
+
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
 

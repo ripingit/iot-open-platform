@@ -8,12 +8,17 @@ const router = new Router({
       path: '/',
       redirect: '/signin'
     }, {
+      path: '/login',
+      name: 'login',
+      component: resolve => require(['@/components/manage/sign-in'], resolve),
+      meta: { title: '登录' }
+    }, {
       path: '/signin',
-      component: resolve => require(['@/components/sign-in'], resolve),
+      component: resolve => require(['@/components/user/sign-in'], resolve),
       meta: { title: '登录' }
     }, {
       path: '/signup',
-      component: resolve => require(['@/components/sign-up'], resolve),
+      component: resolve => require(['@/components/user/sign-up'], resolve),
       meta: { title: '注册' }
     }, {
       path: '/manage',
@@ -131,7 +136,7 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  let filter = ['/signin', '/signup']
+  let filter = ['/signin', '/signup', '/login']
 
   if (filter.includes(to.fullPath)) {
     next(); return

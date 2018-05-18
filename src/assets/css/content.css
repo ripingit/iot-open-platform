@@ -24,6 +24,8 @@
 .table .el-select,
 .table .btn-search {
   margin-left: 1.5rem;
+  width: auto;
+  border-radius: 4px;
 }
 
 .table .el-input input {
