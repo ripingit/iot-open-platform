@@ -19,6 +19,7 @@
 }
 .el-table {
   margin-top: 2.5rem;
+  min-height: 20rem;
 }
 
 .table .el-select,
@@ -47,6 +48,11 @@
   position: absolute;
   top: -4.67rem;
   right: 6.63rem;
+}
+/*添加类名，让删除按钮变为红色*/
+.btn-circle-right{
+  background-color: #f56c6c;
+  border-color: #f56c6c;
 }
 .btn-circle-add {
   width: 4.5rem;

@@ -28,7 +28,7 @@ const router = new Router({
           path: '',
           redirect: '/manage/user/authention'
         }, {
-          path: 'home',
+          path: 'home/:index',
           name: 'home',
           component: resolve => require(['@/components/home/home'], resolve),
           meta: { title: '首页' }
@@ -47,17 +47,17 @@ const router = new Router({
               component: resolve => require(['@/components/user/edit-password'], resolve),
               meta: { title: '修改密码' }
             }, {
-              path: 'model',
+              path: 'model/:index',
               name: 'model',
               component: resolve => require(['@/components/user/device-model/device-model'], resolve),
               meta: { title: '设备型号' }
             }, {
-              path: 'firmware',
+              path: 'firmware/:index',
               name: 'firmware',
               component: resolve => require(['@/components/user/firmware/firmware'], resolve),
               meta: { title: '固件管理' }
             }, {
-              path: 'appVersion',
+              path: 'appVersion/:index',
               name: 'appVersion',
               component: resolve => require(['@/components/user/app/app-manage'], resolve),
               meta: { title: 'app版本' }
@@ -68,17 +68,22 @@ const router = new Router({
           component: resolve => require(['@/components/manage/layout'], resolve),
           children: [
             {
-              path: 'appVersion',
+              path: 'resetAdminPass',
+              name: 'resetAdminPass',
+              component: resolve => require(['@/components/manage/edit-password'], resolve),
+              meta: { title: '修改密码' }
+            }, {
+              path: 'appVersion/:index',
               name: 'appVersion',
               component: resolve => require(['@/components/manage/app-version/app-version'], resolve),
               meta: { title: 'app版本' }
             }, {
-              path: 'category',
+              path: 'category/:index',
               name: 'category',
               component: resolve => require(['@/components/manage/device-category/device-category'], resolve),
               meta: { title: '设备类别' }
             }, {
-              path: 'model',
+              path: 'model/:index',
               name: 'model',
               component: resolve => require(['@/components/manage/device-model/device-model'], resolve),
               meta: { title: '设备型号' }
@@ -88,42 +93,42 @@ const router = new Router({
               component: resolve => require(['@/components/manage/key/key'], resolve),
               meta: { title: 'KEY管理' }
             }, {
-              path: 'users',
+              path: 'users/:index',
               name: 'usersManage',
               component: resolve => require(['@/components/manage/users/user-manage'], resolve),
               meta: { title: '用户管理' }
             }, {
-              path: 'firmware',
+              path: 'firmware/:index',
               name: 'firmware',
               component: resolve => require(['@/components/manage/firmware/firmware'], resolve),
               meta: { title: '固件管理' }
             }, {
-              path: 'cooperation',
+              path: 'cooperation/:index',
               name: 'cooperation',
               component: resolve => require(['@/components/manage/cooperation/cooperation'], resolve),
               meta: { title: '合作' }
             }, {
-              path: 'reviewCompany',
+              path: 'reviewCompany/:index',
               name: 'reviewCompany',
               component: resolve => require(['@/components/manage/review-manage/company'], resolve),
               meta: { title: '审核管理-公司' }
             }, {
-              path: 'reviewFirmware',
+              path: 'reviewFirmware/:index',
               name: 'reviewFirmware',
               component: resolve => require(['@/components/manage/review-manage/firmware'], resolve),
               meta: { title: '审核管理-固件' }
             }, {
-              path: 'reviewCategory',
+              path: 'reviewCategory/:index',
               name: 'reviewCategory',
               component: resolve => require(['@/components/manage/review-manage/category'], resolve),
               meta: { title: '审核管理-类别' }
             }, {
-              path: 'reviewModel',
+              path: 'reviewModel/:index',
               name: 'reviewModel',
               component: resolve => require(['@/components/manage/review-manage/model'], resolve),
               meta: { title: '审核管理-型号' }
             }, {
-              path: 'admins',
+              path: 'admins/:index',
               name: 'admins',
               component: resolve => require(['@/components/manage/admin/admin'], resolve),
               meta: { title: '管理员' }
@@ -134,7 +139,7 @@ const router = new Router({
     }
   ]
 })
-
+// TODO: 路由权限处理，合作商不能登陆后输入管理员后台地址进入管理员界面
 router.beforeEach((to, from, next) => {
   let filter = ['/signin', '/signup', '/login']
 

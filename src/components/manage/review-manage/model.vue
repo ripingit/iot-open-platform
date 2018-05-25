@@ -17,7 +17,7 @@
                 type="date"
                 placeholder="请选择提交时间">
               </el-date-picker>
-              <el-select placeholder="请选择">
+              <el-select placeholder="请选择" v-model="value1">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -26,50 +26,61 @@
                 </el-option>
               </el-select>
               <el-button class="btn-search" type="primary">查询</el-button>
-              <el-button class="btn-circle-delete" type="danger" icon="el-icon-delete" circle></el-button>
+              <el-button class="btn-circle-delete" type="danger" icon="el-icon-delete" circle @click="deleteAudit"></el-button>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="24">
               <el-table
-                :data="tableData"
-                style="width: 100%">
+                v-loading="loading"
+                :data="tableData.data"
+                style="width: 100%"
+                @selection-change="handleSelectionChange">
                 <el-table-column
                   type="selection"
                   width="55">
                 </el-table-column>
                 <el-table-column
-                  prop="date"
+                  type="index"
                   label="编号"
-                  width="180">
+                  width="80">
                 </el-table-column>
                 <el-table-column
-                  prop="name"
+                  prop="product_name"
                   label="型号"
-                  width="180">
+                  width="120">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
+                  prop="company_name"
                   label="归属公司">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
+                  prop="upgrade_time"
                   label="提交时间">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
+                  prop="is_review"
                   label="状态">
+                  <template slot-scope="scope">
+                    <span :class="scope.row.is_review === 9 ? 'wait'
+                    : scope.row.is_review === 1 ? 'pass'
+                    : scope.row.is_review === 2 ? 'reject' : ''">
+                    {{scope.row.is_review === 9 ? '待审核'
+                    : scope.row.is_review === 1 ? '已通过'
+                    : scope.row.is_review === 2 ? '已驳回' : ''}}
+                    </span>
+                  </template>
                 </el-table-column>
                 <el-table-column
-                  prop="address"
+                  prop="review_mark"
                   label="备注">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
+                  prop="review_name"
                   label="审核人">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
+                  prop="review_time"
                   label="审核时间">
                 </el-table-column>
                 <el-table-column label="操作">
@@ -79,10 +90,21 @@
                       size="mini"
                       icon="iconfont icon-gengduo"
                       circle
-                      @click="showDetailDialog"></el-button>
+                      @click="showDetailDialog(scope.$index, scope.row)"></el-button>
                   </template>
                 </el-table-column>
               </el-table>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col>
+              <el-pagination
+                @size-change="getAuditList"
+                @current-change="getAuditList"
+                :page-size="10"
+                layout="prev, pager, next, jumper"
+                :total="tableData.total">
+              </el-pagination>
             </el-col>
           </el-row>
         </div>
@@ -93,31 +115,31 @@
       <el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">型号名称</el-col>
         <el-col :span="22" :sm="21" class="label-value">
-          NVR-13564
+          {{reviewData.product_name}}
         </el-col>
       </el-row>
       <el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">型号代码</el-col>
         <el-col :span="22" :sm="21" class="label-value">
-          NVR21053
+          {{reviewData.product_code}}
         </el-col>
       </el-row>
       <el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">连接方式</el-col>
         <el-col :span="22" :sm="21" class="label-value">
-          1.红外线；2.蓝牙；3.WIFI
+          {{reviewData.nbi_code}}
         </el-col>
       </el-row>
       <el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">设备类别</el-col>
         <el-col :span="22" :sm="21" class="label-value">
-          1.摄像头；2.音箱；3.中控；4.烟感
+          {{reviewData.prodt_code}}
         </el-col>
       </el-row>
       <el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">效果图</el-col>
         <el-col :span="22" :sm="21" class="label-value">
-          <img src="" alt="">
+          <ScaleImgComponent v-for="(item, index) in reviewData.filePaths" :key="index" :path="item" class="cert" alt="效果图"></ScaleImgComponent>
         </el-col>
       </el-row>
       <el-row class="label-sug">
@@ -126,17 +148,17 @@
             type="textarea"
             :rows="4"
             placeholder="请说明"
-            v-model="form.name">
+            v-model="reviewData.review_mark">
           </el-input>
         </el-col>
       </el-row>
       <el-row class="label-sug">
         <el-col :span="11">
-          <el-button class="btn-reject" type="danger" >驳回</el-button>
+          <el-button class="btn-reject" type="danger" @click="reviewAudit(2)">驳回</el-button>
         </el-col>
         <el-col :span="2">&nbsp;</el-col>
         <el-col :span="11">
-          <el-button class="btn-pass" type="success" >通过</el-button>
+          <el-button class="btn-pass" type="success" @click="reviewAudit(1)">通过</el-button>
         </el-col>
       </el-row>
     </el-dialog>
@@ -145,77 +167,119 @@
 
 <script>
 import '@/assets/css/content.css'
+import ScaleImgComponent from '@/components/_ui/scale-img.vue'
+import { GET_ADMIN_AUDIT_MODEL_POST, DELETE_ADMIN_AUDIT_MODEL_POST, REVIEW_ADMIN_AUDIT_MODEL_POST } from '@/lib/api'
+
 export default {
+  components: { ScaleImgComponent },
   data () {
     return {
-      form: {
-        name: '',
-        region: '区域一'
-      },
       isDetailDialogVisible: false,
-      options: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }],
+      options: [],
       value1: '',
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }]
+      tableData: {
+        data: [],
+        page: '1',
+        pageAll: 1,
+        total: 1
+      },
+      reviewData: {
+        product_name: '',
+        product_code: '',
+        nbi_code: '',
+        prodt_code: '',
+        review_mark: '',
+        filePaths: []
+      },
+      connectionMode: [],
+      deviceCategory: [],
+      selectedData: []
+    }
+  },
+  created () {
+    this.getAuditList(1)
+  },
+  computed: {
+    loading () {
+      return this.tableData.data.length === 0 && this.tableData.status !== undefined
     }
   },
   methods: {
-    showDetailDialog () {
+    handleSelectionChange (val) {
+      this.selectedData = val
+    },
+    showDetailDialog (index, row) {
+      let connect = row.nbi_code && row.nbi_code.reduce((accumulator, currentValue) => {
+        return accumulator + this.connectionMode.find(o => o.nbi_code === currentValue).nbi_code_name + '；'
+      }, '')
+      let deviceCate = row.prodt_code && row.prodt_code.reduce((accumulator, currentValue) => {
+        return accumulator + currentValue + '；'
+      }, '')
+      this.reviewData.product_name = row.product_name
+      this.reviewData.product_code = row.product_code
+      this.reviewData.nbi_code = connect
+      this.reviewData.prodt_code = deviceCate
+      this.reviewData.review_mark = ''
+      this.reviewData.filePaths = [row.pic1_fileid, row.pic2_fileid]
       this.isDetailDialogVisible = true
+    },
+    getAuditList (currentPage) {
+      let data = this.createFormData({
+        page: currentPage,
+        page_size: 10
+      })
+      this.$http.post(GET_ADMIN_AUDIT_MODEL_POST, data).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.tableData = res.data
+          this.connectionMode = res.data.Nbi
+          this.deviceCategory = res.data.prodtList
+        }
+      }).catch(e => {
+        this.vmMsgError('网络错误！')
+      })
+    },
+    deleteAudit () {
+      if (this.selectedData.length <= 0) {
+        this.vmMsgError('请选择需要删除的型号！'); return
+      }
+      let data = this.createFormData({
+        product_code: this.selectedData[0].product_code
+      })
+      this.vmConfirm({
+        msg: '确认要删除选中记录吗？',
+        confirmCallback: () => {
+          this.$http.post(DELETE_ADMIN_AUDIT_MODEL_POST, data).then(res => {
+            if (this.vmResponseHandler(res)) {
+              this.getAuditList(this.tableData.page)
+              this.vmMsgSuccess('删除成功！')
+            }
+          }).catch(e => {
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
+    },
+    reviewAudit (review) {
+      // review: 1通过 2未通过
+      let data = this.createFormData({
+        product_code: this.reviewData.product_code,
+        is_review: review,
+        review_mark: this.reviewData.review_mark || '无'
+      })
+      this.vmConfirm({
+        msg: review === 1 ? '确认通过该设备型号的审核？' : '确认驳回该设备型号的审核？',
+        confirmCallback: () => {
+          this.$http.post(REVIEW_ADMIN_AUDIT_MODEL_POST, data).then(res => {
+            if (this.vmResponseHandler(res)) {
+              this.getAuditList(this.tableData.page)
+              this.isDetailDialogVisible = false
+              this.vmMsgSuccess('提交成功！')
+            }
+          }).catch(e => {
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
     }
   }
 }
@@ -226,6 +290,20 @@ export default {
 /** 定制 start */
 .el-dialog__wrapper /deep/ .el-dialog{
   width: 54.17rem;
+}
+.cert {
+  width: 12rem;
+  height: 8.33rem;
+  margin-right: 1rem;
+}
+.wait {
+  color: #b3b3b3;
+}
+.pass {
+  color: #2acba7;
+}
+.reject {
+  color: #ff5d66;
 }
 /** 定制 end */
 </style>

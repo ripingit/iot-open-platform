@@ -33,33 +33,37 @@
           <el-row>
             <el-col :span="24">
               <el-table
-                :data="tableData"
+                v-loading="loading"
+                :data="tableData.data"
                 style="width: 100%">
                 <el-table-column
-                  prop="date"
+                  type="index"
                   label="编号"
-                  width="180">
+                  width="80">
                 </el-table-column>
                 <el-table-column
-                  prop="name"
+                  prop="product_code"
                   label="型号"
-                  width="180">
+                  width="120">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
+                  prop="rom_ver"
                   label="固件版本">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
+                  prop="upgrade_time"
                   label="更新时间">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
+                  prop="company_name"
                   label="提交公司">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
+                  prop="file_id"
                   label="下载">
+                  <template slot-scope="scope">
+                    <a :href="scope.row.file_id" target="_blank" class="download">下载</a>
+                  </template>
                 </el-table-column>
                 <el-table-column label="操作">
                   <template slot-scope="scope">
@@ -68,10 +72,21 @@
                       size="mini"
                       icon="iconfont icon-gengduo"
                       circle
-                      @click="showListDialog"></el-button>
+                      @click="showListDialog(scope.$index, scope.row)"></el-button>
                   </template>
                 </el-table-column>
               </el-table>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col>
+              <el-pagination
+                @size-change="getFirmwareLists"
+                @current-change="getFirmwareLists"
+                :page-size="10"
+                layout="prev, pager, next, jumper"
+                :total="tableData.total">
+              </el-pagination>
             </el-col>
           </el-row>
         </div>
@@ -79,7 +94,7 @@
     </el-row>
 
     <el-dialog title="固件升级记录" :visible.sync="isDialogVisibleList" center>
-      <TimeLineComponent data="遇到个鬼"></TimeLineComponent>
+      <TimeLineComponent :data="historyRecord" :loading="isGetHistory"></TimeLineComponent>
     </el-dialog>
   </div>
 </template>
@@ -87,60 +102,70 @@
 <script>
 import '@/assets/css/content.css'
 import TimeLineComponent from '../../_ui/time-line.vue'
+import { GET_ADMIN_FIRMWARES_POST, GET_ADMIN_FIRMWARE_HISTORY_POST } from '@/lib/api'
 
 export default {
   components: { TimeLineComponent },
   data () {
     return {
       isDialogVisibleList: false,
-      options: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }],
+      options: [],
+      isGetHistory: false,
+      historyRecord: [],
       value6: '',
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }]
+      tableData: {
+        data: [],
+        page: '1',
+        pageAll: 1,
+        product: [],
+        total: 1
+      }
+    }
+  },
+  created () {
+    this.getFirmwareLists(1)
+  },
+  computed: {
+    loading () {
+      return this.tableData.data.length === 0 && this.tableData.status !== undefined
     }
   },
   methods: {
-    showListDialog () {
+    showListDialog (index, row) {
       this.isDialogVisibleList = true
+      this.isGetHistory = true
+      let data = this.createFormData({
+        product_code: row.product_code
+      })
+      this.$http.post(GET_ADMIN_FIRMWARE_HISTORY_POST, data).then(res => {
+        this.isGetHistory = false
+        if (this.vmResponseHandler(res)) {
+          this.historyRecord = res.data.data
+        }
+      }).catch(() => {
+        this.isGetHistory = false
+        this.vmMsgError('网络错误！')
+      })
+    },
+    getFirmwareLists (currentPage) {
+      let data = this.createFormData({
+        page: currentPage,
+        page_size: 10
+      })
+      this.$http.post(GET_ADMIN_FIRMWARES_POST, data).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.tableData = res.data
+        }
+      }).catch(e => {
+        this.vmMsgError('网络错误！')
+      })
     }
   }
 }
 </script>
+<style scoped>
+.download {
+  font-size: 1.17rem;
+  color: #2acba7;
+}
+</style>

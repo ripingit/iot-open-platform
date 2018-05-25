@@ -117,6 +117,7 @@ import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
 import JSEncrypt from 'jsencrypt'
 import { validateEmail, validatePhone } from '@/lib/validate.js'
 import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST } from '@/lib/api.js'
+import { AUTH_CHANGE, IDENTITY_UPDATE } from '@/store/mutations-type'
 
 export default {
   components: { CheckCodeComponent },
@@ -193,7 +194,7 @@ export default {
   },
   created () {
     let pwdChecked = localStorage['_ck']
-    this.pwChecked = !pwdChecked ? true : Boolean(pwdChecked)
+    this.pwChecked = pwdChecked === undefined ? true : Boolean(pwdChecked)
 
     if (this.pwChecked) {
       this.formData.account = localStorage['_acd']
@@ -215,7 +216,6 @@ export default {
       })
     },
     signIn () {
-      // sessionStorage['isLogin'] = true
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
           let loading = this.vmLoadingFull()
@@ -237,6 +237,8 @@ export default {
             loading.close()
             if (this.vmResponseHandler(res)) {
               sessionStorage['isLogin'] = true
+              this.$store.commit(AUTH_CHANGE, { authState: res.data.company_status })
+              this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id })
               this.$router.push('/manage')
             }
           }).catch(e => {

@@ -1,87 +1,51 @@
 <template>
   <div class="timeline-container">
-    <el-row class="timeline-row">
-      <el-col :span="5">
-        <p class="date">2018-03-18</p>
-        <p class="state state-wait-pass">待审核</p>
-      </el-col>
-      <el-col :span="1">
-        <div class="spot">
-          <i class="circle"></i>
-          <i class="line"></i>
-        </div>
-      </el-col>
-      <el-col :span="18">
-        <p class="log">v2.0.06.11</p>
-        <p class="log">MD5值：156489465165145646</p>
-        <p class="log mt20">1.支持iOS12，iSuit同步。</p>
-        <p class="log">2.支持全景查看以及8倍放大。</p>
+    <div v-if="loading" class="loading">
+      <i class="el-icon-loading"></i>
+    </div>
+    <div v-else>
+      <el-row class="timeline-row" v-for="(item, index) in data" :key="index">
+        <el-col :span="5">
+          <p class="date">{{item.upgrade_time}}</p>
+          <p class="state" :class="item.is_review === 9 ? 'state-wait-pass'
+                      : item.is_review === 1 ? 'state-pass'
+                      : item.is_review === 2 ? 'state-no-pass' : ''">{{item.is_review === 9 ? '待审核'
+                      : item.is_review === 1 ? '已通过'
+                      : item.is_review === 2 ? '已驳回' : ''}}</p>
+        </el-col>
+        <el-col :span="1">
+          <div class="spot">
+            <i class="circle"></i>
+            <i class="line"></i>
+          </div>
+        </el-col>
+        <el-col :span="18">
+          <p class="log">版本：{{item.rom_ver}}</p>
+          <p class="log">MD5值：{{item.rom_md5}}</p>
+          <p class="log mt20">{{item.change_log}}</p>
 
-        <p class="log mt20 mb3"><a href="" class="download">下载测试</a></p>
-      </el-col>
-    </el-row>
-
-    <el-row class="timeline-row">
-      <el-col :span="5">
-        <p class="date">2018-03-18</p>
-        <p class="state state-pass">已上线</p>
-      </el-col>
-      <el-col :span="1">
-        <div class="spot">
-          <i class="circle"></i>
-          <i class="line"></i>
-        </div>
-      </el-col>
-      <el-col :span="18">
-        <p class="log">v2.0.06.11</p>
-        <p class="log">MD5值：156489465165145646</p>
-        <p class="log mt20">1.支持iOS12，iSuit同步。</p>
-        <p class="log">2.支持全景查看以及8倍放大。</p>
-
-        <p class="log mt20 mb3"><a href="" class="download">下载测试</a></p>
-      </el-col>
-    </el-row>
-
-    <el-row class="timeline-row">
-      <el-col :span="5">
-        <p class="date">2018-03-18</p>
-        <p class="state state-no-pass">审核失败</p>
-      </el-col>
-      <el-col :span="1">
-        <div class="spot">
-          <i class="circle"></i>
-          <i class="line"></i>
-        </div>
-      </el-col>
-      <el-col :span="18">
-        <p class="log">v2.0.06.11</p>
-        <p class="log">MD5值：156489465165145646</p>
-        <p class="log mt20">1.支持iOS12，iSuit同步。</p>
-        <p class="log">2.支持全景查看以及8倍放大。</p>
-
-        <p class="log mt20 mb3"><a href="" class="download">下载测试</a></p>
-      </el-col>
-    </el-row>
+          <p class="log mt20 mb3"><a :href="item.file_id" target="_blank" class="download">下载测试</a></p>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   props: [
-    'data'
-  ],
-  data () {
-    return {
-      list: this.data
-    }
-  },
-  created () {
-    console.log(this.list)
-  }
+    'data',
+    'loading'
+  ]
 }
 </script>
 
 <style scoped>
+  .timeline-container {
+    min-height: 20rem;
+    max-height: 35rem;
+    overflow: auto;
+  }
   .timeline-container .date,
   .timeline-container .state {
     text-align: center;
@@ -141,5 +105,12 @@ export default {
     width: 0;
     display: inline-block;
     border: solid 1px #808080;
+  }
+
+  .timeline-container .loading {
+    line-height: 16rem;
+    text-align: center;
+    font-size: 2rem;
+    color: #fff;
   }
 </style>

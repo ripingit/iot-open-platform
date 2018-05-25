@@ -2,331 +2,695 @@
   <transition name="bounce" mode="out-in">
     <div class="device-model">
       <el-row>
-        <el-col :span="24" style="position: relative">
+        <el-col :span="24">
           <el-col :span="21">
             <p class="device-model-title-1">设备型号</p>
             <p class="device-model-title-2">UNIT TYPE</p>
           </el-col>
-          <el-col :span="3" style="position: absolute;top: 2.1rem;right:0rem;z-index: 10">
-            <el-button type="primary" style="width: 4.5rem;height: 4.5rem;" icon="el-icon-plus" circle @click="addDevice()"></el-button>
-          </el-col>
         </el-col>
       </el-row>
-      <el-row class="device-model-content">
-        <el-col :span="10" class="device-model-Search" style="margin-bottom: 2rem;width: 25rem;">
-          <el-input
-            placeholder="点击此处搜索"
-            v-model="inputVal">
-            <i slot="prefix" class="el-input__icon el-icon-search" @click="SearchData()"></i>
-          </el-input>
-        </el-col>
-        <el-col :span="24" class="device-model-table">
-          <el-col :span="24">
-            <el-table
-              v-loading="isLoading"
-              element-loading-text="拼命加载中"
-              :data="tableData"
-              style="width: 100%;">
-              <el-table-column
-                prop="date"
-                label="编号">
-              </el-table-column>
-              <el-table-column
-                prop="name"
-                label="型号">
-              </el-table-column>
-              <el-table-column
-                prop="address"
-                label="型号代码">
-              </el-table-column>
-              <el-table-column
-                prop="address"
-                label="连接方式">
-              </el-table-column>
-              <el-table-column
-                prop="address"
-                label="图1">
-              </el-table-column>
-              <el-table-column
-                prop="address"
-                label="图2">
-              </el-table-column>
-              <el-table-column
-                prop="address"
-                label="审核状态">
-              </el-table-column>
-              <el-table-column
-                prop="address"
-                label="配置状态">
-              </el-table-column>
-              <el-table-column
-                prop=""
-                label="操作"
-                width="180">
-                <template slot-scope="scope">
-                  <el-button type="primary"
-                            style="background: rgb(94,94,94);border-color: rgb(94,94,94);"
-                            icon="el-icon-edit" circle @click="editDevice(scope.row)"></el-button>
-                  <el-button type="danger"
-                            style="background: rgb(94,94,94);border-color: rgb(94,94,94);"
-                            icon="el-icon-delete" circle></el-button>
-                </template>
-              </el-table-column>
-            </el-table>
+      <el-row class="table">
+        <el-row>
+          <el-col :span="5">
+            <el-input
+              placeholder="点击此处搜索"
+              v-model="inputVal">
+              <i slot="prefix" class="el-input__icon el-icon-search" @click="SearchData()"></i>
+            </el-input>
+            <el-button icon="el-icon-plus" type="primary" circle class="btn-circle-delete" @click="addDevice()"></el-button>
           </el-col>
-        </el-col>
-        <el-col :span="24" style="text-align: center">
+        </el-row>
+        <el-row>
+          <el-table
+            :data="tableData"
+            style="width: 100%;">
+            <el-table-column
+              type="index"
+              width="100"
+              label="编号">
+            </el-table-column>
+            <el-table-column
+              prop="product_name"
+              label="型号">
+            </el-table-column>
+            <el-table-column
+              prop="product_code"
+              label="型号代码">
+            </el-table-column>
+            <el-table-column
+              prop="prodt_code"
+              label="设备类别">
+            </el-table-column>
+            <el-table-column
+              prop="nbi_code"
+              label="连接方式">
+            </el-table-column>
+            <el-table-column
+              prop="pic1_fileid"
+              label="图1">
+              <template slot-scope="scope">
+                <div>
+                  <ScaleImgComponent :path="scope.row.pic1_fileid" style="width:5rem;height:5rem" alt="图2"></ScaleImgComponent>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="pic2_fileid"
+              label="图2">
+              <template slot-scope="scope">
+                <div>
+                  <ScaleImgComponent :path="scope.row.pic2_fileid" style="width:5rem;height:5rem" alt="图2"></ScaleImgComponent>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="is_review"
+              label="审核状态">
+              <template slot-scope="scope">
+                <span v-if="scope.row.is_review===9">待审核</span>
+                <span v-if="scope.row.is_review===1">通过</span>
+                <span v-if="scope.row.is_review===2">未通过</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="config_status"
+              label="配置状态">
+              <template slot-scope="scope">
+                <span v-if="scope.row.config_status">已配置</span>
+                <span v-if="!scope.row.config_status">未配置</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop=""
+              label="操作"
+              width="180">
+              <template slot-scope="scope">
+                <el-button class="btn-circle"
+                           icon="iconfont icon-bianji"
+                           size="mini"
+                           circle
+                           @click="editDevice(scope.row)"></el-button>
+                <el-button class="btn-circle"
+                           icon="iconfont icon-shanchu"
+                           circle
+                           size="mini"
+                           @click="Delete(scope.row)"></el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-row>
+        <el-row type="flex" justify="center">
           <el-pagination
             @current-change="handleCurrentChange"
             :current-page.sync="currentPage"
-            :page-size="100"
+            :page-size="page"
             layout="prev, pager, next, jumper"
-            :total="1000">
+            :total="total">
           </el-pagination>
-        </el-col>
+        </el-row>
       </el-row>
-      <el-row>
-        <el-col :span="24">
-          <el-dialog
-            :title="dialogTitle"
-            :visible.sync="dialogVisible"
-            width="53rem"
-            center
-            :before-close="handleClose">
-            <el-form label-width="100px" :model="formAdd">
-              <el-form-item label="型号名称" class="form-row">
-                <el-input v-model="formAdd.name"></el-input>
-                <span class="form-tip">*</span>
-              </el-form-item>
-              <el-form-item label="型号代码" class="form-row">
-                <el-input v-model="formAdd.name1"></el-input>
-                <span class="form-tip">*</span>
-              </el-form-item>
-              <el-form-item label="连接方式" class="form-row">
-                <el-select v-model="formAdd.name1" placeholder="请选择">
+      <el-dialog
+        :title="dialogTitle"
+        :visible.sync="dialogVisible"
+        center
+        :before-close="handleClose">
+        <el-form label-width="100px" status-icon :model="formAdd" ref="AddForm" :rules="rules">
+          <el-form-item label="型号名称" class="form-row" prop="product_name">
+            <el-input v-model="formAdd.product_name"></el-input>
+            <span class="form-tip">*</span>
+          </el-form-item>
+          <el-form-item label="连接方式" class="form-row" prop="nbi_code">
+            <el-select v-model="formAdd.nbi_code" multiple placeholder="请选择">
+              <el-option
+                v-for="item in nbi_code_options"
+                :key="item.nbi_code"
+                :label="item.nbi_code_name"
+                :value="item.nbi_code">
+              </el-option>
+            </el-select>
+            <span class="form-tip">*</span>
+          </el-form-item>
+          <el-form-item label="设备类别" class="form-row" prop="prodt_code">
+            <el-select v-model="formAdd.prodt_code" multiple placeholder="请选择">
+              <el-option
+                v-for="item in prodt_code_options"
+                :key="item.prodt_code"
+                :label="item.prodt_name"
+                :value="item.prodt_code">
+              </el-option>
+            </el-select>
+            <span class="form-tip">*</span>
+          </el-form-item>
+          <el-form-item label="效果图1" class="form-row" prop="pic1">
+            <el-col :span="24" style="line-height:1.2">
+              <span class="device-model-uploadImg" v-if="isUploading">{{uploadProgress}}</span>
+              <div v-else class="device-model-uploadImg" style="position: relative;display: inline-block">
+                <img class="device-model-uploadImg" :src="picPath"/>
+                <i class="el-icon-zoom-in showBig" @click="dialogVisibleImg=true"></i>
+              </div>
+              <div style="display: inline-block;">
+                <el-upload
+                  :action="uploadPath"
+                  :data="{pic:1}"
+                  name="photo"
+                  accept=".jpg"
+                  :before-upload="onBeforeUpload"
+                  :on-success="onUploadSuccess"
+                  :on-progress="onUploadProgress"
+                  :on-error="onUploadError"
+                  :show-file-list="false">
+                  <el-button class="btn-upload" size="small" type="primary">上传</el-button>
+                </el-upload>
+              </div>
+              <el-dialog :modal="false" :visible.sync="dialogVisibleImg">
+                <img width="100%" :src="picPath"/>
+              </el-dialog>
+              <div class="device-model-div">
+                <p>底色：白色</p>
+                <p>尺寸：210*180</p>
+                <p>图片大小不超过2M</p>
+              </div>
+            </el-col>
+          </el-form-item>
+          <el-form-item label="效果图2" class="form-row" prop="pic2">
+            <el-col :span="24" style="line-height:1.2">
+              <span class="device-model-uploadImg" v-if="isUploading2">{{uploadProgress2}}</span>
+              <div v-if="!isUploading2" class="device-model-uploadImg" style="position: relative;display: inline-block">
+                <img class="device-model-uploadImg" :src="picPath2"/>
+                <i class="el-icon-zoom-in showBig" @click="dialogVisibleImg2=true"></i>
+              </div>
+              <div style="display: inline-block;">
+                <el-upload
+                  :action="uploadPath"
+                  :data="{pic:2}"
+                  name="photo"
+                  accept=".jpg"
+                  :before-upload="onBeforeUpload2"
+                  :on-success="onUploadSuccess2"
+                  :on-progress="onUploadProgress2"
+                  :on-error="onUploadError2"
+                  :show-file-list="false">
+                  <el-button class="btn-upload" size="small" type="primary">上传</el-button>
+                </el-upload>
+              </div>
+              <el-dialog :modal="false" :visible.sync="dialogVisibleImg2">
+                <img width="100%" :src="picPath2"/>
+              </el-dialog>
+              <div class="device-model-div">
+                <p>底色：白色</p>
+                <p>尺寸：388*250</p>
+                <p>图片大小不超过2M</p>
+              </div>
+            </el-col>
+          </el-form-item>
+          <el-form-item style="margin-top: 4.33rem;">
+            <el-button type="primary" class="btn-submit" @click="EnsureSubmit()">提 交</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+      <el-dialog
+        title="型号配置"
+        :visible.sync="editDialog"
+        center
+        style="margin-top: -6vh;"
+        :before-close="handleClose">
+        <el-row class="device-model-editdialog">
+          <el-col :span="24" style="padding:0 0 1rem 2.5rem;">
+            <div>型号名称：{{dialogData.product_name}}</div>
+            <div>连接方式：{{dialogData.nbi_code}}</div>
+          </el-col>
+          <el-col :span="24">
+            <el-form label-width="100px" :model="formConfig" status-icon ref="ConfigForm" :rules="rules">
+            <div v-if="showList1">
+              <el-col :span="24" class="device-model-editdialog-title">IPC分类（IPCC）</el-col>
+              <el-form-item label="设备分类" class="form-row" prop="class">
+                <el-select v-model="formConfig.class0" placeholder="请选择">
                   <el-option
-                    v-for="item in options"
+                    v-for="item in class_options"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value">
                   </el-option>
                 </el-select>
-                <span class="form-tip">*</span>
               </el-form-item>
-              <el-form-item label="设备类别" class="form-row">
-                <el-select v-model="formAdd.name1" placeholder="请选择">
+              <el-form-item label="解码方式" class="form-row" prop="dec">
+                <el-select v-model="formConfig.dec" placeholder="请选择">
                   <el-option
-                    v-for="item in options"
+                    v-for="item in dec_options"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value">
                   </el-option>
                 </el-select>
-                <span class="form-tip">*</span>
               </el-form-item>
-              <el-form-item label="效果图1" class="form-row" >
-                <el-col :span="24" style="line-height:1">
-                  <div class="device-model-uploadImg"></div>
-                  <div style="display: inline-block;vertical-align: top">
-                    <el-upload
-                      action="https://jsonplaceholder.typicode.com/posts/">
-                      <el-button class="btn-upload" size="small" type="primary">上传</el-button>
-                    </el-upload>
-                  </div>
-                  <div style="display: inline-block;color: #cecece;margin-left:.5rem;text-align: left">
-                    <p>底色：白色</p>
-                    <p style="margin-top: 1.5rem">尺寸：210*180</p>
-                    <p style="margin-top: 1.3rem">图片大小不超过2M</p>
-                  </div>
-                </el-col>
+              <el-form-item label="设备通道数" class="form-row" prop="chans">
+                <el-input v-model="formConfig.chans"></el-input>
               </el-form-item>
-              <el-form-item label="效果图2" class="form-row">
-                <el-col :span="24">
-                  <div class="device-model-uploadImg"></div>
-                  <div style="display: inline-block;vertical-align: top">
-                    <el-upload
-                      action="https://jsonplaceholder.typicode.com/posts/">
-                      <el-button class="btn-upload" size="small" type="primary">上传</el-button>
-                    </el-upload>
-                  </div>
-                  <div style="display: inline-block;color: #cecece;margin-left: .5rem;text-align: left">
-                    <p>底色：白色</p>
-                    <p style="margin-top: -1.5rem">尺寸：388*250</p>
-                    <p style="margin-top: -1.3rem">图片大小不超过2M</p>
-                  </div>
-                </el-col>
+              <el-form-item label="校正解码" class="form-row" prop="pipc_dv">
+                <el-select v-model="formConfig.pipc_dv" placeholder="请选择">
+                  <el-option
+                    v-for="item in pipc_dv_options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
               </el-form-item>
-              <el-form-item style="margin-top: 4rem;">
-                <el-button type="primary" class="btn-submit" @click="dialogVisible = false">提 交</el-button>
+              <el-form-item label="音频模式" class="form-row" prop="audio">
+                <el-select v-model="formConfig.audio" placeholder="请选择">
+                  <el-option
+                    v-for="item in audio_options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </div>
+              <div v-if="showList2">
+               <el-col :span="24" class="device-model-editdialog-title">情景按钮（BHSC）</el-col>
+               <el-form-item label="按钮数量" class="form-row" prop="num">
+                 <el-input v-model="formConfig.num"></el-input>
+               </el-form-item>
+             </div>
+             <div v-if="showList3">
+               <el-col :span="24" class="device-model-editdialog-title">组合开关（CMSW）</el-col>
+               <el-form-item label="开关数量" class="form-row" prop="num2">
+                 <el-input v-model="formConfig.num2"></el-input>
+               </el-form-item>
+             </div>
+            </el-form>
+          </el-col>
+          <el-col :span="24">
+            <el-form label-width="100px" :model="formConfig">
+              <el-form-item label="">
+                <el-button type="primary" class="btn-submit" style="margin-top: 4.33rem" @click="ConfigSubmit()">提 交</el-button>
               </el-form-item>
             </el-form>
-          </el-dialog>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-dialog
-          title="型号配置"
-          :visible.sync="editDialog"
-          width="53rem"
-          center
-          style="margin-top: -6vh;"
-          :before-close="handleClose">
-          <el-row class="device-model-editdialog">
-            <el-col :span="24" style="padding:0 0 1rem 2.5rem;">
-              <div>型号名称：K258</div>
-              <div>连接方式：蓝牙、红外、中控</div>
-            </el-col>
-            <el-col :span="24" class="device-model-editdialog-title">1.IPC分类</el-col>
-            <el-col :span="24">
-              <el-form label-width="100px" :model="formAdd">
-                <el-form-item label="设备分类" class="form-row">
-                  <el-select v-model="formAdd.name1" placeholder="请选择">
-                    <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="解码方式" class="form-row">
-                  <el-select v-model="formAdd.name1" placeholder="请选择">
-                    <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="设备通道数" class="form-row">
-                  <el-input v-model="formAdd.name"></el-input>
-                </el-form-item>
-                <el-form-item label="校正解码" class="form-row">
-                  <el-select v-model="formAdd.name1" placeholder="请选择">
-                    <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="音频模式" class="form-row">
-                  <el-select v-model="formAdd.name1" placeholder="请选择">
-                    <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-form>
-            </el-col>
-            <el-col :span="24" class="device-model-editdialog-title">2.情景按钮</el-col>
-            <el-col :span="24">
-              <el-form label-width="100px" :model="formAdd">
-                <el-form-item label="按钮数量" class="form-row">
-                  <el-input v-model="formAdd.name"></el-input>
-                </el-form-item>
-              </el-form>
-            </el-col>
-            <el-col :span="24" class="device-model-editdialog-title">3.组合开关</el-col>
-            <el-col :span="24">
-              <el-form label-width="100px" :model="formAdd">
-                <el-form-item label="开关数量" class="form-row">
-                  <el-input v-model="formAdd.name"></el-input>
-                </el-form-item>
-              </el-form>
-            </el-col>
-            <el-col :span="24">
-              <el-form label-width="100px" :model="formAdd">
-                <el-form-item label="">
-                  <el-button type="primary" class="btn-submit" style="margin-top: 4.33rem" @click="dialogVisible = false">提 交</el-button>
-                </el-form-item>
-              </el-form>
-            </el-col>
-          </el-row>
-        </el-dialog>
-      </el-row>
+          </el-col>
+        </el-row>
+      </el-dialog>
     </div>
   </transition>
 </template>
 <script>
+import '@/assets/css/content.css'
+import ScaleImgComponent from '@/components/_ui/scale-img.vue'
+import {USER_EQUIPMENT_MODEL_QUERY,
+  USER_EQUIPMENT_MODEL_UPLOADIMG,
+  USER_EQUIPMENT_MODEL_ADD,
+  USER_EQUIPMENT_MODEL_DEL,
+  USER_EQUIPMENT_MODEL_CONFIG } from '../../../lib/api.js'
 export default {
+  components: { ScaleImgComponent },
   data () {
+    let validateIsEmpty = (rule, value, callback) => {
+      if (value === '') {
+        if (rule.field === 'product_name') {
+          callback(new Error('请输入型号名称'))
+        } else if (rule.field === 'nbi_code') {
+          callback(new Error('请选择连接方式'))
+        } else if (rule.field === 'prodt_code') {
+          callback(new Error('请选择设备类别'))
+        } else if (rule.field === 'pic1') {
+          callback(new Error('请上传图1'))
+        } else if (rule.field === 'pic2') {
+          callback(new Error('请上传图2'))
+        } else if (rule.field === 'class') {
+          callback(new Error('请选择设备分类'))
+        } else if (rule.field === 'dec') {
+          callback(new Error('请选择解码方式'))
+        } else if (rule.field === 'chans') {
+          callback(new Error('请输入设备通道数'))
+        } else if (rule.field === 'pipc_dv') {
+          callback(new Error('请选择设备通道数'))
+        } else if (rule.field === 'audio') {
+          callback(new Error('请选择音频模式'))
+        } else if (rule.field === 'num') {
+          callback(new Error('请输入按钮数量'))
+        } else if (rule.field === 'num2') {
+          callback(new Error('请输入开关数量'))
+        }
+      }
+      callback()
+    }
     return {
-      isLoading: false,
+      rules: {
+        product_name: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        nbi_code: [
+          { validator: validateIsEmpty, trigger: 'change' }
+        ],
+        prodt_code: [
+          { validator: validateIsEmpty, trigger: 'change' }
+        ],
+        pic1: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        pic2: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        class: [
+          { validator: validateIsEmpty, trigger: 'change' }
+        ],
+        dec: [
+          { validator: validateIsEmpty, trigger: 'change' }
+        ],
+        chans: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        pipc_dv: [
+          { validator: validateIsEmpty, trigger: 'change' }
+        ],
+        audio: [
+          { validator: validateIsEmpty, trigger: 'change' }
+        ],
+        num: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        num2: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ]
+      },
+      uploadPath: USER_EQUIPMENT_MODEL_UPLOADIMG,
+      picPath: '',
+      dialogVisibleImg: false,
+      isUploading: true,
+      uploadProgress: '',
+      picPath2: '',
+      dialogVisibleImg2: false,
+      isUploading2: true,
+      uploadProgress2: '',
       dialogVisible: false,
       editDialog: false,
+      showList1: false,
+      showList2: false,
+      showList3: false,
       inputVal: '',
       dialogTitle: '',
       formAdd: {
-        name: '',
-        name1: ''
+        product_name: '',
+        nbi_code: [],
+        prodt_code: [],
+        pic1: '',
+        pic2: ''
       },
-      options: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }],
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市'
-      }],
-      currentPage: 1
+      formConfig: {
+        class0: '',
+        dec: '',
+        chans: '',
+        pipc_dv: '',
+        audio: '',
+        num: '',
+        num2: ''
+      },
+      nbi_code_options: [],
+      prodt_code_options: [],
+      class_options: [
+        {
+          value: 1,
+          label: 'IPC'
+        },
+        {
+          value: 2,
+          label: 'NVR'
+        },
+        {
+          value: 3,
+          label: 'DVR'
+        },
+        {
+          value: 4,
+          label: 'PIPC'
+        }
+      ],
+      dec_options: [
+        {
+          value: 0,
+          label: '多通道'
+        },
+        {
+          value: 1,
+          label: '多路合成'
+        }
+      ],
+      pipc_dv_options: [
+        {
+          value: 1,
+          label: '中科龙智'
+        }
+      ],
+      audio_options: [
+        {
+          value: 1,
+          label: '半双工'
+        },
+        {
+          value: 2,
+          label: '全双工'
+        }
+      ],
+      tableData: [],
+      dialogData: [],
+      currentPage: 1,
+      total: 0,
+      page: 10
     }
   },
+  created () {
+    this.onSubmit()
+  },
   methods: {
+    onSubmit () {
+      let loading = this.vmLoadingFull()
+      let param = this.createFormData({
+        page: parseInt(this.currentPage),
+        page_size: parseInt(this.page)
+      })
+      this.$http.post(USER_EQUIPMENT_MODEL_QUERY, param).then(res => {
+        loading.close()
+        if (res.data.statu === 0) {
+          this.$router.push('/signin')
+          return false
+        }
+        if (this.vmResponseHandler(res)) {
+          res.data.prodtList.forEach(val => {
+            this.prodt_code_options = val
+          })
+          let codeObj = {}
+          res.data.Nbi.forEach(val => {
+            this.nbi_code_options = val
+            val.forEach(subval => {
+              codeObj[subval.nbi_code] = subval.nbi_code_name
+            })
+          })
+          this.tableData = res.data.data.map(val => {
+            if (val.nbi_code) {
+              val.nbi_code = val.nbi_code.map(subval => codeObj[subval]).join('、')
+            }
+            if (val.prodt_code) {
+              val.prodt_code = val.prodt_code.join('、')
+            }
+            return val
+          })
+          this.total = res.data.total
+        }
+      }
+      ).catch(() => {
+        loading.close()
+        this.vmMsgError('网络错误！')
+      })
+    },
     addDevice () {
       this.dialogTitle = '添加型号'
       this.dialogVisible = true
-      this.formAdd = {}
+    },
+    EnsureSubmit () {
+      this.$refs['AddForm'].validate((valid) => {
+        if (valid) {
+          let param = this.createFormData(this.formAdd)
+          this.$http.post(USER_EQUIPMENT_MODEL_ADD, param).then(res => {
+            if (res.data.statu === 0) {
+              this.$router.push('/signin')
+              return false
+            }
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('操作成功！')
+              this.dialogVisible = false
+              this.isUploading = true
+              this.uploadProgress = ''
+              this.isUploading2 = true
+              this.uploadProgress2 = ''
+              this.$refs['AddForm'].resetFields()
+              this.onSubmit()
+            }
+          }).catch(() => {
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
     },
     editDevice (row) {
+      if (row.is_review !== 1) {
+        this.vmMsgWarning('只有通过审核才能进行型号配置！')
+        return
+      }
+      this.dialogData = row
+      this.showList1 = this.dialogData.prodt_code.split('、').indexOf('IPCC') > -1
+      this.showList2 = this.dialogData.prodt_code.split('、').indexOf('BHSC') > -1
+      this.showList3 = this.dialogData.prodt_code.split('、').indexOf('CMSW') > -1
       this.editDialog = true
+      let rowData = JSON.parse(row.config_status)
+      this.formConfig = {
+        class0: rowData[0].conf.class,
+        dec: rowData[0].conf.dec,
+        chans: rowData[0].conf.chans,
+        pipc_dv: rowData[0].conf.pipc_dv,
+        audio: rowData[0].conf.audio,
+        num: rowData[1].conf.num,
+        num2: rowData[2].conf.num
+      }
+    },
+    ConfigSubmit () {
+      this.$refs['ConfigForm'].validate((valid) => {
+        if (valid) {
+          let param = this.createFormData({
+            product_code: this.dialogData.product_code,
+            config: JSON.stringify([{
+              prodt_code: 'IPCC',
+              conf: {
+                class: parseInt(this.formConfig.class0),
+                chans: parseInt(this.formConfig.chans),
+                dec: parseInt(this.formConfig.dec),
+                pipc_dv: parseInt(this.formConfig.pipc_dv),
+                audio: parseInt(this.formConfig.audio)
+              }
+            }, {
+              prodt_code: 'BHSC',
+              conf: {
+                num: parseInt(this.formConfig.num)
+              }
+            }, {
+              prodt_code: 'CMSW',
+              conf: {
+                num: parseInt(this.formConfig.num2)
+              }
+            }])
+          })
+          this.$http.post(USER_EQUIPMENT_MODEL_CONFIG, param).then(res => {
+            if (res.data.statu === 0) {
+              this.$router.push('/signin')
+              return false
+            }
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('操作成功！')
+              this.editDialog = false
+              this.$refs['ConfigForm'].resetFields()
+              this.onSubmit()
+            }
+          }).catch(() => {
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
     },
     SearchData () {
       console.log('搜索')
     },
+    Delete (row) {
+      let param = this.createFormData({
+        product_code: row.product_code
+      })
+      this.vmConfirm({
+        msg: '确定删除该记录？',
+        confirmCallback: () => {
+          let loading = this.vmLoadingFull()
+          this.$http.post(USER_EQUIPMENT_MODEL_DEL, param).then(res => {
+            if (res.data.statu === 0) {
+              this.$router.push('/signin')
+              return false
+            }
+            loading.close()
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('删除成功！')
+              this.onSubmit()
+            }
+          }).catch(() => {
+            loading.close()
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
+    },
     handleCurrentChange (val) {
-      console.log(`当前页: ${val}`)
+      this.currentPage = val
+      this.onSubmit(val)
     },
     handleClose (done) {
       done()
+    },
+    onBeforeUpload (file) {
+      let sizeM = file.size / 1024 / 1024
+      if (file.type !== 'image/jpeg' || sizeM > 2) {
+        this.vmMsgError('请上传后缀为.jpg且小于2M的图片')
+        return false
+      }
+    },
+    onUploadSuccess (response, file, fileList) {
+      this.uploadProgress = ''
+      // 上传
+      if (response.statu === 0) {
+        this.$router.push('/signin'); return
+      }
+      if (!response.status) {
+        this.vmMsgError(response.msg); return
+      }
+      this.isUploading = false
+      this.picPath = file.url
+      this.formAdd.pic1 = file.url
+    },
+    onUploadProgress (event, file, fileList) {
+      this.isUploading = true
+      this.uploadProgress = '已上传' + event.percent + '%'
+    },
+    onUploadError (err, file, fileList) {
+      this.vmMsgError(err)
+    },
+    onBeforeUpload2 (file) {
+      let sizeM = file.size / 1024 / 1024
+      if (file.type !== 'image/jpeg' || sizeM > 2) {
+        this.vmMsgError('请上传后缀为.jpg且小于2M的图片')
+        return false
+      }
+    },
+    onUploadSuccess2 (response, file, fileList) {
+      this.uploadProgress2 = ''
+      // 上传
+      if (response.statu === 0) {
+        this.$router.push('/signin'); return
+      }
+      if (!response.status) {
+        this.vmMsgError(response.msg); return
+      }
+      this.isUploading2 = false
+      this.picPath2 = file.url
+      this.formAdd.pic2 = file.url
+    },
+    onUploadProgress2 (event, file, fileList) {
+      this.isUploading2 = true
+      this.uploadProgress2 = '已上传' + event.percent + '%'
+    },
+    onUploadError2 (err, file, fileList) {
+      this.vmMsgError(err)
     }
   }
 }
 </script>
 <style scoped>
   .device-model{
+    margin: 1.67rem 2.5rem;
     color: #ffffff;
-    padding:1.8rem 2rem;
   }
   .device-model-title-1{
     font-size: 1.8rem;
@@ -336,15 +700,12 @@ export default {
     font-size: 1rem;
     color: #808080;
   }
-  .device-model-content{
-    margin-top: 1rem;
-    border-radius: .1rem;
-    padding: 3rem;
-    background-color:#36393E;
-  }
-  .device-model-table{
-    color: #ffffff;
-    min-height:52rem;
+  .device-model-div{
+    display: inline-block;
+    color: #cecece;
+    margin-left: .5rem;
+    text-align: left;
+    vertical-align: bottom;
   }
  .device-model-editdialog{
    color: #b3b3b3;
@@ -359,7 +720,26 @@ export default {
     display: inline-block;
     width:8rem;
     height: 6rem;
-    background:rgba(255, 255, 255, 0.2);
+    background: #636363;
+    border-color: #636363;
+    vertical-align: middle;
+  }
+  .device-model-uploadImg:hover>.showBig{
+    display: block;
+    transition: opacity .3s;
+  }
+  .showBig{
+    position: absolute;
+    top: 0;
+    display: none;
+    text-align: center;
+    width:8rem;
+    height: 6rem;
+    z-index: 999;
+    font-size: 1.6rem;
+    line-height: 6rem;
+    color: #fff;
+    background-color: rgba(0,0,0,.5);
   }
   .el-dialog .btn-upload {
     height: 6rem;
@@ -373,19 +753,7 @@ export default {
   }
 </style>
 <style>
-  .device-model .required{
-    position: relative;
-  }
-  .device-model .required > .el-form-item__label:before{
-    content: '*';
-    color: red;
-    font-size:1.8rem;
-    top:.2rem;
-    right:1rem;
-    z-index: 9;
-    position: absolute;
-  }
-  .device-model .device-model-Search .el-input input{
-    background:transparent;border: 1px solid #808080;border-radius:4px;
+  .device-model /deep/ .el-dialog{
+    width:54.17rem;
   }
 </style>

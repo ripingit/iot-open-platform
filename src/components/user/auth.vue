@@ -50,17 +50,19 @@
     </el-row>
     <el-row class="panel flow">
       <el-col :span="24">
-        <el-steps :active="1" process-status="process" finish-status="success">
+        <el-steps :active="steps" finish-status="success">
           <el-step title="注册迈科账号" description="请牢记用户名和密码"></el-step>
           <el-step title="申请认证" description="提交相关营业执照申请迈科智能认证"></el-step>
-          <el-step title="等待审核" description="申请将在24小时之内反馈结果"></el-step>
+          <el-step :title="authResult" :status="proStatu" :description="description"></el-step>
           <el-step title="申请KEY" description="认证可查看到独有的KEY请牢记"></el-step>
         </el-steps>
         <el-steps class="step-operation">
           <el-step></el-step>
-          <el-step @click.native="showDialog"></el-step>
-          <el-step></el-step>
-          <el-step></el-step>
+          <el-step v-if="isShowSubmit" class="auth"></el-step>
+          <el-step v-else @click.native="showDialog"></el-step>
+          <el-step v-if="isShowUpdate || isUpdateState" :class="'review'"></el-step>
+          <el-step v-else @click.native="updateReviewState"></el-step>
+          <el-step class="key"></el-step>
         </el-steps>
       </el-col>
     </el-row>
@@ -130,8 +132,9 @@
 
 <script>
 import '@/assets/css/content.css'
-import { CERT_UPLOAD_POST, PARTNER_AUTH_POST } from '../../lib/api.js'
+import { CERT_UPLOAD_POST, PARTNER_AUTH_POST, UPDATE_AUTH_STATE_POST } from '../../lib/api.js'
 import { validatePhone, validateFixPhone, validateBusinessLicense } from '../../lib/validate.js'
+import { AUTH_CHANGE } from '@/store/mutations-type'
 
 export default {
   data () {
@@ -166,11 +169,14 @@ export default {
       callback()
     }
     return {
+      authStatu: this.$store.getters.getAuthState,
+      isUpdateState: false,
       uploadPath: CERT_UPLOAD_POST,
       isDialogVisible: false,
       protocolChecked: false,
       uploadProgress: '',
       isUploading: true,
+      authFailedReason: '',
       picPath: '',
       picTip: '格式为 jpg 且小于2M',
       form: {
@@ -203,6 +209,37 @@ export default {
       }
     }
   },
+  computed: {
+    isShowSubmit () {
+      return this.authStatu === this.authCode.PASS || this.authStatu === this.authCode.WAIT
+    },
+    isShowUpdate () {
+      return this.authStatu !== this.authCode.WAIT
+    },
+    steps () {
+      return this.authStatu === this.authCode.NO_SUBMIT ? 1
+        : (this.authStatu === this.authCode.WAIT || this.authStatu === this.authCode.REJECT) ? 2
+          : this.authStatu === this.authCode.PASS ? 4 : 4
+    },
+    authResult () {
+      return this.authStatu === this.authCode.NO_SUBMIT ? '等待审核'
+        : this.authStatu === this.authCode.WAIT ? '审核中'
+          : this.authStatu === this.authCode.PASS ? '审核通过'
+            : this.authStatu === this.authCode.REJECT ? '审核未通过' : '状态未知'
+    },
+    description () {
+      return this.authStatu === this.authCode.REJECT ? this.authFailedReason : '申请将在24小时之内反馈结果'
+    },
+    proStatu () {
+      if (this.authStatu === this.authCode.NO_SUBMIT) { return 'wait' }
+      if (this.authStatu === this.authCode.REJECT) { return 'error' }
+      if (this.authStatu === this.authCode.PASS) { return 'success' }
+      return 'process'
+    }
+  },
+  created () {
+    this.updateReviewState()
+  },
   methods: {
     showDialog () {
       this.isDialogVisible = true
@@ -218,11 +255,35 @@ export default {
               this.isUploading = true
               this.uploadProgress = ''
               this.$refs['authForm'].resetFields()
+              this.authStatu = this.authCode.WAIT
+              this.$store.commit(AUTH_CHANGE, { authState: this.authCode.WAIT })
             }
           }).catch(() => {
             this.vmMsgError('网络错误！')
           })
         }
+      })
+    },
+    updateReviewState () {
+      this.isUpdateState = true
+      this.$http.post(UPDATE_AUTH_STATE_POST).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.isUpdateState = false
+          this.authStatu = res.data.company_status
+          this.authFailedReason = res.data.data.review_mark
+          this.$store.commit(AUTH_CHANGE, { authState: res.data.company_status })
+          if (this.authStatu === this.authCode.REJECT) {
+            this.form.name = res.data.data.name
+            this.form.addr = res.data.data.addr
+            this.form.agency_code = res.data.data.agency_code
+            this.form.tel = res.data.data.tel
+            this.form.cert = res.data.data.file_ids
+            this.picPath = res.data.data.file_ids
+            this.isUploading = false
+          }
+        }
+      }).catch(() => {
+        this.vmMsgError('网络错误！')
       })
     },
     onBeforeUpload (file) {
@@ -234,6 +295,11 @@ export default {
     },
     onUploadSuccess (response, file, fileList) {
       this.uploadProgress = ''
+      // 上传
+      if (response.statu === 0) {
+        this.$router.push('/signin'); return
+      }
+
       if (!response.status) {
         this.vmMsgError(response.msg); return
       }
@@ -246,6 +312,7 @@ export default {
       this.uploadProgress = '已上传' + event.percent + '%'
     },
     onUploadError (err, file, fileList) {
+      this.isUploading = false
       this.vmMsgError(err)
     }
   }
@@ -348,13 +415,22 @@ export default {
   .el-steps /deep/ .el-step__title.is-success,
   .el-steps /deep/ .el-step__title.is-process,
   .el-steps /deep/ .el-step__title.is-wait,
-  .el-steps /deep/ .el-step__head.is-success{
+  .el-steps /deep/ .el-step__head.is-success,
+  .el-steps /deep/ .el-step__head.is-error{
     color: #fff !important;
+  }
+  .el-steps /deep/ .el-step__head.is-error .el-step__icon.is-text,
+  .el-steps /deep/ .el-step__head.is-error .el-step__line {
+    border: none;
+    background: #f56c6c;
   }
   .el-steps /deep/ .el-step__head.is-success .el-step__icon.is-text,
   .el-steps /deep/ .el-step__head.is-success .el-step__line {
     background: #2acba7;
     border: none;
+  }
+  .el-steps /deep/ .el-step__head.is-success .el-step__line-inner {
+    width: 0 !important;
   }
   .el-steps /deep/ .el-step__head.is-process .el-step__icon.is-text {
     border: 0.17rem solid #2acba7;
@@ -362,7 +438,8 @@ export default {
     color: transparent;
   }
   .el-steps /deep/ .el-step__head.is-process .el-step__line,
-  .el-steps /deep/ .el-step__head.is-wait .el-step__line {
+  .el-steps /deep/ .el-step__head.is-wait .el-step__line,
+  .el-steps /deep/ .el-step__head.is-error .el-step__line {
     background-color: #808080
   }
 
@@ -394,7 +471,10 @@ export default {
   .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__line,
   .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon .el-step__icon-inner,
   .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__icon .el-step__icon-inner,
-  .step-operation .el-step:nth-child(4) /deep/ .el-step__head .el-step__icon .el-step__icon-inner {
+  .step-operation .el-step:nth-child(4) /deep/ .el-step__head .el-step__icon .el-step__icon-inner,
+  .step-operation .el-step.auth:nth-child(2) /deep/ .el-step__head .el-step__icon,
+  .step-operation .el-step.review:nth-child(3) /deep/ .el-step__head .el-step__icon,
+  .step-operation .el-step.key:nth-child(4) /deep/ .el-step__head .el-step__icon {
     display: none;
   }
 
@@ -425,10 +505,14 @@ export default {
     border: none;
     background: transparent;
   }
-
+  .step-operation .el-step.loading:nth-child(3) /deep/ .el-step__head .el-step__icon::after {
+    content: '\E61E';
+    position: absolute;
+    left: 0;
+  }
   .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__icon::after,
   .step-operation .el-step:nth-child(4) /deep/ .el-step__head .el-step__icon::after {
-    content: '认证后查看';
+    content: '刷新';
     color: #ff6870;
     position: absolute;
     left: 0;

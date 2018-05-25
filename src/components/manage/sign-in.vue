@@ -112,6 +112,7 @@ import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
 import JSEncrypt from 'jsencrypt'
 import { validateEmail, validatePhone } from '@/lib/validate.js'
 import { ADMIN_TOKEN_POST, ADMIN_SIGNIN_POST } from '@/lib/api.js'
+import { IDENTITY_UPDATE } from '@/store/mutations-type'
 
 export default {
   components: { CheckCodeComponent },
@@ -232,7 +233,8 @@ export default {
             loading.close()
             if (this.vmResponseHandler(res)) {
               sessionStorage['isLogin'] = true
-              this.$router.push('/manage')
+              this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id })
+              this.$router.push('/manage/home/1')
             }
           }).catch(e => {
             this.vmMsgError('网络错误！')

@@ -21,8 +21,8 @@
             :value="item.value">
           </el-option>
         </el-select>
-        <el-button class="btn-search" type="primary">查询</el-button>
-        <el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete" @click="operationData"></el-button>
+        <el-button class="btn-search" type="primary" @click="searchData">查询</el-button>
+        <!--<el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete" @click="operationData"></el-button>-->
       </el-row>
       <el-row>
         <el-table
@@ -30,62 +30,68 @@
           :data="tableData"
           @selection-change="handleSelectionChange"
           style="width: 100%;">
-          <el-table-column
+          <!--<el-table-column
             type="selection"
             width="55">
-          </el-table-column>
+          </el-table-column>-->
           <el-table-column
-            prop="date"
-            min-width="180"
+            type="index"
+            min-width="100"
             label="编号">
           </el-table-column>
           <el-table-column
-            prop="name"
+            prop="app_name"
             min-width="150"
             label="APP名称">
           </el-table-column>
           <el-table-column
-            prop="address"
+            prop="company_name"
             min-width="150"
             label="所属公司">
           </el-table-column>
           <el-table-column
-            prop="address"
+            prop="ver"
             min-width="150"
             label="版本号">
           </el-table-column>
           <el-table-column
-            prop="address"
+            prop="url"
             min-width="200"
             label="URL">
           </el-table-column>
           <el-table-column
-            prop="address"
+            prop="review_time"
             min-width="180"
             label="更新时间">
           </el-table-column>
           <el-table-column
             prop=""
             label="操作"
-            min-width="100">
+            min-width="120">
             <template slot-scope="scope">
               <el-button
                 class="btn-circle"
                 size="mini"
                 icon="iconfont icon-gengduo"
                 circle
-                @click="showDetail(scope.row.idx)"></el-button>
+                @click="operationData('select',scope.$index)"></el-button>
+              <el-button
+                class="btn-circle"
+                size="mini"
+                icon="iconfont icon-shanchu"
+                circle
+                @click="operationData('delete',scope.$index)"></el-button>
             </template>
           </el-table-column>
         </el-table>
       </el-row>
-      <el-row type="flex" justify="center">
+      <el-row type="flex" justify="center" v-if="totalAll!=0">
         <el-pagination
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage"
-          :page-size="100"
+          :current-page.sync="selectParam.page"
+          :page-size="selectParam.page_size"
           layout="prev, pager, next, jumper"
-          :total="1000">
+          :total="totalAll">
         </el-pagination>
       </el-row>
     </el-row>
@@ -95,27 +101,21 @@
       :visible.sync="detailDialogVisible"
       :close-on-click-modal="false"
       :before-close="handleClose">
-      <el-form status-icon :model="detailData" :rules="rules" ref="ruleForm" label-width="100px">
-        <el-form-item label="升级方式" class="form-row">
-          <span>{{detailData.name}}</span>
+      <el-form label-width="100px">
+        <el-form-item label="APP名称">
+          <span class="detail_item">{{detailData.app_name}}</span>
         </el-form-item>
-        <el-form-item label="APP名称" class="form-row">
-          <span>{{detailData.name}}</span>
+        <el-form-item label="版本">
+          <span class="detail_item">{{detailData.ver}}</span>
         </el-form-item>
-        <el-form-item label="版本" class="form-row">
-          <span>{{detailData.name}}</span>
+        <el-form-item label="下载地址">
+          <a :href="detailData.url" target="_blank" class="download">{{detailData.url}}</a>
         </el-form-item>
-        <el-form-item label="下载地址" prop="name" class="form-row">
-          <el-input v-model="detailData.name" placeholder="请输入"></el-input>
+        <el-form-item label="MD5值">
+          <span class="detail_item">{{detailData.md5}}</span>
         </el-form-item>
-        <el-form-item label="MD5值" class="form-row">
-          <span>{{detailData.name}}</span>
-        </el-form-item>
-        <el-form-item label="升级描述" prop="name" class="form-row">
-          <el-input type="textarea" resize="none" v-model="detailData.name" placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item class="form-row" style="margin-top: 4.33rem">
-          <el-button type="primary" @click="submitForm">确定</el-button>
+        <el-form-item label="升级描述">
+          <span class="detail_item">{{detailData.change_log}}</span>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -123,95 +123,88 @@
 </template>
 <script>
 import '@/assets/css/content.css'
+import { APP_MANAGE_SELECT_POST, APP_MANAGE_DEL_POST } from '@/lib/api.js'
 
 export default {
   data () {
     return {
       inputVal1: '',
       inputVal2: '',
-      options: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }],
+      options: [],
       multipleSelection: [],
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市'
-      }],
-      currentPage: 1,
+      tableData: [],
+      selectParam: {
+        page: 1,
+        page_size: 10
+      },
+      totalAll: 0,
       detailDialogVisible: false,
       rules: {
-        name: [
-          {required: true, message: '请输入活动名称', trigger: 'blur'},
-          {min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur'}
+        url: [
+          {required: true, message: '请输入下载地址', trigger: 'blur'}
+        ],
+        change_log: [
+          {required: true, message: '请输入升级描述', trigger: 'blur'}
         ]
       },
-      detailData: {
-        name: ''
-      }
+      detailData: {}
     }
+  },
+  created () {
+    this.loadData()
   },
   methods: {
     searchData () {
-      console.log(this.inputVal)
+      this.loadData()
     },
     handleCurrentChange (val) {
-      console.log(`当前页: ${val}`)
+      this.selectParam.page = val
+      this.loadData()
     },
     handleSelectionChange (val) {
       this.multipleSelection = val
     },
-    operationData (type) {
-      if (this.multipleSelection.length <= 0) {
-        this.vmMsgWarning('请选择记录！')
-        return false
+    operationData (type, ix) {
+      if (type === 'select') {
+        this.detailDialogVisible = true
+        this.detailData = JSON.parse(JSON.stringify(this.tableData[ix]))
       } else {
-        console.log(this.multipleSelection)
+        let data = this.createFormData({
+          app_name: this.tableData[ix].app_name,
+          ver: this.tableData[ix].ver,
+          md5: this.tableData[ix].md5
+        })
+        this.vmConfirm({
+          msg: '确定删除该记录？',
+          confirmCallback: () => {
+            let loading = this.vmLoadingFull()
+            this.$http.post(APP_MANAGE_DEL_POST, data).then(res => {
+              loading.close()
+              if (this.vmResponseHandler(res)) {
+                this.vmMsgSuccess('删除成功！')
+                this.loadData()
+              }
+            }).catch(e => {
+              loading.close()
+              this.vmMsgError('网络错误！')
+            })
+          }
+        })
       }
     },
     handleClose (done) {
       done()
     },
-    submitForm () {
-      this.$refs['ruleForm'].validate((valid) => {
-        if (valid) {
-        } else {
-          return false
-        }
-      })
-    },
-    showDetail (ix) {
-      console.log(ix)
-      // this.detailData = this.tableData[ix]
-      this.detailDialogVisible = true
-    },
     loadData () {
-      this.$http.get()
+      let data = this.createFormData(this.selectParam)
+      this.$http.post(APP_MANAGE_SELECT_POST, data).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.tableData = res.data.data
+          this.totalAll = res.data.total
+        }
+      }).catch(e => {
+        this.vmMsgError('网络错误！')
+      })
     }
   }
 }
@@ -232,11 +225,6 @@ export default {
     margin-top: .33rem;
   }
 
-  .dialog_content h3 {
-    color: #ffffff;
-    margin-bottom: 3rem;
-  }
-
   .container /deep/ .el-dialog {
     width: 54.17rem;
   }
@@ -245,8 +233,10 @@ export default {
     border: none;
   }
 
-  .container /deep/ .el-textarea__inner {
-    font-family: inherit;
-    height:10rem;
+  .detail_item{
+    color: #ffffff;
+  }
+  .download{
+    color: #38a0f8;
   }
 </style>

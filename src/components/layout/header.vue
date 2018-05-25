@@ -21,8 +21,8 @@
             <p v-on:click.stop="showSetPanel">{{userAccount}}</p>
             <transition name="slide">
               <ul class="control-panel" v-show="isPanelShow">
-                <li @click="routeGo('/manage/user/authention')">认证</li>
-                <li @click="routeGo('/manage/user/resetPass')">修改密码</li>
+                <li v-if="identity === ''" @click="routeGo('/manage/user/authention')">认证</li>
+                <li @click="routeGo(resetPassPath)">修改密码</li>
                 <li @click="signOut">退出</li>
               </ul>
             </transition>
@@ -35,13 +35,21 @@
 
 <script>
 import { SIGN_OUT_POST } from '../../lib/api.js'
-import { validatePhone } from '../../lib/validate.js'
+import { validatePhone, validateEmail } from '../../lib/validate.js'
+import { MENU_UPDATE } from '@/store/mutations-type'
 export default {
   data () {
     return {
+      identity: this.$store.getters.getUserIdentity,
       keyword: '',
       isPanelShow: false,
       userAccount: ''
+    }
+  },
+  computed: {
+    resetPassPath () {
+      // TODO: 加入管理员修改密码
+      return this.identity === 'mktech' ? '/manage/admin/resetAdminPass' : '/manage/user/resetPass'
     }
   },
   created () {
@@ -54,11 +62,13 @@ export default {
     if (validatePhone(account)) {
       let end = account.slice(8)
       this.userAccount = start + '****' + end
-    } else {
+    } else if (validateEmail(account)) {
       let index = account.indexOf('@')
       let end = account.slice(index)
       let length = account.slice(3, index + 1).length
       this.userAccount = start + ('*'.repeat(length)) + end
+    } else {
+      this.userAccount = account
     }
   },
   methods: {
@@ -66,6 +76,7 @@ export default {
       this.isPanelShow = !this.isPanelShow
     },
     routeGo (route) {
+      this.$store.commit(MENU_UPDATE, { highlightMenu: '-1' })
       this.$router.push(route)
     },
     signOut () {
@@ -73,8 +84,12 @@ export default {
         msg: '确认要退出登录吗？',
         confirmCallback: () => {
           this.$http.post(SIGN_OUT_POST).then(res => {
+            if (this.identity === 'mktech') {
+              this.$router.push('/login')
+            } else {
+              this.$router.push('/signin')
+            }
             sessionStorage.removeItem('isLogin')
-            this.$router.push('/signin')
             this.vmMsgSuccess('退出成功！')
           }).catch(() => {
             this.vmMsgError('网络错误！')
@@ -135,8 +150,9 @@ export default {
   box-shadow: 0px 4px 2px 0px #000;
   width: 10rem;
   text-align: center;
-  left: 3.5rem;
+  left: 50%;
   top: 2rem;
+  margin-left: -5rem;
   z-index: 20;
 }
 .info .user-control .control-panel li {

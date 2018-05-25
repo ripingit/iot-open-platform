@@ -27,22 +27,24 @@
                 </el-option>
               </el-select>
               <el-button class="btn-search" type="primary">查询</el-button>
-              <el-button class="btn-circle-delete" type="danger" icon="el-icon-delete" circle></el-button>
+              <el-button class="btn-circle-delete" type="danger" icon="el-icon-delete" circle @click="deleteCoop"></el-button>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="24">
               <el-table
-                :data="tableData"
-                style="width: 100%">
+                v-loading="loading"
+                :data="tableData.data"
+                style="width: 100%"
+                @selection-change="handleSelectionChange">
                 <el-table-column
                   type="selection"
                   width="55">
                 </el-table-column>
                 <el-table-column
-                  prop="date"
+                  type="index"
                   label="编号"
-                  width="180">
+                  width="80">
                 </el-table-column>
                 <el-table-column
                   prop="name"
@@ -50,26 +52,35 @@
                   width="180">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
-                  label="固件版本">
+                  prop="tel"
+                  label="联系方式"
+                  width="180">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
-                  label="联系方式">
-                </el-table-column>
-                <el-table-column
-                  prop="address"
+                  prop="client_id"
                   label="认证ID">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
+                  prop="client_secret"
                   label="认证KEY">
                 </el-table-column>
                 <el-table-column
-                  prop="address"
-                  label="注册时间">
+                  prop="create_time"
+                  label="注册时间"
+                  width="180">
                 </el-table-column>
               </el-table>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col>
+              <el-pagination
+                @size-change="getCoopLists"
+                @current-change="getCoopLists"
+                :page-size="10"
+                layout="prev, pager, next, jumper"
+                :total="tableData.total">
+              </el-pagination>
             </el-col>
           </el-row>
         </div>
@@ -80,43 +91,67 @@
 
 <script>
 import '@/assets/css/content.css'
+import { GET_COOP_COMPANY_POST, DELETE_COOP_COMPANY_POST } from '@/lib/api'
+
 export default {
   data () {
     return {
-      options: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }],
+      options: [],
       value6: '',
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }]
+      tableData: {
+        data: [],
+        page: '1',
+        pageAll: 1,
+        total: 1
+      },
+      selectedData: []
+    }
+  },
+  created () {
+    this.getCoopLists(1)
+  },
+  computed: {
+    loading () {
+      return this.tableData.data.length === 0 && this.tableData.status !== undefined
+    }
+  },
+  methods: {
+    handleSelectionChange (val) {
+      this.selectedData = val
+    },
+    getCoopLists (currentPage) {
+      let data = this.createFormData({
+        page: currentPage,
+        page_size: 10
+      })
+      this.$http.post(GET_COOP_COMPANY_POST, data).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.tableData = res.data
+        }
+      }).catch(e => {
+        this.vmMsgError('网络错误！')
+      })
+    },
+    deleteCoop () {
+      if (this.selectedData.length <= 0) {
+        this.vmMsgError('请选择需要删除的合作商！'); return
+      }
+      let data = this.createFormData({
+        company_code: this.selectedData[0].company_code
+      })
+      this.vmConfirm({
+        msg: '确认要删除选中记录吗？',
+        confirmCallback: () => {
+          this.$http.post(DELETE_COOP_COMPANY_POST, data).then(res => {
+            if (this.vmResponseHandler(res)) {
+              this.getCoopLists(this.tableData.page)
+              this.vmMsgSuccess('删除成功！')
+            }
+          }).catch(e => {
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
     }
   }
 }

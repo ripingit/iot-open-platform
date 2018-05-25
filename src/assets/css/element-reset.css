@@ -32,20 +32,20 @@
 }
 
 /** confirm-box */
-.el-message-box__wrapper /deep/ .el-message-box {
+.el-message-box {
   background-color: #36393E;
   border: 1px solid #36393E;
 }
-.el-message-box__wrapper /deep/ .el-message-box__content {
+.el-message-box .el-message-box__content {
   color: #fff;
 }
-.el-message-box__wrapper /deep/ .el-button {
+.el-message-box .el-button {
   background: #909399;
   color: #fff;
   border: 1px solid #909399;
   width: auto;
 }
-.el-message-box__wrapper /deep/ .el-button--primary {
+.el-message-box .el-button--primary {
   background: #1f7ecf;
   color: #fff;
   border: 1px solid #1f7ecf;
@@ -53,7 +53,7 @@
 
 /** loading */
 .el-loading-mask {
-  background-color: rgba(0, 0, 0, 0.66) !important;
+  background-color: rgba(0, 0, 0, 0) !important;
 }
 
 /** input */
@@ -190,27 +190,27 @@ padding: 25px 66px;
 .v-modal{
   opacity:.7;
 }
-.el-dialog__headerbtn .el-dialog__close{
+.el-dialog .el-dialog__headerbtn .el-dialog__close{
   color: #ffffff;
   font-size:1.4rem;
 }
-.el-dialog__wrapper /deep/ .el-dialog__header {
+.el-dialog .el-dialog__header {
   padding-top: 2.5rem;
 }
-.el-dialog__wrapper /deep/ .el-dialog__body {
+.el-dialog .el-dialog__body {
   padding-top: 2.08rem;
   padding-bottom: 6rem;
 }
 .el-dialog .el-input,
 .el-dialog .el-select ,
-.el-dialog__wrapper /deep/ .el-textarea {
+.el-dialog .el-textarea {
   width: 25rem;
-  border: none; 
+  border: none;
 }
 
 .el-dialog .el-input input,
 .el-dialog .el-select .el-input,
-.el-dialog /deep/ .el-textarea .el-textarea__inner {
+.el-dialog .el-textarea .el-textarea__inner {
   width: 100%;
   border-radius: 0 !important;
   background: #5e6165;
@@ -240,6 +240,9 @@ padding: 25px 66px;
   border-radius: 0;
   background: #1f7ecf;
   border: none;
+}
+.el-dialog .el-textarea__inner{
+  font-family:inherit;
 }
 
 /* dialog详情样式 */
@@ -283,6 +286,10 @@ padding: 25px 66px;
 }
 
 /*分页*/
+.el-pagination{
+  margin-top:5rem;
+  text-align: center;
+}
  .el-pager li:hover, .el-pager li.active{
 color: #ffffff;
 background-color: #1f7ecf;

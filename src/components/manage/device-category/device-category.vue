@@ -1,165 +1,237 @@
 <template>
   <div class="device-category">
     <el-row>
-      <el-col :span="24" style="position: relative">
+      <el-col :span="24">
         <el-col :span="21">
           <p class="device-category-title-1">设备类别</p>
           <p class="device-category-title-2">EQUIPMENT CATEGORY</p>
         </el-col>
-        <el-col :span="3" style="position: absolute;top: 2.1rem;right:0rem;z-index: 10">
-          <el-button type="primary" style="width: 4.5rem;height: 4.5rem;" icon="el-icon-plus" circle @click="addDevice()"></el-button>
-          <el-button type="danger" style="width: 4.5rem;height: 4.5rem;" icon="el-icon-delete" circle @click="Delete()"></el-button>
-        </el-col>
       </el-col>
     </el-row>
-    <el-row class="device-category-content">
-      <el-col :span="24">
-        <el-form :inline="true" :model="formInline" class="demo-form-inline">
-          <el-form-item label="">
-            <el-date-picker
-              class="time"
-              v-model="formInline.ChoiceTime"
-              type="daterange"
-              :editable="false"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期">
-            </el-date-picker>
-          </el-form-item>
-          <el-form-item label="">
-            <el-select v-model="formInline.company" placeholder="请选择">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="onSubmit">查询</el-button>
-          </el-form-item>
-        </el-form>
-      </el-col>
-      <el-col :span="24" class="device-category-table">
-        <el-col :span="24">
-          <el-table
-            v-loading="isLoading"
-            element-loading-text="拼命加载中"
-            ref="multipleTable"
-            :data="tableData"
-            style="width: 100%;"
-            @selection-change="handleSelectionChange">
-            <el-table-column
-              type="selection">
-            </el-table-column>
-            <el-table-column
-              prop="date"
-              label="编号">
-            </el-table-column>
-            <el-table-column
-              prop="name"
-              label="类别名称">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="类别代码">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="添加时间">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="提交人">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="审核人">
-            </el-table-column>
-          </el-table>
-        </el-col>
-      </el-col>
-      <el-col :span="24" style="text-align: center">
+    <el-row class="table">
+     <el-row>
+       <el-col :span="24">
+         <el-form :inline="true" :model="formInline" class="demo-form-inline">
+           <el-form-item label="">
+             <el-date-picker
+               class="time"
+               v-model="formInline.ChoiceTime"
+               type="daterange"
+               :editable="false"
+               range-separator="至"
+               start-placeholder="开始日期"
+               end-placeholder="结束日期">
+             </el-date-picker>
+           </el-form-item>
+           <el-form-item label="">
+             <el-select v-model="formInline.company" placeholder="请选择">
+               <el-option label="区域一" value="shanghai"></el-option>
+               <el-option label="区域二" value="beijing"></el-option>
+             </el-select>
+           </el-form-item>
+           <el-form-item>
+             <el-button type="primary" @click="onSubmit">查询</el-button>
+           </el-form-item>
+         </el-form>
+         <el-button icon="el-icon-plus" type="primary" circle class="btn-circle-add" @click="addDevice()"></el-button>
+         <el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete btn-circle-right" @click="Delete()"></el-button>
+       </el-col>
+     </el-row>
+      <el-row>
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          style="width: 100%;"
+          @selection-change="handleSelectionChange">
+          <el-table-column
+            type="selection">
+          </el-table-column>
+          <el-table-column
+            type="index"
+            width="100"
+            label="编号">
+          </el-table-column>
+          <el-table-column
+            prop="prodt_name"
+            label="类别名称">
+          </el-table-column>
+          <el-table-column
+            prop="prodt_code"
+            label="类别代码">
+          </el-table-column>
+          <el-table-column
+            prop="create_time"
+            label="添加时间">
+          </el-table-column>
+          <el-table-column
+            prop="user_name"
+            label="提交人">
+          </el-table-column>
+          <el-table-column
+            prop="review_name"
+            label="审核人">
+          </el-table-column>
+        </el-table>
+      </el-row>
+      <el-col v-if="total>page" :span="24" style="text-align: center">
         <el-pagination
           @current-change="handleCurrentChange"
           :current-page.sync="currentPage"
-          :page-size="100"
+          :page-size="page"
           layout="prev, pager, next, jumper"
-          :total="1000">
+          :total="total">
         </el-pagination>
       </el-col>
     </el-row>
-    <el-row>
-      <el-col :span="24">
-        <el-dialog
-          title="添加类别"
-          :visible.sync="dialogVisible"
-          width="53rem"
-          center
-          :before-close="handleClose">
-          <el-form label-width="100px" :model="formAdd">
-            <el-form-item label="类别名称" class="form-row">
-              <el-input v-model="formAdd.name"></el-input>
-            </el-form-item>
-            <el-form-item label="类别代码" class="form-row">
-              <el-input v-model="formAdd.name1"></el-input>
-            </el-form-item>
-            <el-form-item style="margin-top: 4rem;" class="form-row">
-              <el-button type="primary" class="btn-submit" @click="dialogVisible = false">确 定</el-button>
-            </el-form-item>
-          </el-form>
-        </el-dialog>
-      </el-col>
-    </el-row>
+    <el-dialog
+      title="添加类别"
+      :visible.sync="dialogVisible"
+      center
+      :before-close="handleClose">
+      <el-form label-width="100px" status-icon :model="formAdd" ref="AddForm" :rules="rules">
+        <el-form-item label="类别名称" class="form-row" prop="prodt_name">
+          <el-input v-model="formAdd.prodt_name"></el-input>
+        </el-form-item>
+        <el-form-item label="类别代码" class="form-row" prop="prodt_code">
+          <el-input v-model="formAdd.prodt_code"></el-input>
+        </el-form-item>
+        <el-form-item style="margin-top: 4rem;" class="form-row">
+          <el-button type="primary" class="btn-submit" @click="EnsureAdd()">确 定</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 <script>
 import '@/assets/css/content.css'
-
+import { EQUIPMENT_CATEGORY_QUERY, EQUIPMENT_CATEGORY_ADD, EQUIPMENT_CATEGORY_DELETE } from '../../../lib/api.js'
 export default {
   data () {
+    let validateIsEmpty = (rule, value, callback) => {
+      if (value === '') {
+        if (rule.field === 'prodt_name') {
+          callback(new Error('请输入类别名称'))
+        } else if (rule.field === 'prodt_code') {
+          callback(new Error('请输入类别代码'))
+        }
+      }
+      callback()
+    }
     return {
-      isLoading: false,
+      rules: {
+        prodt_name: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        prodt_code: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ]
+      },
       dialogVisible: false,
       formInline: {
         ChoiceTime: '',
         company: ''
       },
       formAdd: {
-        name: '',
-        name1: ''
+        prodt_name: '',
+        prodt_code: ''
       },
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市'
-      }],
-      currentPage: 1
+      tableData: [],
+      multipleSelection: [],
+      currentPage: 1,
+      total: 0,
+      page: 10
     }
+  },
+  created () {
+    this.onSubmit()
   },
   methods: {
     onSubmit () {
-      console.log('submit!')
+      let loading = this.vmLoadingFull()
+      let param = this.createFormData({
+        page: parseInt(this.currentPage),
+        page_size: parseInt(this.page)
+      })
+      this.$http.post(EQUIPMENT_CATEGORY_QUERY, param).then(res => {
+        loading.close()
+        if (res.data.statu === 0) {
+          this.$router.push('/login')
+          return false
+        }
+        if (this.vmResponseHandler(res)) {
+          this.tableData = res.data.data
+          this.total = res.data.total
+          this.isLoading = false
+        }
+      }
+      ).catch(() => {
+        loading.close()
+        this.vmMsgError('网络错误！')
+      })
     },
     addDevice () {
       this.dialogVisible = true
     },
+    EnsureAdd () {
+      this.$refs['AddForm'].validate((valid) => {
+        if (valid) {
+          let param = this.createFormData(this.formAdd)
+          this.$http.post(EQUIPMENT_CATEGORY_ADD, param).then(res => {
+            if (res.data.statu === 0) {
+              this.$router.push('/login')
+              return false
+            }
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('操作成功！')
+              this.dialogVisible = false
+              this.$refs['AddForm'].resetFields()
+              this.onSubmit()
+            }
+          }).catch(() => {
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
+    },
     Delete () {
+      if (!this.multipleSelection.length) {
+        this.vmMsgWarning('请选择记录')
+        return
+      }
+      let codeArr = ''
+      this.multipleSelection.forEach(val => {
+        codeArr = val.prodt_code
+      })
+      let param = this.createFormData({
+        prodt_code: codeArr
+      })
+      this.vmConfirm({
+        msg: '确定删除该记录？',
+        confirmCallback: () => {
+          let loading = this.vmLoadingFull()
+          this.$http.post(EQUIPMENT_CATEGORY_DELETE, param).then(res => {
+            if (res.data.statu === 0) {
+              this.$router.push('/login')
+              return false
+            }
+            loading.close()
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('删除成功！')
+              this.onSubmit()
+            }
+          }).catch(() => {
+            loading.close()
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
     },
     handleSelectionChange (val) {
       this.multipleSelection = val
     },
     handleCurrentChange (val) {
-      console.log(`当前页: ${val}`)
+      this.currentPage = val
+      this.onSubmit(val)
     },
     handleClose (done) {
       done()
@@ -180,14 +252,9 @@ export default {
     font-size: 1rem;
     color: #808080;
   }
-  .device-category-content{
-    margin-top: 1rem;
-    border-radius: .1rem;
-    padding: 3rem;
-    background-color:#36393E;
-  }
-  .device-category-table{
-    color: #ffffff;
-    min-height:52rem;
+</style>
+<style>
+  .device-category /deep/ .el-dialog{
+    width:54.17rem;
   }
 </style>
