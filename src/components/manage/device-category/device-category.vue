@@ -2,10 +2,8 @@
   <div class="device-category">
     <el-row>
       <el-col :span="24">
-        <el-col :span="21">
-          <p class="device-category-title-1">设备类别</p>
-          <p class="device-category-title-2">EQUIPMENT CATEGORY</p>
-        </el-col>
+        <p class="title-cn">设备类别</p>
+        <p class="title-en">EQUIPMENT CATEGORY</p>
       </el-col>
     </el-row>
     <el-row class="table">
@@ -161,7 +159,6 @@ export default {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
           this.total = res.data.total
-          this.isLoading = false
         }
       }
       ).catch(() => {
@@ -241,20 +238,12 @@ export default {
 </script>
 <style scoped>
   .device-category{
-    color: #ffffff;
-    padding:1.8rem 2rem;
-  }
-  .device-category-title-1{
-    font-size: 1.8rem;
-  }
-  .device-category-title-2{
-    padding-top: 0.35rem;
-    font-size: 1rem;
-    color: #808080;
+    padding: 1.67rem 2.5rem;
+    color: #fff;
   }
 </style>
 <style>
-  .device-category /deep/ .el-dialog{
+  .device-category .el-dialog{
     width:54.17rem;
   }
 </style>

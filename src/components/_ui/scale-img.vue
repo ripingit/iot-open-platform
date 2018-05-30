@@ -108,12 +108,9 @@ export default {
   top: 1rem;
   right: 1rem;
   font-size: 4rem;
-  color: #313131;
+  color: #777;
   transition: all .5s;
   z-index: 100000;
   cursor: pointer;
-}
-.scale-wrapper .icon-del:hover {
-  color: #777
 }
 </style>

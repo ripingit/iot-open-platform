@@ -18,7 +18,7 @@
                 start-placeholder="开始日期"
                 end-placeholder="结束日期">
               </el-date-picker>
-              <el-select v-model="value" placeholder="请选择">
+              <el-select v-model="value6" placeholder="请选择">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -27,7 +27,7 @@
                 </el-option>
               </el-select>
               <el-button class="btn-search" type="primary">查询</el-button>
-              <el-button class="btn-circle-delete" type="danger" icon="el-icon-delete" circle @click="deleteCoop"></el-button>
+              <el-button v-if="vmHasAuth(PermissionsLib.DEL_COOP, tableData.res)" class="btn-circle-delete" type="danger" icon="el-icon-delete" circle @click="deleteCoop"></el-button>
             </el-col>
           </el-row>
           <el-row>

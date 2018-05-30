@@ -6,7 +6,7 @@ export function validateEmail (str) {
 
 /** 手机号 */
 export function validatePhone (str) {
-  let reg = /^(0|86|17951)?(13[0-9]|15[012356789]|18[0-9]|14[57]|17[678])[0-9]{8}$/
+  let reg = /^(0|86|17951)?(13[0-9]|14[1456789]|15[012356789]|16[6]|18[0-9]|17[01678]|19[0-9])[0-9]{8}$/
   return reg.test(str)
 }
 

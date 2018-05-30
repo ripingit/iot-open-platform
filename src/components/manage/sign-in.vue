@@ -112,7 +112,9 @@ import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
 import JSEncrypt from 'jsencrypt'
 import { validateEmail, validatePhone } from '@/lib/validate.js'
 import { ADMIN_TOKEN_POST, ADMIN_SIGNIN_POST } from '@/lib/api.js'
-import { IDENTITY_UPDATE } from '@/store/mutations-type'
+import { IDENTITY_UPDATE, AUTH_UPDATE } from '@/store/mutations-type'
+import { createRoutes } from '@/router/routes'
+import { generateMenus, menuRouteMap } from '@/lib/route-map-menu'
 
 export default {
   components: { CheckCodeComponent },
@@ -211,7 +213,6 @@ export default {
       })
     },
     signIn () {
-      // sessionStorage['isLogin'] = true
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
           let loading = this.vmLoadingFull()
@@ -232,9 +233,10 @@ export default {
           this.$http.post(ADMIN_SIGNIN_POST, data).then(res => {
             loading.close()
             if (this.vmResponseHandler(res)) {
-              sessionStorage['isLogin'] = true
               this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id })
-              this.$router.push('/manage/home/1')
+              this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, menuRouteMap) })
+              this.$router.addRoutes(createRoutes(res.data.title))
+              this.$router.push('/manage/home/0')
             }
           }).catch(e => {
             this.vmMsgError('网络错误！')

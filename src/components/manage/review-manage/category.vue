@@ -59,9 +59,13 @@
                 <el-table-column
                   label="状态">
                   <template slot-scope="scope">
-                    <span v-if="scope.row.is_review===9">待审核</span>
-                    <span v-if="scope.row.is_review===1">通过</span>
-                    <span v-if="scope.row.is_review===2">未通过</span>
+                    <span :class="scope.row.is_review === 9 ? 'wait'
+                    : scope.row.is_review === 1 ? 'pass'
+                    : scope.row.is_review === 2 ? 'reject' : ''">
+                    {{scope.row.is_review === 9 ? '待审核'
+                    : scope.row.is_review === 1 ? '已通过'
+                    : scope.row.is_review === 2 ? '已驳回' : ''}}
+                    </span>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -85,12 +89,14 @@
                       size="mini"
                       icon="iconfont icon-gengduo"
                       circle
+                      v-if="vmHasAuth(PermissionsLib.REVIEW_AUDIT_CATEGORY, res)"
                       @click="operationData('select',scope.$index)"></el-button>
                     <el-button
                       class="btn-circle"
                       size="mini"
                       icon="iconfont icon-shanchu"
                       circle
+                      v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_CATEGORY, res)"
                       @click="operationData('delete',scope.$index)"></el-button>
                   </template>
                 </el-table-column>
@@ -122,12 +128,12 @@
           {{detailData.prodt_code}}
         </el-col>
       </el-row>
-      <el-row class="label-row">
+      <!--<el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">配置参数</el-col>
         <el-col :span="22" :sm="21" class="label-value">
           多路摄像、云台机、组合开关、情景按钮
         </el-col>
-      </el-row>
+      </el-row>-->
       <el-row class="label-sug">
         <el-col :span="24">
         <el-input
@@ -165,6 +171,7 @@ export default {
       value: '',
       value1: '',
       tableData: [],
+      res: [],
       selectParam: {
         page: 1,
         page_size: 10
@@ -247,6 +254,7 @@ export default {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
           this.totalAll = res.data.total
+          this.res = res.data.res
         }
       }).catch(e => {
         this.vmMsgError('网络错误！')
@@ -263,6 +271,15 @@ export default {
 }
 .content-container /deep/ .el-date-editor,.content-container /deep/ .el-select {
   border: none;
+}
+.wait {
+  color: #b3b3b3;
+}
+.pass {
+  color: #2acba7;
+}
+.reject {
+  color: #ff5d66;
 }
 /** 定制 end */
 </style>

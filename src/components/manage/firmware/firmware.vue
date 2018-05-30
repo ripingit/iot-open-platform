@@ -65,7 +65,7 @@
                     <a :href="scope.row.file_id" target="_blank" class="download">下载</a>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作">
+                <el-table-column label="操作" v-if="vmHasAuth(PermissionsLib.FIRMWARE_HISTORY, tableData.res)">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"
@@ -116,6 +116,7 @@ export default {
       tableData: {
         data: [],
         page: '1',
+        res: [],
         pageAll: 1,
         product: [],
         total: 1
@@ -167,5 +168,8 @@ export default {
 .download {
   font-size: 1.17rem;
   color: #2acba7;
+}
+.content-container /deep/ .el-dialog {
+  width: 54rem;
 }
 </style>

@@ -3,10 +3,8 @@
     <div class="device-model">
       <el-row>
         <el-col :span="24">
-          <el-col :span="21">
-            <p class="device-model-title-1">设备型号</p>
-            <p class="device-model-title-2">UNIT TYPE</p>
-          </el-col>
+          <p class="title-cn">设备型号</p>
+          <p class="title-en">UNIT TYPE</p>
         </el-col>
       </el-row>
       <el-row class="table">
@@ -68,8 +66,8 @@
               label="审核状态">
               <template slot-scope="scope">
                 <span v-if="scope.row.is_review===9">待审核</span>
-                <span v-if="scope.row.is_review===1">通过</span>
-                <span v-if="scope.row.is_review===2">未通过</span>
+                <span v-if="scope.row.is_review===1" style="color: #2acba7">通过</span>
+                <span v-if="scope.row.is_review===2" style="color: #ff5d66">未通过</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -689,16 +687,8 @@ export default {
 </script>
 <style scoped>
   .device-model{
-    margin: 1.67rem 2.5rem;
-    color: #ffffff;
-  }
-  .device-model-title-1{
-    font-size: 1.8rem;
-  }
-  .device-model-title-2{
-    padding-top: 0.35rem;
-    font-size: 1rem;
-    color: #808080;
+    padding: 1.67rem 2.5rem;
+    color: #fff;
   }
   .device-model-div{
     display: inline-block;
@@ -753,7 +743,7 @@ export default {
   }
 </style>
 <style>
-  .device-model /deep/ .el-dialog{
+  .device-model .el-dialog{
     width:54.17rem;
   }
 </style>

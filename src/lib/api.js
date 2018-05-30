@@ -1,3 +1,6 @@
+/** 管理员获取权限数据 */
+export const ADMIN_AUTH_GET = 'manage/admin.php?m=Admin&c=Login&a=getRes'
+
 /** 管理员获取Token */
 export const ADMIN_TOKEN_POST = 'manage/admin.php?m=Admin&c=Login&a=index'
 
@@ -32,7 +35,7 @@ export const CHANGE_PASS_POST = 'manage/index.php?m=Home&c=Login&a=changePass'
 export const SIGN_OUT_POST = 'manage/index.php?m=Home&c=Login&a=logOut'
 
 /** 合作商认证证件上传 */
-export const CERT_UPLOAD_POST = 'manage/index.php?m=Home&c=Company&a=putObject'
+export const CERT_UPLOAD_POST = '../manage/index.php?m=Home&c=Company&a=putObject'
 
 /** 合作商认证 */
 export const PARTNER_AUTH_POST = 'manage/index.php?m=Home&c=Company&a=companyAdd'
@@ -89,7 +92,7 @@ export const GET_ADMIN_FIRMWARE_HISTORY_POST = 'manage/admin.php?m=Admin&c=Rom&a
 export const GET_COOP_FIRMWARES_POST = 'manage/index.php?m=Home&c=Rom&a=deviceRomList'
 
 /** 合作商固件管理，上传固件 */
-export const COOP_FIRMWARES_UPLOAD_POST = 'manage/index.php?m=Home&c=Rom&a=putObject'
+export const COOP_FIRMWARES_UPLOAD_POST = '../manage/index.php?m=Home&c=Rom&a=putObject'
 
 /** 合作商固件管理，新增固件 */
 export const COOP_FIRMWARES_ADD_POST = 'manage/index.php?m=Home&c=Rom&a=deviceRomAdd'
@@ -125,7 +128,7 @@ export const EQUIPMENT_MODEL_DELETE = 'manage/admin.php?m=AdminA&c=Product&a=pro
 export const USER_EQUIPMENT_MODEL_QUERY = 'manage/index.php?m=Home&c=Product&a=productList'
 
 /** 合作商,上传图片 */
-export const USER_EQUIPMENT_MODEL_UPLOADIMG = 'manage/index.php?m=Home&c=Product&a=putObject'
+export const USER_EQUIPMENT_MODEL_UPLOADIMG = '../manage/index.php?m=Home&c=Product&a=putObject'
 
 /** 合作商,新增设备型号 */
 export const USER_EQUIPMENT_MODEL_ADD = 'manage/index.php?m=Home&c=Product&a=productAdd'
@@ -144,3 +147,42 @@ export const REVIEW_AUDIT_CATEGORY_DEL = 'manage/admin.php?m=Admin&c=CheckProduc
 
 /** 审核管理，类别审核 */
 export const REVIEW_AUDIT_CATEGORY_REVIEW = '/manage/admin.php?m=Admin&c=CheckProductType&a=prodtReview'
+
+/** 管理员,用户信息,用户查询 */
+export const ADMIN_USER_QUERY = 'manage/admin.php?m=Admin&c=Admin&a=userList'
+
+/** 管理员,用户信息,添加用户 */
+export const ADMIN_USER_ADD = 'manage/admin.php?m=Admin&c=Admin&a=userAdd'
+
+/** 管理员,用户信息,删除用户 */
+export const ADMIN_USER_DEL = 'manage/admin.php?m=Admin&c=Admin&a=userDel'
+
+/** 管理员,用户信息,用户添加用户权限（编辑） */
+export const ADMIN_USER_POWER_ADD = 'manage/admin.php?m=Admin&c=Admin&a=groupUserSet'
+
+/** 管理员,用户信息,重置用户密码 */
+export const ADMIN_USER_RESET_PWD = 'manage/admin.php?m=Admin&c=Admin&a=changePassOther'
+
+/** 管理员,权限管理,用户组查询 */
+export const ADMIN_POWER_QUERY = 'manage/admin.php?m=Admin&c=AdminGroup&a=groupList'
+
+/** 管理员,权限管理,添加用户组 */
+export const ADMIN_POWER_ADD = 'manage/admin.php?m=Admin&c=AdminGroup&a=groupAdd'
+
+/** 管理员,权限管理,编辑用户组 */
+export const ADMIN_POWER_EDIT = 'manage/admin.php?m=Admin&c=AdminGroup&a=groupEdit'
+
+/** 管理员,权限管理,删除用户组 */
+export const ADMIN_POWER_DEL = 'manage/admin.php?m=Admin&c=AdminGroup&a=groupDel'
+
+/** 管理员,用户组权限,用户组权限查询 */
+export const ADMIN_POWERS_QUERY = 'manage/admin.php?m=Admin&c=AdminGroup&a=resList'
+
+/** 管理员,用户组权限,修改用户组权限 */
+export const ADMIN_POWERS_EDIT = 'manage/admin.php?m=Admin&c=AdminGroup&a=groupPermission'
+
+/** 管理员,用户组成员,用户组成员查询 */
+export const ADMIN_USERS_QUERY = 'manage/admin.php?m=Admin&c=AdminGroup&a=groupUserList'
+
+/** 管理员,用户组成员,用户组用户解除授权 */
+export const ADMIN_USERS_REMOVE = 'manage/admin.php?m=Admin&c=AdminGroup&a=groupUserSet'

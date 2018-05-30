@@ -118,6 +118,7 @@ import JSEncrypt from 'jsencrypt'
 import { validateEmail, validatePhone } from '@/lib/validate.js'
 import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST } from '@/lib/api.js'
 import { AUTH_CHANGE, IDENTITY_UPDATE } from '@/store/mutations-type'
+import { createRoutes } from '@/router/routes'
 
 export default {
   components: { CheckCodeComponent },
@@ -236,9 +237,9 @@ export default {
           this.$http.post(SIGNIN_POST, data).then(res => {
             loading.close()
             if (this.vmResponseHandler(res)) {
-              sessionStorage['isLogin'] = true
               this.$store.commit(AUTH_CHANGE, { authState: res.data.company_status })
-              this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id })
+              this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id || this.identityCode.COOP })
+              this.$router.addRoutes(createRoutes())
               this.$router.push('/manage')
             }
           }).catch(e => {

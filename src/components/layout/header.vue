@@ -34,9 +34,9 @@
 </template>
 
 <script>
-import { SIGN_OUT_POST } from '../../lib/api.js'
+import { ADMIN_SIGN_OUT_POST, SIGN_OUT_POST } from '../../lib/api.js'
 import { validatePhone, validateEmail } from '../../lib/validate.js'
-import { MENU_UPDATE } from '@/store/mutations-type'
+import { MENU_UPDATE, IDENTITY_UPDATE } from '@/store/mutations-type'
 export default {
   data () {
     return {
@@ -48,8 +48,7 @@ export default {
   },
   computed: {
     resetPassPath () {
-      // TODO: 加入管理员修改密码
-      return this.identity === 'mktech' ? '/manage/admin/resetAdminPass' : '/manage/user/resetPass'
+      return this.identity === this.identityCode.ADMIN ? '/manage/admin/resetAdminPass' : '/manage/user/resetPass'
     }
   },
   created () {
@@ -83,14 +82,17 @@ export default {
       this.vmConfirm({
         msg: '确认要退出登录吗？',
         confirmCallback: () => {
-          this.$http.post(SIGN_OUT_POST).then(res => {
-            if (this.identity === 'mktech') {
-              this.$router.push('/login')
-            } else {
-              this.$router.push('/signin')
+          let url = this.identity === this.identityCode.ADMIN ? ADMIN_SIGN_OUT_POST : SIGN_OUT_POST
+          this.$http.post(url).then(res => {
+            if (this.vmResponseHandler) {
+              if (this.identity === this.identityCode.ADMIN) {
+                this.$router.push('/login')
+              } else {
+                this.$router.push('/signin')
+              }
+              this.$store.commit(IDENTITY_UPDATE, { identity: '-1' })
+              this.vmMsgSuccess('退出成功！')
             }
-            sessionStorage.removeItem('isLogin')
-            this.vmMsgSuccess('退出成功！')
           }).catch(() => {
             this.vmMsgError('网络错误！')
           })

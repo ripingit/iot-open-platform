@@ -2,8 +2,8 @@
   <div class="admin">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">管理员-用户信息</p>
-        <p class="title-en">ADMIN USER INFORMATION</p>
+        <p class="title-cn">管理员-权限管理</p>
+        <p class="title-en">ADMIN POWER MANAGE</p>
       </el-col>
     </el-row>
     <el-row class="table">
@@ -18,55 +18,58 @@
           <el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete btn-circle-right" @click="Delete()"></el-button>
         </el-col>
       </el-row>
-     <el-row>
-       <el-table
-         ref="multipleTable"
-         :data="tableData"
-         style="width: 100%;"
-         @selection-change="handleSelectionChange">
-         <el-table-column
-           type="selection">
-         </el-table-column>
-         <el-table-column
-           type="index"
-           width="100"
-           label="编号">
-         </el-table-column>
-         <el-table-column
-           prop="user_name"
-           label="姓名">
-         </el-table-column>
-         <el-table-column
-           prop="groupName"
-           label="角色">
-         </el-table-column>
-         <el-table-column
-           prop="create_time"
-           label="创建时间">
-         </el-table-column>
-         <el-table-column
-           prop="last_time"
-           label="最后一次登录">
-         </el-table-column>
-         <el-table-column
-           prop=""
-           label="操作"
-           width="180">
-           <template slot-scope="scope">
-             <el-button icon="iconfont icon-bianji"
-                        class="btn-circle"
-                        size="mini"
-                        circle
-                        @click="editAdmin(scope.row)"></el-button>
-             <el-button icon="iconfont icon-zhongzhi"
-                        size="mini"
-                        class="btn-circle"
-                        circle
-                        @click="Resetpwd(scope.row)"></el-button>
-           </template>
-         </el-table-column>
-       </el-table>
-     </el-row>
+      <el-row>
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          style="width: 100%;"
+          @selection-change="handleSelectionChange">
+          <el-table-column
+            type="selection">
+          </el-table-column>
+          <el-table-column
+            type="index"
+            align="center"
+            label="编号">
+          </el-table-column>
+          <el-table-column
+            prop="group_name"
+            align="center"
+            label="角色">
+          </el-table-column>
+          <el-table-column
+            prop=""
+            align="center"
+            label="授权">
+            <template slot-scope="scope">
+              <span class="admin-power" @click="VisitPower(scope.row)">访问授权</span>
+              <span class="admin-power" style="margin-left: 1rem;" @click="memberPower(scope.row)">成员授权</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="enable"
+            align="center"
+            label="当前状态">
+            <template slot-scope="scope">
+              <span v-if="scope.row.enable===1" style="color: #2acba7">可用</span>
+              <span v-if="scope.row.enable===2" style="color: #ff5d66">禁用</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop=""
+            align="center"
+            label="操作"
+            width="180">
+            <template slot-scope="scope">
+              <el-button icon="iconfont icon-bianji"
+                         class="btn-circle"
+                         size="mini"
+                         circle
+                         @click="editAdmin(scope.row)"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-row>
       <el-row type="flex" justify="center">
         <el-pagination
           @current-change="handleCurrentChange"
@@ -78,16 +81,13 @@
       </el-row>
     </el-row>
     <el-dialog
-      title="添加用户"
+      title="添加用户权限"
       :visible.sync="dialogVisible"
       center
       :before-close="handleClose">
       <el-form label-width="100px" status-icon :model="formAdd" ref="AddForm" :rules="rules">
-        <el-form-item label="用户名" class="form-row" prop="user_name">
-          <el-input v-model="formAdd.user_name"></el-input>
-        </el-form-item>
-        <el-form-item label="密码" class="form-row" prop="password">
-          <el-input v-model="formAdd.password"></el-input>
+        <el-form-item label="用户权限" class="form-row" prop="group_name">
+          <el-input v-model="formAdd.group_name"></el-input>
         </el-form-item>
         <el-form-item label="" style="margin-top: 4.33rem;">
           <el-button type="primary" class="btn-submit" @click="EnsureSubmit()">确 定</el-button>
@@ -95,19 +95,18 @@
       </el-form>
     </el-dialog>
     <el-dialog
-      title="添加用户权限"
+      title="编辑用户权限"
       :visible.sync="dialogVisible2"
       center
       :before-close="handleClose">
       <el-form label-width="100px" status-icon :model="formAdd2" ref="AddForm" :rules="rules">
-        <el-form-item label="用户权限" class="form-row" prop="group">
-          <el-select v-model="formAdd2.group" multiple placeholder="请选择">
+        <el-form-item label="当前状态" class="form-row" prop="enable">
+          <el-select v-model="formAdd2.enable" placeholder="请选择">
             <el-option
               v-for="item in options"
-              :key="item.group_id"
-              :label="item.group_name"
-              :value="item.group_id"
-              :disabled="item.disabled">
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
@@ -120,50 +119,50 @@
 </template>
 <script>
 import '@/assets/css/content.css'
-import { ADMIN_USER_QUERY,
-  ADMIN_USER_ADD,
-  ADMIN_USER_DEL,
-  ADMIN_USER_POWER_ADD,
-  ADMIN_USER_RESET_PWD
+import { ADMIN_POWER_QUERY,
+  ADMIN_POWER_ADD,
+  ADMIN_POWER_EDIT,
+  ADMIN_POWER_DEL
 } from '../../../lib/api.js'
 export default {
   data () {
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
-        if (rule.field === 'user_name') {
-          callback(new Error('请输入用户名'))
-        } else if (rule.field === 'password') {
-          callback(new Error('请输入密码'))
-        } else if (rule.field === 'group') {
-          callback(new Error('请选择用户权限'))
+        if (rule.field === 'group_name') {
+          callback(new Error('请输入用户权限'))
+        } else if (rule.field === 'enable') {
+          callback(new Error('请选择当前状态'))
         }
       }
       callback()
     }
     return {
       rules: {
-        user_name: [
+        group_name: [
           { validator: validateIsEmpty, trigger: 'blur' }
         ],
-        password: [
-          { validator: validateIsEmpty, trigger: 'blur' }
-        ],
-        group: [
+        enable: [
           { validator: validateIsEmpty, trigger: 'change' }
         ]
       },
       dialogVisible: false,
       dialogVisible2: false,
       inputVal: '',
-      user_id: '',
+      group_id: '',
+      group_name: '',
       formAdd: {
-        user_name: '',
-        password: ''
+        group_name: ''
       },
       formAdd2: {
-        group: []
+        enable: ''
       },
-      options: [],
+      options: [{
+        value: 1,
+        label: '可用'
+      }, {
+        value: 2,
+        label: '禁用'
+      }],
       tableData: [],
       multipleSelection: [],
       currentPage: 1,
@@ -181,20 +180,14 @@ export default {
         page: parseInt(this.currentPage),
         page_size: parseInt(this.page)
       })
-      this.$http.post(ADMIN_USER_QUERY, param).then(res => {
+      this.$http.post(ADMIN_POWER_QUERY, param).then(res => {
         loading.close()
         if (res.data.statu === 0) {
           this.$router.push('/login')
           return false
         }
         if (this.vmResponseHandler(res)) {
-          res.data.data.map(val => {
-            if (val.groupName) {
-              val.groupName = val.groupName.join('、')
-            }
-          })
           this.tableData = res.data.data
-          this.options = res.data.group
           this.total = res.data.total
         }
       }
@@ -207,7 +200,7 @@ export default {
       this.$refs['AddForm'].validate((valid) => {
         if (valid) {
           let param = this.createFormData(this.formAdd)
-          this.$http.post(ADMIN_USER_ADD, param).then(res => {
+          this.$http.post(ADMIN_POWER_ADD, param).then(res => {
             if (res.data.statu === 0) {
               this.$router.push('/login')
               return false
@@ -228,10 +221,11 @@ export default {
       this.$refs['AddForm'].validate((valid) => {
         if (valid) {
           let param = this.createFormData({
-            user_id: this.user_id,
-            group: JSON.stringify(this.formAdd2.group)
+            group_id: this.group_id,
+            group_name: this.group_name,
+            enable: this.formAdd2.enable
           })
-          this.$http.post(ADMIN_USER_POWER_ADD, param).then(res => {
+          this.$http.post(ADMIN_POWER_EDIT, param).then(res => {
             if (res.data.statu === 0) {
               this.$router.push('/login')
               return false
@@ -254,17 +248,20 @@ export default {
         return
       }
       let codeArr = ''
+      let codeArr2 = ''
       this.multipleSelection.forEach(val => {
-        codeArr = val.user_name
+        codeArr = val.group_name
+        codeArr2 = val.group_id
       })
       let param = this.createFormData({
-        user_name: codeArr
+        group_id: codeArr2,
+        group_name: codeArr
       })
       this.vmConfirm({
         msg: '确定删除该记录？',
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
-          this.$http.post(ADMIN_USER_DEL, param).then(res => {
+          this.$http.post(ADMIN_POWER_DEL, param).then(res => {
             if (res.data.statu === 0) {
               this.$router.push('/login')
               return false
@@ -289,32 +286,14 @@ export default {
     },
     editAdmin (row) {
       this.dialogVisible2 = true
-      this.user_id = row.user_id
+      this.group_id = row.group_id
+      this.group_name = row.group_name
     },
-    Resetpwd (row) {
-      let param = this.createFormData({
-        user_name: row.user_name
-      })
-      this.vmConfirm({
-        msg: '确定重置该用户密码？',
-        confirmCallback: () => {
-          let loading = this.vmLoadingFull()
-          this.$http.post(ADMIN_USER_RESET_PWD, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
-            loading.close()
-            if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess('重置密码成功！')
-              this.onSubmit()
-            }
-          }).catch(() => {
-            loading.close()
-            this.vmMsgError('网络错误！')
-          })
-        }
-      })
+    VisitPower (row) {
+      this.$router.push({name: 'VisitPower', params: { group_id: row.group_id }})
+    },
+    memberPower (row) {
+      this.$router.push({name: 'memberPower', params: { group_id: row.group_id }})
     },
     handleSelectionChange (val) {
       this.multipleSelection = val
@@ -332,6 +311,12 @@ export default {
   .admin{
     padding: 1.67rem 2.5rem;
     color: #fff;
+  }
+  .admin-power:hover{
+    color: #2acba7;
+    border-bottom: 1px dotted #2acba7;
+    padding-bottom: .3rem;
+    cursor: pointer;
   }
 </style>
 <style>

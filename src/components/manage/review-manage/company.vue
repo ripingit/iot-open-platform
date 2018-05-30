@@ -26,7 +26,7 @@
                 </el-option>
               </el-select>
               <el-button class="btn-search" type="primary" @click="search">查询</el-button>
-              <el-button class="btn-circle-delete" type="danger" icon="el-icon-delete" circle @click="deleteAudit"></el-button>
+              <el-button v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_COMPANY, tableData.res)" class="btn-circle-delete" type="danger" icon="el-icon-delete" circle @click="deleteAudit"></el-button>
             </el-col>
           </el-row>
           <el-row>
@@ -82,7 +82,7 @@
                   label="审核时间"
                   :formatter="dataFormatter">
                 </el-table-column>
-                <el-table-column label="操作">
+                <el-table-column label="操作" v-if="vmHasAuth(PermissionsLib.REVIEW_AUDIT_COMPANY, tableData.res)">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"

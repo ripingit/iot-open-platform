@@ -123,4 +123,14 @@ exports.install = function (Vue, options) {
       return false
     }
   }
+
+  /**
+   * 检测操作权限
+   */
+  Vue.prototype.vmHasAuth = (map, authList) => {
+    if (!authList) { return }
+    let auth = authList.find(o => o.cmd_id === map.id)
+    if (!auth) { return false }
+    return auth.status
+  }
 }

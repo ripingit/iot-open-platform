@@ -134,7 +134,7 @@
 import '@/assets/css/content.css'
 import { CERT_UPLOAD_POST, PARTNER_AUTH_POST, UPDATE_AUTH_STATE_POST } from '../../lib/api.js'
 import { validatePhone, validateFixPhone, validateBusinessLicense } from '../../lib/validate.js'
-import { AUTH_CHANGE } from '@/store/mutations-type'
+import { AUTH_CHANGE, USER_ID_UPDATE, USER_KEY_UPDATE } from '@/store/mutations-type'
 
 export default {
   data () {
@@ -272,6 +272,8 @@ export default {
           this.authStatu = res.data.company_status
           this.authFailedReason = res.data.data.review_mark
           this.$store.commit(AUTH_CHANGE, { authState: res.data.company_status })
+          this.$store.commit(USER_ID_UPDATE, { ID: res.data.company_client_id })
+          this.$store.commit(USER_KEY_UPDATE, { KEY: res.data.company_client_secret })
           if (this.authStatu === this.authCode.REJECT) {
             this.form.name = res.data.data.name
             this.form.addr = res.data.data.addr

@@ -2,10 +2,8 @@
   <div class="device-model-admin">
     <el-row>
       <el-col :span="24">
-        <el-col :span="21">
-          <p class="device-model-admin-title-1">设备型号</p>
-          <p class="device-model-admin-title-2">UNIT TYPE</p>
-        </el-col>
+        <p class="title-cn">设备型号</p>
+        <p class="title-en">UNIT TYPE</p>
       </el-col>
     </el-row>
     <el-row class="table">
@@ -81,7 +79,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="remark"
+            prop="rom_ver"
             label="固件版本">
           </el-table-column>
           <el-table-column
@@ -205,15 +203,12 @@ export default {
 </script>
 <style scoped>
   .device-model-admin{
-    margin: 1.67rem 2.5rem;
-    color: #ffffff;
+    padding: 1.67rem 2.5rem;
+    color: #fff;
   }
-  .device-model-admin-title-1{
-    font-size: 1.8rem;
-  }
-  .device-model-admin-title-2{
-    padding-top: 0.35rem;
-    font-size: 1rem;
-    color: #808080;
+</style>
+<style>
+  .device-model-admin /deep/ .el-dialog{
+    width:54.17rem;
   }
 </style>

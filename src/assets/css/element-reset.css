@@ -304,3 +304,9 @@ color: #b3b3b3;
 .el-pager li.btn-quicknext, .el-pager li.btn-quickprev{
   color: #b3b3b3;
 }
+
+
+/**表单提示 */
+.el-form-item__error {
+  z-index: 10
+}

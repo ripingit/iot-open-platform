@@ -8,7 +8,7 @@
             background-color="#3b3f42"
             text-color="rgba(255, 255, 255, 0.5)"
             active-text-color="#ffd04b">
-            <el-menu-item-group v-if="identity === ''">
+            <el-menu-item-group v-if="identity === identityCodes.COOP">
               <el-menu-item index="1" @click="routeGo('/manage/home', $event)">
                 <i class="iconfont icon-shouye"></i>
                 <span slot="title">首页</span>
@@ -25,62 +25,31 @@
                 <i class="iconfont icon-APPbanben1"></i>
                 <span slot="title">APP管理</span>
               </el-menu-item>
-            </el-menu-item-group>
-            <el-menu-item-group v-else-if="identity === 'mktech'">
-              <el-menu-item index="1" @click="routeGo('/manage/home', $event)">
-                <i class="iconfont icon-shouye"></i>
-                <span slot="title">首页</span>
-              </el-menu-item>
-              <el-menu-item index="2" @click="routeGo('/manage/admin/category', $event)">
-                <i class="iconfont icon-shebeileibie"></i>
-                <span slot="title">设备类别</span>
-              </el-menu-item>
-              <el-menu-item index="3" @click="routeGo('/manage/admin/model', $event)">
-                <i class="iconfont icon-shebeixinghao"></i>
-                <span slot="title">设备型号</span>
-              </el-menu-item>
-              <el-menu-item index="4" @click="routeGo('/manage/admin/sKey', $event)">
+              <el-menu-item index="5" @click="routeGo('/manage/user/sKey', $event)">
                 <i class="iconfont icon-KEY"></i>
                 <span slot="title">KEY</span>
               </el-menu-item>
-              <el-menu-item index="5" @click="routeGo('/manage/admin/firmware', $event)">
-                <i class="iconfont icon-gujianguanli"></i>
-                <span slot="title">固件管理</span>
+            </el-menu-item-group>
+            <el-menu-item-group v-else-if="identity === identityCodes.ADMIN">
+              <el-menu-item index="0" @click="routeGo('/manage/home', $event)">
+                <i class="iconfont icon-shouye"></i>
+                <span slot="title">首页</span>
               </el-menu-item>
-              <el-menu-item index="6" @click="routeGo('/manage/admin/cooperation', $event)">
-                <i class="iconfont icon-hezuo"></i>
-                <span slot="title">合作</span>
-              </el-menu-item>
-              <!--<el-menu-item index="13" @click="routeGo('/manage/admin/users', $event)">
-                <i class="iconfont icon-yonghuguanli"></i>
-                <span slot="title">用户管理</span>
-              </el-menu-item>-->
-              <el-menu-item index="7" @click="routeGo('/manage/admin/appVersion', $event)">
-                <i class="iconfont icon-APPbanben1"></i>
-                <span slot="title">APP管理</span>
-              </el-menu-item>
-              <el-submenu index="2-1">
-                <template slot="title">
-                  <i class="iconfont icon-shenheguanli"></i>
-                  <span>审核管理</span>
-                </template>
-                  <el-menu-item index="8" @click="routeGo('/manage/admin/reviewCompany', $event)">
-                    <span slot="title">公司</span>
+              <template v-for="(item, index) in menus">
+                <el-menu-item v-if="!item.children && item.auth" :key="index" :index="index + 1 + ''"  @click="routeGo(item.path, $event)">
+                  <i class="iconfont" :class="item.icon"></i>
+                  <span slot="title">{{item.name}}</span>
+                </el-menu-item>
+                <el-submenu v-else-if="item.children && item.auth" :index="index + 1 + ''" :key="index">
+                  <template slot="title">
+                    <i class="iconfont" :class="item.icon"></i>
+                    <span>{{item.name}}</span>
+                  </template>
+                  <el-menu-item v-for="(obj, num) in item.children" v-if="obj.auth" :key="num" :index="(index + 1) + '-' + num" @click="routeGo(obj.path, $event)">
+                    <span slot="title">{{obj.name}}</span>
                   </el-menu-item>
-                  <el-menu-item index="9" @click="routeGo('/manage/admin/reviewModel', $event)">
-                    <span slot="title">型号</span>
-                  </el-menu-item>
-                  <el-menu-item index="10" @click="routeGo('/manage/admin/reviewFirmware', $event)">
-                    <span slot="title">固件</span>
-                  </el-menu-item>
-                  <el-menu-item index="11" @click="routeGo('/manage/admin/reviewCategory', $event)">
-                    <span slot="title">类别</span>
-                  </el-menu-item>
-              </el-submenu>
-              <el-menu-item index="12" @click="routeGo('/manage/admin/admins', $event)">
-                <i class="iconfont icon-guanliyuan"></i>
-                <span slot="title">管理员</span>
-              </el-menu-item>
+                </el-submenu>
+              </template>
             </el-menu-item-group>
           </el-menu>
         </el-col>
@@ -98,10 +67,10 @@
       </el-row>
       <el-form ref="ruleForm" label-width="80px">
         <el-form-item label="ID" class="form-row">
-          <el-input readonly v-model="ruleForm.name" style="width: 100%"></el-input>
+          <el-input readonly v-model="ruleForm.id" style="width: 100%"></el-input>
         </el-form-item>
         <el-form-item label="KEY" class="form-row">
-          <el-input readonly v-model="ruleForm.name" style="width: 100%"></el-input>
+          <el-input readonly v-model="ruleForm.key" style="width: 100%"></el-input>
         </el-form-item>
         <el-form-item style="margin-top: 4.33rem">
           <el-button type="primary" style="width: 100%" class="btn-submit" @click="confirm">确定</el-button>
@@ -116,10 +85,7 @@ import { MENU_UPDATE } from '@/store/mutations-type'
 export default {
   data () {
     return {
-      dialogVisible: false,
-      ruleForm: {
-        name: '发过火发个和'
-      }
+      dialogVisible: false
     }
   },
   created () {
@@ -131,12 +97,24 @@ export default {
     },
     activeMenu () {
       return this.$store.getters.getHighlightMenu
+    },
+    ruleForm () {
+      return {
+        id: this.$store.getters.getUserID,
+        key: this.$store.getters.getUserKey
+      }
+    },
+    menus () {
+      return this.$store.getters.getAuthMenu
+    },
+    identityCodes () {
+      return this.identityCode
     }
   },
   methods: {
     routeGo (path, $event) {
       this.$store.commit(MENU_UPDATE, { highlightMenu: $event.index })
-      if (path === '/manage/admin/sKey') { // 为key的话就弹框
+      if (path === '/manage/user/sKey') { // 为key的话就弹框
         this.dialogVisible = true
       } else {
         this.$router.push(path + `/${$event.index}`)
