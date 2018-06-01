@@ -11,24 +11,48 @@ export default {
     'path',
     'alt'
   ],
+  data () {
+    return {
+      fontSize: 12
+    }
+  },
   methods: {
     scaleImg () {
       let imgResource = this.$refs['imgResource']
+
+      // 小图片距离浏览器可视区域的left、top
+      let left = imgResource.getBoundingClientRect().left
+      let top = imgResource.getBoundingClientRect().top
+      // 放大后图片的top、left
+      let toLeft = window.innerWidth / 2 - imgResource.naturalWidth / 2
+      let toTop = window.innerHeight / 2 - imgResource.naturalHeight / 2
+      // 放大过程中将要移动的距离
+      let translateX = (toLeft - left) / this.fontSize
+      let translateY = (toTop - top) / this.fontSize
 
       let scaleContainer = document.createElement('div')
       scaleContainer.classList = ['scale-wrapper']
 
       let img = document.createElement('img')
       img.setAttribute('src', this.path)
+      img.style.left = (left / this.fontSize) + 'rem'
+      img.style.top = (top / this.fontSize) + 'rem'
+      img.style.height = (imgResource.offsetHeight / this.fontSize) + 'rem'
+      img.style.width = (imgResource.offsetWidth / this.fontSize) + 'rem'
+      img.addEventListener('click', (e) => {
+        e.stopPropagation()
+      })
 
       let iconDel = document.createElement('i')
       iconDel.classList = ['el-icon-error icon-del']
-      iconDel.addEventListener('click', () => {
-        scaleContainer.style.transform = 'scale(0)'
+      scaleContainer.addEventListener('click', () => {
+        img.style.height = (imgResource.offsetHeight / this.fontSize) + 'rem'
+        img.style.width = (imgResource.offsetWidth / this.fontSize) + 'rem'
+        img.style.transform = `translate(0, 0)`
         let timer = setTimeout(() => {
           document.body.removeChild(scaleContainer)
           clearTimeout(timer)
-        }, 1000)
+        }, 300)
       })
 
       scaleContainer.appendChild(iconDel)
@@ -36,16 +60,17 @@ export default {
       document.body.appendChild(scaleContainer)
 
       if (imgResource.naturalHeight >= document.body.clientHeight) {
-        img.style.height = (document.body.clientHeight - 100) + 'px'
+        img.style.height = (document.body.clientHeight - 100) / this.fontSize + 'rem'
       } else {
-        img.style.height = imgResource.naturalHeight + 'px'
+        img.style.height = imgResource.naturalHeight / this.fontSize + 'rem'
       }
 
       if (imgResource.naturalWidth >= document.body.clientWidth) {
-        img.style.width = (document.body.clientWidth - 100) + 'px'
+        img.style.width = (document.body.clientWidth - 100) / this.fontSize + 'rem'
       } else {
-        img.style.width = imgResource.naturalWidth + 'px'
+        img.style.width = imgResource.naturalWidth / this.fontSize + 'rem'
       }
+      img.style.transform = `translate(${translateX + 'rem'}, ${translateY + 'rem'})`
     }
   }
 }
@@ -97,10 +122,8 @@ export default {
   transition: all .5s cubic-bezier(.23, 1, .46, 1);
 }
 .scale-wrapper img {
-  transition: all .5s cubic-bezier(.46, 1, .23, 1.52);
-  width: 0;
-  height: 0;
-  margin: 0 auto;
+  position: absolute;
+  transition: all .5s ease;
 }
 
 .scale-wrapper .icon-del {

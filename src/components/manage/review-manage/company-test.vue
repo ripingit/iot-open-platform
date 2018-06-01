@@ -2,7 +2,7 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-          <p class="title-cn">审核管理-型号</p>
+          <p class="title-cn">审核管理-公司</p>
           <p class="title-en">AUDIT MANAGEMENT</p>
       </el-col>
     </el-row>
@@ -17,7 +17,7 @@
                 type="date"
                 placeholder="请选择提交时间">
               </el-date-picker>
-              <el-select placeholder="请选择" v-model="value1">
+              <el-select v-model="value1" placeholder="请选择">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -25,17 +25,27 @@
                   :value="item.value">
                 </el-option>
               </el-select>
-              <el-button class="btn-search" type="primary">查询</el-button>
-              <el-button v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_MODEL, tableData.res)"
-                        class="btn-circle-delete"
-                        type="danger"
-                        icon="el-icon-delete"
-                        circle
-                        @click="deleteAudit"></el-button>
+              <el-button class="btn-search" type="primary" @click="search">查询</el-button>
+              <el-button v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_COMPANY, tableData.res)" class="btn-circle-delete" type="danger" icon="el-icon-delete" circle @click="deleteAudit"></el-button>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="24">
+              <my-table
+                :data="tableData.data"
+                :options="colConfigs">
+                <!-- slot="del" 不能省略，需要与下面配置项中的对应 -->
+                <el-table-column slot="review" v-if="vmHasAuth(PermissionsLib.REVIEW_AUDIT_COMPANY, tableData.res)">
+                  <el-button
+                      class="btn-circle"
+                      size="mini"
+                      icon="iconfont icon-gengduo"
+                      circle
+                      slot-scope="{ row }"
+                      @click="showDetailDialog(0, row)"></el-button>
+                </el-table-column>
+              </my-table>
+
               <el-table
                 v-loading="loading"
                 :data="tableData.data"
@@ -51,16 +61,12 @@
                   width="80">
                 </el-table-column>
                 <el-table-column
-                  prop="product_name"
-                  label="型号"
-                  width="120">
+                  prop="name"
+                  label="公司名称"
+                  width="180">
                 </el-table-column>
                 <el-table-column
-                  prop="company_name"
-                  label="归属公司">
-                </el-table-column>
-                <el-table-column
-                  prop="upgrade_time"
+                  prop="create_time"
                   label="提交时间">
                 </el-table-column>
                 <el-table-column
@@ -78,17 +84,20 @@
                 </el-table-column>
                 <el-table-column
                   prop="review_mark"
-                  label="备注">
+                  label="说明"
+                  :formatter="dataFormatter">
                 </el-table-column>
                 <el-table-column
                   prop="review_name"
-                  label="审核人">
+                  label="审核人"
+                  :formatter="dataFormatter">
                 </el-table-column>
                 <el-table-column
                   prop="review_time"
-                  label="审核时间">
+                  label="审核时间"
+                  :formatter="dataFormatter">
                 </el-table-column>
-                <el-table-column label="操作"  v-if="vmHasAuth(PermissionsLib.REVIEW_AUDIT_MODEL, tableData.res)">
+                <el-table-column label="操作" v-if="vmHasAuth(PermissionsLib.REVIEW_AUDIT_COMPANY, tableData.res)">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"
@@ -116,44 +125,44 @@
       </el-col>
     </el-row>
 
-    <el-dialog title="型号审核" :visible.sync="isDetailDialogVisible" center>
+    <el-dialog title="资质审核" :visible.sync="isDetailDialogVisible" center>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">型号名称</el-col>
+        <el-col :span="2" :sm="3" class="label-name">公司名称</el-col>
         <el-col :span="22" :sm="21" class="label-value">
-          {{reviewData.product_name}}
+          {{ reviewData.name }}
         </el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">型号代码</el-col>
+        <el-col :span="2" :sm="3" class="label-name">证件号</el-col>
         <el-col :span="22" :sm="21" class="label-value">
-          {{reviewData.product_code}}
+          {{ reviewData.agencyCode }}
         </el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">连接方式</el-col>
+        <el-col :span="2" :sm="3" class="label-name">通讯地址</el-col>
         <el-col :span="22" :sm="21" class="label-value">
-          {{reviewData.nbi_code}}
+          {{ reviewData.addr }}
         </el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">设备类别</el-col>
+        <el-col :span="2" :sm="3" class="label-name">联系电话</el-col>
         <el-col :span="22" :sm="21" class="label-value">
-          {{reviewData.prodt_code}}
+          {{ reviewData.tel }}
         </el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">效果图</el-col>
+        <el-col :span="2" :sm="3" class="label-name">营业执照</el-col>
         <el-col :span="22" :sm="21" class="label-value">
-          <ScaleImgComponent v-for="(item, index) in reviewData.filePaths" :key="index" :path="item" class="cert" alt="效果图"></ScaleImgComponent>
+          <ScaleImgComponent :path="reviewData.filePath" class="cert" alt="营业执照"></ScaleImgComponent>
         </el-col>
       </el-row>
-      <el-row class="label-sug">
+      <el-row class="label-row">
         <el-col :span="24">
         <el-input
             type="textarea"
             :rows="4"
-            placeholder="请说明"
-            v-model="reviewData.review_mark">
+            placeholder="请输入驳回理由"
+            v-model="reviewData.reviewMark">
           </el-input>
         </el-col>
       </el-row>
@@ -173,12 +182,61 @@
 <script>
 import '@/assets/css/content.css'
 import ScaleImgComponent from '@/components/_ui/scale-img.vue'
-import { GET_ADMIN_AUDIT_MODEL_POST, DELETE_ADMIN_AUDIT_MODEL_POST, REVIEW_ADMIN_AUDIT_MODEL_POST } from '@/lib/api'
+import MyTable from '@/components/_ui/table.vue'
+import { GET_AUDIT_COMPANY_POST, DELETE_AUDIT_COMPANY_POST, REVIEW_AUDIT_COMPANY_POST } from '@/lib/api'
+
+// 审核状态
+var reviewStatuComponent = {
+  // template: `<span :class="row.is_review === ${authCode.WAIT} ? 'wait'
+  //                   : row.is_review === ${authCode.PASS} ? 'pass'
+  //                   : row.is_review === ${authCode.REJECT} ? 'reject' : ''">
+  //                   {{row.is_review === ${authCode.WAIT} ? '待审核'
+  //                   : row.is_review === ${authCode.PASS} ? '已通过'
+  //                   : row.is_review === ${authCode.REJECT} ? '已驳回' : ''}}
+  //                   </span>`,
+  template: `<el-table-column v-bind="config">
+              <template slot-scope="{ row }">
+                <span :class="row.is_review === 9 ? 'wait'
+                    : row.is_review === 1 ? 'pass'
+                    : row.is_review === 2 ? 'reject' : ''">
+                    {{row.is_review === 9? '待审核'
+                    : row.is_review === 1 ? '已通过'
+                    : row.is_review === 2 ? '已驳回' : ''}}
+                </span>
+              </template>
+            </el-table-column>`,
+  props: ['config']
+}
 
 export default {
-  components: { ScaleImgComponent },
+  components: { ScaleImgComponent, MyTable },
   data () {
+    this.colConfigs = {
+      columns: [
+        { prop: 'name', label: '公司名称' },
+        { prop: 'create_time', label: '提交时间' },
+        { prop: 'is_review', label: '状态', component: reviewStatuComponent },
+        { prop: 'review_mark', label: '说明' },
+        { prop: 'review_name', label: '审核人' },
+        { prop: 'review_time', label: '审核时间' }
+      ], // 通用列数据
+      hasNumber: true, // 是否有序号列
+      hasSelection: true, // 是否有选择列
+      slot: { // 操作占位
+        del: 'del',
+        edit: 'review'
+      }
+    }
     return {
+      reviewData: {
+        name: '',
+        addr: '',
+        agencyCode: '',
+        tel: '',
+        filePath: '',
+        reviewMark: '',
+        companyCode: ''
+      },
       isDetailDialogVisible: false,
       options: [],
       value1: '',
@@ -188,16 +246,6 @@ export default {
         pageAll: 1,
         total: 1
       },
-      reviewData: {
-        product_name: '',
-        product_code: '',
-        nbi_code: '',
-        prodt_code: '',
-        review_mark: '',
-        filePaths: []
-      },
-      connectionMode: [],
-      deviceCategory: [],
       selectedData: []
     }
   },
@@ -213,19 +261,19 @@ export default {
     handleSelectionChange (val) {
       this.selectedData = val
     },
+    dataFormatter (row, column, cellValue, index) {
+      return row.is_review === this.authCode.WAIT ? '' : cellValue
+    },
+    search () {
+    },
     showDetailDialog (index, row) {
-      let connect = row.nbi_code && row.nbi_code.reduce((accumulator, currentValue) => {
-        return accumulator + this.connectionMode.find(o => o.nbi_code === currentValue).nbi_code_name + '；'
-      }, '')
-      let deviceCate = row.prodt_code && row.prodt_code.reduce((accumulator, currentValue) => {
-        return accumulator + currentValue + '；'
-      }, '')
-      this.reviewData.product_name = row.product_name
-      this.reviewData.product_code = row.product_code
-      this.reviewData.nbi_code = connect
-      this.reviewData.prodt_code = deviceCate
-      this.reviewData.review_mark = ''
-      this.reviewData.filePaths = [row.pic1_fileid, row.pic2_fileid]
+      this.reviewData.reviewMark = ''
+      this.reviewData.name = row.name
+      this.reviewData.addr = row.addr
+      this.reviewData.agencyCode = row.agency_code
+      this.reviewData.tel = row.tel
+      this.reviewData.filePath = row.file_ids
+      this.reviewData.companyCode = row.company_code
       this.isDetailDialogVisible = true
     },
     getAuditList (currentPage) {
@@ -233,11 +281,9 @@ export default {
         page: currentPage,
         page_size: 10
       })
-      this.$http.post(GET_ADMIN_AUDIT_MODEL_POST, data).then(res => {
+      this.$http.post(GET_AUDIT_COMPANY_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
-          this.connectionMode = res.data.Nbi
-          this.deviceCategory = res.data.prodtList
         }
       }).catch(e => {
         this.vmMsgError('网络错误！')
@@ -245,15 +291,15 @@ export default {
     },
     deleteAudit () {
       if (this.selectedData.length <= 0) {
-        this.vmMsgError('请选择需要删除的型号！'); return
+        this.vmMsgError('请选择需要删除的公司！'); return
       }
       let data = this.createFormData({
-        product_code: JSON.stringify(this.selectedData.map(o => o.product_code))
+        company_code: this.selectedData[0].company_code
       })
       this.vmConfirm({
         msg: '确认要删除选中记录吗？',
         confirmCallback: () => {
-          this.$http.post(DELETE_ADMIN_AUDIT_MODEL_POST, data).then(res => {
+          this.$http.post(DELETE_AUDIT_COMPANY_POST, data).then(res => {
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page)
               this.vmMsgSuccess('删除成功！')
@@ -267,14 +313,14 @@ export default {
     reviewAudit (review) {
       // review: 1通过 2未通过
       let data = this.createFormData({
-        product_code: this.reviewData.product_code,
+        company_code: this.reviewData.companyCode,
         is_review: review,
-        review_mark: this.reviewData.review_mark || '无'
+        review_mark: this.reviewData.reviewMark || '无'
       })
       this.vmConfirm({
-        msg: review === 1 ? '确认通过该设备型号的审核？' : '确认驳回该设备型号的审核？',
+        msg: review === 1 ? '确认通过该公司的认证？' : '确认驳回该公司的认证？',
         confirmCallback: () => {
-          this.$http.post(REVIEW_ADMIN_AUDIT_MODEL_POST, data).then(res => {
+          this.$http.post(REVIEW_AUDIT_COMPANY_POST, data).then(res => {
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page)
               this.isDetailDialogVisible = false
@@ -299,16 +345,7 @@ export default {
 .cert {
   width: 12rem;
   height: 8.33rem;
-  margin-right: 1rem;
 }
-.wait {
-  color: #b3b3b3;
-}
-.pass {
-  color: #2acba7;
-}
-.reject {
-  color: #ff5d66;
-}
+
 /** 定制 end */
 </style>

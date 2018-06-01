@@ -12,8 +12,8 @@
             v-model="inputVal">
             <i slot="prefix" class="el-input__icon el-icon-search" @click="searchData()"></i>
           </el-input>
-          <el-button icon="el-icon-plus" type="primary" circle class="btn-circle-delete" @click="operationData('add')"></el-button>
-          <!--<el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete" @click="operationData('delete')"></el-button>-->
+          <el-button icon="el-icon-plus" type="primary" circle class="btn-circle-add" @click="operationData('add')"></el-button>
+          <el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete" @click="operationData('delete')"></el-button>
         </el-col>
       </el-row>
       <el-row>
@@ -22,10 +22,10 @@
           :data="tableData"
           @selection-change="handleSelectionChange"
           style="width: 100%;">
-          <!--<el-table-column
+          <el-table-column
             type="selection"
             width="55">
-          </el-table-column>-->
+          </el-table-column>
           <el-table-column
             type="index"
             min-width="100"
@@ -54,7 +54,7 @@
           <el-table-column
             prop=""
             label="操作"
-            min-width="160">
+            min-width="120">
             <template slot-scope="scope">
               <el-button
                 class="btn-circle"
@@ -68,12 +68,6 @@
                 icon="iconfont icon-bianji"
                 circle
                 @click="operationData('edit',scope.$index)"></el-button>
-              <el-button
-                class="btn-circle"
-                size="mini"
-                icon="iconfont icon-shanchu"
-                circle
-                @click="operationData('delete',scope.$index)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -100,20 +94,23 @@
           <span class="detail_item" v-show="updateStyle==='add'">添加</span>
         </el-form-item>
         <el-form-item label="APP名称" prop="app_name" class="form-row">
-          <el-input v-model="ruleForm.app_name" placeholder="请输入" v-show="updateStyle==='add'"></el-input>
+          <el-input v-model="ruleForm.app_name" placeholder="请输入app名称" v-show="updateStyle==='add'"></el-input>
           <el-input v-model="ruleForm.app_name" readonly v-show="updateStyle==='update'"></el-input>
         </el-form-item>
         <el-form-item label="版本" prop="ver" class="form-row">
-          <el-input v-model="ruleForm.ver" placeholder="请输入"></el-input>
+          <el-input v-model="ruleForm.ver" placeholder="请输入app版本"></el-input>
         </el-form-item>
         <el-form-item label="下载地址" prop="url" class="form-row">
-          <el-input v-model="ruleForm.url" placeholder="请输入"></el-input>
+          <el-input v-model="ruleForm.url" placeholder="请输入app下载地址"></el-input>
         </el-form-item>
         <el-form-item label="MD5值" prop="md5" class="form-row">
-          <el-input v-model="ruleForm.md5" placeholder="请输入"></el-input>
+          <el-input v-model="ruleForm.md5" placeholder="请输入app MD5值"></el-input>
         </el-form-item>
         <el-form-item label="升级描述" prop="change_log" class="form-row">
-          <el-input type="textarea" resize="none" v-model="ruleForm.change_log" placeholder="请输入"></el-input>
+          <quill-editor ref="myTextEditor"
+                        v-model="ruleForm.change_log"
+                        :options="editorOption">
+          </quill-editor>
         </el-form-item>
         <el-form-item class="form-row" style="margin-top: 4.33rem">
           <el-button type="primary" @click="submitForm" class="btn-submit">提交</el-button>
@@ -140,7 +137,7 @@
           <span class="detail_item">{{detailData.md5}}</span>
         </el-form-item>
         <el-form-item label="升级描述">
-          <span class="detail_item">{{detailData.change_log}}</span>
+          <span class="detail_item" v-html="vmEscapeToHTML(detailData.change_log)"></span>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -148,12 +145,22 @@
 </template>
 <script>
 import '@/assets/css/content.css'
-
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+import { quillEditor } from 'vue-quill-editor'
 import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST } from '@/lib/api.js'
 
 export default {
+  components: { quillEditor },
   data () {
     return {
+      editorOption: {
+        modules: {
+          toolbar: ''
+        },
+        placeholder: '请输入升级描述'
+      },
       inputVal: '',
       multipleSelection: [],
       tableData: [],
@@ -222,13 +229,16 @@ export default {
         this.updateStyle = 'update'
         this.dialogVisible = true
         for (let key in this.ruleForm) {
-          this.ruleForm[key] = this.tableData[ix][key]
+          this.ruleForm[key] = key === 'change_log' ? this.vmEscapeToHTML(this.tableData[ix][key]) : this.tableData[ix][key]
         }
       } else {
-        let data = this.createFormData({
-          app_name: this.tableData[ix].app_name,
-          ver: this.tableData[ix].ver,
-          md5: this.tableData[ix].md5
+        let data
+        let ary = []
+        for (let obj of this.multipleSelection) {
+          ary.push(obj.app_name)
+        }
+        data = this.createFormData({
+          app_name: JSON.stringify(ary)
         })
         this.vmConfirm({
           msg: '确定删除该记录？',
@@ -306,9 +316,6 @@ export default {
   }
   .container /deep/ .el-dialog{
     width:54.17rem;
-  }
-  .container /deep/ .el-textarea__inner{
-    height:10rem;
   }
   .download{
     color: #38a0f8;

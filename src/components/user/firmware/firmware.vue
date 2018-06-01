@@ -127,12 +127,10 @@
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row" label="升级描述" prop="change_log">
-          <el-input
-            type="textarea"
-            :rows="2"
-            placeholder="请输入升级描述"
-            v-model="form.change_log">
-          </el-input>
+          <quill-editor ref="myTextEditor"
+                        v-model="form.change_log"
+                        :options="editorOption">
+          </quill-editor>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row">
@@ -149,7 +147,11 @@
 
 <script>
 import '@/assets/css/content.css'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 import TimeLineComponent from '../../_ui/time-line.vue'
+import { quillEditor } from 'vue-quill-editor'
 import {
   GET_COOP_FIRMWARES_POST,
   COOP_FIRMWARES_UPLOAD_POST,
@@ -157,7 +159,7 @@ import {
   GET_COOP_FIRMWARE_HISTORY_POST } from '@/lib/api'
 
 export default {
-  components: { TimeLineComponent },
+  components: { TimeLineComponent, quillEditor },
   data () {
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
@@ -176,6 +178,12 @@ export default {
       callback()
     }
     return {
+      editorOption: {
+        modules: {
+          toolbar: ''
+        },
+        placeholder: '请输入升级描述'
+      },
       form: {
         product_code: '',
         rom_ver: '',

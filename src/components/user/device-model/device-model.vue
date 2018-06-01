@@ -66,16 +66,16 @@
               label="审核状态">
               <template slot-scope="scope">
                 <span v-if="scope.row.is_review===9">待审核</span>
-                <span v-if="scope.row.is_review===1" style="color: #2acba7">通过</span>
-                <span v-if="scope.row.is_review===2" style="color: #ff5d66">未通过</span>
+                <span v-if="scope.row.is_review===1" style="color: #2acba7">已通过</span>
+                <span v-if="scope.row.is_review===2" style="color: #ff5d66">已驳回</span>
               </template>
             </el-table-column>
             <el-table-column
               prop="config_status"
               label="配置状态">
               <template slot-scope="scope">
-                <span v-if="scope.row.config_status">已配置</span>
-                <span v-if="!scope.row.config_status">未配置</span>
+                <span v-if="scope.row.config_status" style="color: #2acba7">已配置</span>
+                <span v-if="!scope.row.config_status" style="color: #ff5d66">未配置</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -118,7 +118,7 @@
             <span class="form-tip">*</span>
           </el-form-item>
           <el-form-item label="连接方式" class="form-row" prop="nbi_code">
-            <el-select v-model="formAdd.nbi_code" multiple placeholder="请选择">
+            <el-select v-model="formAdd.nbi_code" multiple placeholder="请选择连接方式">
               <el-option
                 v-for="item in nbi_code_options"
                 :key="item.nbi_code"
@@ -129,7 +129,7 @@
             <span class="form-tip">*</span>
           </el-form-item>
           <el-form-item label="设备类别" class="form-row" prop="prodt_code">
-            <el-select v-model="formAdd.prodt_code" multiple placeholder="请选择">
+            <el-select v-model="formAdd.prodt_code" multiple placeholder="请选择设备类别">
               <el-option
                 v-for="item in prodt_code_options"
                 :key="item.prodt_code"
@@ -221,7 +221,7 @@
             <el-form label-width="100px" :model="formConfig" status-icon ref="ConfigForm" :rules="rules">
             <div v-if="showList1">
               <el-col :span="24" class="device-model-editdialog-title">IPC分类（IPCC）</el-col>
-              <el-form-item label="设备分类" class="form-row" prop="class">
+              <el-form-item label="设备分类" class="form-row" prop="class0">
                 <el-select v-model="formConfig.class0" placeholder="请选择">
                   <el-option
                     v-for="item in class_options"
@@ -314,7 +314,7 @@ export default {
           callback(new Error('请上传图1'))
         } else if (rule.field === 'pic2') {
           callback(new Error('请上传图2'))
-        } else if (rule.field === 'class') {
+        } else if (rule.field === 'class0') {
           callback(new Error('请选择设备分类'))
         } else if (rule.field === 'dec') {
           callback(new Error('请选择解码方式'))
@@ -349,7 +349,7 @@ export default {
         pic2: [
           { validator: validateIsEmpty, trigger: 'blur' }
         ],
-        class: [
+        class0: [
           { validator: validateIsEmpty, trigger: 'change' }
         ],
         dec: [
@@ -484,10 +484,10 @@ export default {
             })
           })
           this.tableData = res.data.data.map(val => {
-            if (val.nbi_code) {
+            if (Array.isArray(val.nbi_code)) {
               val.nbi_code = val.nbi_code.map(subval => codeObj[subval]).join('、')
             }
-            if (val.prodt_code) {
+            if (Array.isArray(val.prodt_code)) {
               val.prodt_code = val.prodt_code.join('、')
             }
             return val
@@ -597,8 +597,10 @@ export default {
       console.log('搜索')
     },
     Delete (row) {
+      let codeArr = []
+      codeArr.push(row.product_code)
       let param = this.createFormData({
-        product_code: row.product_code
+        product_code: JSON.stringify(codeArr)
       })
       this.vmConfirm({
         msg: '确定删除该记录？',

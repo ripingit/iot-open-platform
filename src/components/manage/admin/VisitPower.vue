@@ -8,17 +8,20 @@
     </el-row>
     <el-row class="table">
       <el-col :span="24" class="VisitPower-checkbox" v-for="group in groupData" :key="group.cmd_id">
-        <el-checkbox :indeterminate="group.hasChecked" v-model="group.allChecked" @change="CheckAll(group)">{{group.method}}</el-checkbox>
+        <el-checkbox class="VisitPower-checkbox-1" :indeterminate="group.hasChecked" v-model="group.allChecked" @change="CheckAll(group)">{{group.label}}</el-checkbox>
         <div style="margin: 1.5rem 0;"></div>
-        <el-checkbox v-model="item.checked" @change="ChangeGroup(group)" v-for="item in group.child" :label="item.method" :key="item.cmd_id">{{item.method}}</el-checkbox>
+        <el-checkbox v-model="item.checked" @change="ChangeGroup(group)" v-for="item in group.child" :label="item.label" :key="item.id">{{item.label}}</el-checkbox>
       </el-col>
       <el-col :span="24" style="margin-top: 4rem">
         <el-col :span="2">
-          <el-button type="primary" @click="confirm()">确 定</el-button>
+          <el-button
+            type="primary"
+            v-if="vmHasAuth(PermissionsLib.EDIT_USER_GROUP_AUTH, resData.res)"
+            @click="confirm()">确 定</el-button>
         </el-col>
-        <el-col :span="2" :offset="1">
+        <el-col :span="2">
           <el-button type="danger"
-                     style="background-color: #f56c6c;border-color: #f56c6c;"
+                     style="background-color: #f56c6c;border-color: #f56c6c;margin-left: 1rem"
                      @click="goBack()">返 回</el-button>
         </el-col>
       </el-col>
@@ -33,7 +36,7 @@ export default {
     return {
       group_id: this.$route.params.group_id,
       groupData: [],
-      groupChecked: [],
+      resData: [],
       cmd_id: []
     }
   },
@@ -53,21 +56,32 @@ export default {
           return false
         }
         if (this.vmResponseHandler(res)) {
+          this.resData = res.data
+          let treeData = []
           res.data.data.forEach(val => {
-            if (val.status) {
-              this.cmd_id.push(val.cmd_id)
+            let node = {
+              hasChecked: val.status,
+              allChecked: true,
+              label: val.method,
+              id: val.cmd_id,
+              child: [],
+              childChecked: []
             }
-            val.groupChecked = []
-            val.hasChecked = true
-            val.allChecked = val.status
             val.child.forEach(subVal => {
+              node.child.push({
+                checked: subVal.status,
+                label: subVal.method,
+                id: subVal.cmd_id
+              })
               if (subVal.status) {
-                this.cmd_id.push(subVal.cmd_id)
+                node.childChecked.push(subVal)
+              } else {
+                node.allChecked = false
               }
-              subVal.checked = subVal.status
             })
+            treeData.push(node)
           })
-          this.groupData = res.data.data
+          this.groupData = treeData
         }
       }
       ).catch(() => {
@@ -79,6 +93,17 @@ export default {
       this.$router.push({name: 'power'})
     },
     confirm () {
+      this.cmd_id = []
+      this.groupData.forEach(val => {
+        if (val.hasChecked || val.allChecked) {
+          this.cmd_id.push(val.id)
+        }
+        val.child.forEach(subVal => {
+          if (subVal.checked) {
+            this.cmd_id.push(subVal.id)
+          }
+        })
+      })
       let param = this.createFormData({
         cmd_id: JSON.stringify(this.cmd_id),
         group_id: this.group_id
@@ -105,38 +130,24 @@ export default {
       })
     },
     CheckAll (row) {
-      this.cmd_id = []
-      if (row.allChecked) {
-        this.cmd_id.push(row.cmd_id)
-        row.groupChecked.forEach(val => {
-          this.cmd_id.push(val.cmd_id)
-        })
-      }
-      row.allChecked = row.groupChecked.length === row.child.length
-      row.groupChecked = []
+      row.allChecked = row.childChecked.length === row.child.length
+      row.childChecked = []
       row.child.forEach(function (val) {
         val.checked = !row.allChecked
-        if (val.checked)row.groupChecked.push(val)
+        if (val.checked)row.childChecked.push(val)
       })
-      let groupChecked = row.groupChecked.length
-      row.allChecked = groupChecked === row.child.length
-      row.hasChecked = groupChecked > 0 && groupChecked < row.child.length
+      let childChecked = row.childChecked.length
+      row.allChecked = childChecked === row.child.length
+      row.hasChecked = childChecked > 0 && childChecked < row.child.length
     },
     ChangeGroup (row) {
-      this.cmd_id = []
-      if (row.groupChecked.length) {
-        this.cmd_id.push(row.cmd_id)
-      }
-      row.groupChecked = []
+      row.childChecked = []
       row.child.forEach(function (val) {
-        if (val.checked)row.groupChecked.push(val)
+        if (val.checked)row.childChecked.push(val)
       })
-      let groupChecked = row.groupChecked.length
-      row.allChecked = groupChecked === row.child.length
-      row.hasChecked = groupChecked > 0 && groupChecked < row.child.length
-      row.groupChecked.forEach(val => {
-        this.cmd_id.push(val.cmd_id)
-      })
+      let childChecked = row.childChecked.length
+      row.allChecked = childChecked === row.child.length
+      row.hasChecked = childChecked > 0 && childChecked < row.child.length
     }
   }
 }
@@ -152,6 +163,8 @@ export default {
   .VisitPower-checkbox{
     margin-top: 2rem;
     color: #808080;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #808080;
   }
 </style>
 <style>

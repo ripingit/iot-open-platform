@@ -31,8 +31,20 @@
              <el-button type="primary" @click="onSubmit">查询</el-button>
            </el-form-item>
          </el-form>
-         <el-button icon="el-icon-plus" type="primary" circle class="btn-circle-add" @click="addDevice()"></el-button>
-         <el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete btn-circle-right" @click="Delete()"></el-button>
+         <el-button
+           icon="el-icon-plus"
+           type="primary"
+           circle
+           class="btn-circle-add"
+           v-if="vmHasAuth(PermissionsLib.ADD_DEVICE_CATE, resData.res)"
+           @click="addDevice()"></el-button>
+         <el-button
+           icon="el-icon-delete"
+           type="danger"
+           circle
+           class="btn-circle-delete btn-circle-right"
+           v-if="vmHasAuth(PermissionsLib.DEL_DEVICE_CATE, resData.res)"
+           @click="Delete()"></el-button>
        </el-col>
      </el-row>
       <el-row>
@@ -134,6 +146,7 @@ export default {
         prodt_code: ''
       },
       tableData: [],
+      resData: [],
       multipleSelection: [],
       currentPage: 1,
       total: 0,
@@ -158,6 +171,7 @@ export default {
         }
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
+          this.resData = res.data
           this.total = res.data.total
         }
       }
@@ -195,12 +209,12 @@ export default {
         this.vmMsgWarning('请选择记录')
         return
       }
-      let codeArr = ''
+      let codeArr = []
       this.multipleSelection.forEach(val => {
-        codeArr = val.prodt_code
+        codeArr.push(val.prodt_code)
       })
       let param = this.createFormData({
-        prodt_code: codeArr
+        prodt_code: JSON.stringify(codeArr)
       })
       this.vmConfirm({
         msg: '确定删除该记录？',

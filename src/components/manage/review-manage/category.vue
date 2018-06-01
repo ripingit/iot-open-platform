@@ -26,7 +26,10 @@
                 </el-option>
               </el-select>
               <el-button class="btn-search" type="primary" @click="searchData">查询</el-button>
-              <!--<el-button class="btn-circle-delete" type="danger" icon="el-icon-delete" circle></el-button>-->
+              <el-button
+                v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_CATEGORY, res)"
+                @click="operationData('delete')"
+                class="btn-circle-delete" type="danger" icon="el-icon-delete" circle></el-button>
             </el-col>
           </el-row>
           <el-row>
@@ -34,11 +37,12 @@
               <el-table
                 v-loading="loading"
                 :data="tableData"
+                @selection-change="handleSelectionChange"
                 style="width: 100%">
-                <!--<el-table-column
+                <el-table-column
                   type="selection"
                   width="55">
-                </el-table-column>-->
+                </el-table-column>
                 <el-table-column
                   type="index"
                   label="编号"
@@ -91,29 +95,29 @@
                       circle
                       v-if="vmHasAuth(PermissionsLib.REVIEW_AUDIT_CATEGORY, res)"
                       @click="operationData('select',scope.$index)"></el-button>
-                    <el-button
+                    <!--<el-button
                       class="btn-circle"
                       size="mini"
                       icon="iconfont icon-shanchu"
                       circle
                       v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_CATEGORY, res)"
-                      @click="operationData('delete',scope.$index)"></el-button>
+                      @click="operationData('delete',scope.$index)"></el-button>-->
                   </template>
                 </el-table-column>
               </el-table>
             </el-col>
           </el-row>
+          <el-row type="flex" justify="center" v-if="totalAll!=0">
+            <el-pagination
+              @current-change="handleCurrentChange"
+              :current-page.sync="selectParam.page"
+              :page-size="selectParam.page_size"
+              layout="prev, pager, next, jumper"
+              :total="totalAll">
+            </el-pagination>
+          </el-row>
         </div>
       </el-col>
-    </el-row>
-    <el-row type="flex" justify="center" v-if="totalAll!=0">
-      <el-pagination
-        @current-change="handleCurrentChange"
-        :current-page.sync="selectParam.page"
-        :page-size="selectParam.page_size"
-        layout="prev, pager, next, jumper"
-        :total="totalAll">
-      </el-pagination>
     </el-row>
     <el-dialog title="类别详情" :visible.sync="isDetailDialogVisible" center>
       <el-row class="label-row">
@@ -177,7 +181,8 @@ export default {
         page_size: 10
       },
       totalAll: 0,
-      detailData: {}
+      detailData: {},
+      selectedData: []
     }
   },
   created () {
@@ -189,6 +194,9 @@ export default {
     }
   },
   methods: {
+    handleSelectionChange (val) {
+      this.selectedData = val
+    },
     searchData () {
       this.loadData()
     },
@@ -198,7 +206,7 @@ export default {
         this.detailData = JSON.parse(JSON.stringify(this.tableData[idx]))
       } else {
         let data = this.createFormData({
-          prodt_code: this.tableData[idx].prodt_code
+          prodt_code: JSON.stringify(this.selectedData.map(o => o.prodt_code))
         })
         this.vmConfirm({
           msg: '确定删除该记录？',

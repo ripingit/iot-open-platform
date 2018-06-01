@@ -22,7 +22,7 @@
           </el-option>
         </el-select>
         <el-button class="btn-search" type="primary" @click="searchData">查询</el-button>
-        <!--<el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete" @click="operationData"></el-button>-->
+        <el-button icon="el-icon-delete" v-if="vmHasAuth(PermissionsLib.DEL_APP, res)" type="danger" circle class="btn-circle-delete" @click="operationData('delete')"></el-button>
       </el-row>
       <el-row>
         <el-table
@@ -30,10 +30,10 @@
           :data="tableData"
           @selection-change="handleSelectionChange"
           style="width: 100%;">
-          <!--<el-table-column
+          <el-table-column
             type="selection"
             width="55">
-          </el-table-column>-->
+          </el-table-column>
           <el-table-column
             type="index"
             min-width="100"
@@ -67,7 +67,7 @@
           <el-table-column
             prop=""
             label="操作"
-            min-width="120">
+            min-width="100">
             <template slot-scope="scope">
               <el-button
                 class="btn-circle"
@@ -75,12 +75,6 @@
                 icon="iconfont icon-gengduo"
                 circle
                 @click="operationData('select',scope.$index)"></el-button>
-              <el-button
-                class="btn-circle"
-                size="mini"
-                icon="iconfont icon-shanchu"
-                circle
-                @click="operationData('delete',scope.$index)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -133,6 +127,7 @@ export default {
       options: [],
       multipleSelection: [],
       tableData: [],
+      res: [],
       selectParam: {
         page: 1,
         page_size: 10
@@ -169,10 +164,13 @@ export default {
         this.detailDialogVisible = true
         this.detailData = JSON.parse(JSON.stringify(this.tableData[ix]))
       } else {
-        let data = this.createFormData({
-          app_name: this.tableData[ix].app_name,
-          ver: this.tableData[ix].ver,
-          md5: this.tableData[ix].md5
+        let data
+        let ary = []
+        for (let obj of this.multipleSelection) {
+          ary.push(obj.app_name)
+        }
+        data = this.createFormData({
+          app_name: JSON.stringify(ary)
         })
         this.vmConfirm({
           msg: '确定删除该记录？',
@@ -201,6 +199,7 @@ export default {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
           this.totalAll = res.data.total
+          this.res = res.data.res
         }
       }).catch(e => {
         this.vmMsgError('网络错误！')

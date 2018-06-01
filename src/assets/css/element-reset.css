@@ -207,6 +207,21 @@ padding: 25px 66px;
   width: 25rem;
   border: none;
 }
+.el-dialog .quill-editor {
+  width: 25rem;
+  background: #5e6165;
+  height: 16rem;
+  color: #fff;
+  display: inline-block;
+  vertical-align: top;
+}
+.el-dialog .ql-container {
+  border: none !important;
+}
+.el-dialog .ql-editor.ql-blank::before {
+  font-style: inherit;
+  color: #c0c4cc
+}
 
 .el-dialog .el-input input,
 .el-dialog .el-select .el-input,

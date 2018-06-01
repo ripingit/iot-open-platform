@@ -96,7 +96,12 @@ exports.install = function (Vue, options) {
     let formData = new FormData()
     for (let key in obj) {
       if (obj.hasOwnProperty(key)) {
-        formData.append(key, obj[key])
+        if (obj[key] instanceof Array || obj[key] instanceof Object) {
+          // let value = obj[key]
+          // formData.append(key, JSON.stringify(value))
+        } else {
+          formData.append(key, obj[key])
+        }
       }
     }
     return formData
@@ -132,5 +137,25 @@ exports.install = function (Vue, options) {
     let auth = authList.find(o => o.cmd_id === map.id)
     if (!auth) { return false }
     return auth.status
+  }
+
+  Vue.prototype.vmEscapeToHTML = (str) => {
+    let temp = document.createElement('div')
+    temp.innerHTML = str
+    let output = temp.innerText || temp.textContent
+    temp = null
+    return output
+  }
+
+  Vue.prototype.vmHtmlToEscape = (html) => {
+    let temp = document.createElement('div')
+    if (temp.textContent != null) {
+      temp.textContent = html
+    } else {
+      temp.innerText = html
+    }
+    let output = temp.innerHTML
+    temp = null
+    return output
   }
 }

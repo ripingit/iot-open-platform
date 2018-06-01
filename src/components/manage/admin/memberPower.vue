@@ -27,7 +27,9 @@
             label="操作"
             width="180">
             <template slot-scope="scope">
-              <span class="memberPower-power" @click="removePower(scope.row)">解除授权</span>
+              <span class="memberPower-power"
+                    v-if="vmHasAuth(PermissionsLib.REMOVE_USER_FROM, resData.res)"
+                    @click="removePower(scope.row)">解除授权</span>
             </template>
           </el-table-column>
         </el-table>
@@ -49,7 +51,8 @@ export default{
   data () {
     return {
       group_id: this.$route.params.group_id,
-      tableData: []
+      tableData: [],
+      resData: []
     }
   },
   created () {
@@ -69,6 +72,7 @@ export default{
         }
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
+          this.resData = res.data
         }
       }
       ).catch(() => {

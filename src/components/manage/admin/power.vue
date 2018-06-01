@@ -14,8 +14,18 @@
             v-model="inputVal">
             <i slot="prefix" class="el-input__icon el-icon-search" @click="SearchData()"></i>
           </el-input>
-          <el-button icon="el-icon-plus" type="primary" circle class="btn-circle-add" @click="addAdmin()"></el-button>
-          <el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete btn-circle-right" @click="Delete()"></el-button>
+          <el-button
+            icon="el-icon-plus"
+            type="primary" circle
+            class="btn-circle-add"
+            v-if="vmHasAuth(PermissionsLib.ADD_USER_GROUP, resData.res)"
+            @click="addAdmin()"></el-button>
+          <el-button
+            icon="el-icon-delete"
+            type="danger" circle
+            class="btn-circle-delete btn-circle-right"
+            v-if="vmHasAuth(PermissionsLib.DEL_USER_GROUP, resData.res)"
+            @click="Delete()"></el-button>
         </el-col>
       </el-row>
       <el-row>
@@ -42,8 +52,13 @@
             align="center"
             label="授权">
             <template slot-scope="scope">
-              <span class="admin-power" @click="VisitPower(scope.row)">访问授权</span>
-              <span class="admin-power" style="margin-left: 1rem;" @click="memberPower(scope.row)">成员授权</span>
+              <span class="admin-power"
+                    v-if="vmHasAuth(PermissionsLib.ADD_USER_GROUP_AUTH, resData.res)"
+                    @click="VisitPower(scope.row)">访问授权</span>
+              <span class="admin-power"
+                    style="margin-left: 1rem;"
+                    v-if="vmHasAuth(PermissionsLib.DEL_USER_GROUP_USER, resData.res)"
+                    @click="memberPower(scope.row)">成员授权</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -65,6 +80,7 @@
                          class="btn-circle"
                          size="mini"
                          circle
+                         v-if="vmHasAuth(PermissionsLib.EDIT_USER_GROUP, resData.res)"
                          @click="editAdmin(scope.row)"></el-button>
             </template>
           </el-table-column>
@@ -81,12 +97,12 @@
       </el-row>
     </el-row>
     <el-dialog
-      title="添加用户权限"
+      title="添加用户组"
       :visible.sync="dialogVisible"
       center
       :before-close="handleClose">
       <el-form label-width="100px" status-icon :model="formAdd" ref="AddForm" :rules="rules">
-        <el-form-item label="用户权限" class="form-row" prop="group_name">
+        <el-form-item label="用户组" class="form-row" prop="group_name">
           <el-input v-model="formAdd.group_name"></el-input>
         </el-form-item>
         <el-form-item label="" style="margin-top: 4.33rem;">
@@ -95,7 +111,7 @@
       </el-form>
     </el-dialog>
     <el-dialog
-      title="编辑用户权限"
+      title="编辑用户组"
       :visible.sync="dialogVisible2"
       center
       :before-close="handleClose">
@@ -129,7 +145,7 @@ export default {
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
         if (rule.field === 'group_name') {
-          callback(new Error('请输入用户权限'))
+          callback(new Error('请输入用户组'))
         } else if (rule.field === 'enable') {
           callback(new Error('请选择当前状态'))
         }
@@ -164,6 +180,7 @@ export default {
         label: '禁用'
       }],
       tableData: [],
+      resData: [],
       multipleSelection: [],
       currentPage: 1,
       total: 0,
@@ -188,6 +205,7 @@ export default {
         }
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
+          this.resData = res.data
           this.total = res.data.total
         }
       }

@@ -14,8 +14,18 @@
             v-model="inputVal">
             <i slot="prefix" class="el-input__icon el-icon-search" @click="SearchData()"></i>
           </el-input>
-          <el-button icon="el-icon-plus" type="primary" circle class="btn-circle-add" @click="addAdmin()"></el-button>
-          <el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete btn-circle-right" @click="Delete()"></el-button>
+          <el-button
+            icon="el-icon-plus"
+            type="primary" circle
+            class="btn-circle-add"
+            v-if="vmHasAuth(PermissionsLib.ADD_USER, resData.res)"
+            @click="addAdmin()"></el-button>
+          <el-button
+            icon="el-icon-delete"
+            type="danger" circle
+            class="btn-circle-delete btn-circle-right"
+            v-if="vmHasAuth(PermissionsLib.DEL_USER, resData.res)"
+            @click="Delete()"></el-button>
         </el-col>
       </el-row>
      <el-row>
@@ -57,11 +67,13 @@
                         class="btn-circle"
                         size="mini"
                         circle
+                        v-if="vmHasAuth(PermissionsLib.ADD_USER_TO_GROUP, resData.res)"
                         @click="editAdmin(scope.row)"></el-button>
              <el-button icon="iconfont icon-zhongzhi"
                         size="mini"
                         class="btn-circle"
                         circle
+                        v-if="vmHasAuth(PermissionsLib.RESET_USER_PASS, resData.res)"
                         @click="Resetpwd(scope.row)"></el-button>
            </template>
          </el-table-column>
@@ -95,12 +107,12 @@
       </el-form>
     </el-dialog>
     <el-dialog
-      title="添加用户权限"
+      title="添加用户组"
       :visible.sync="dialogVisible2"
       center
       :before-close="handleClose">
       <el-form label-width="100px" status-icon :model="formAdd2" ref="AddForm" :rules="rules">
-        <el-form-item label="用户权限" class="form-row" prop="group">
+        <el-form-item label="用户组" class="form-row" prop="group">
           <el-select v-model="formAdd2.group" multiple placeholder="请选择">
             <el-option
               v-for="item in options"
@@ -135,7 +147,7 @@ export default {
         } else if (rule.field === 'password') {
           callback(new Error('请输入密码'))
         } else if (rule.field === 'group') {
-          callback(new Error('请选择用户权限'))
+          callback(new Error('请选择用户组'))
         }
       }
       callback()
@@ -165,6 +177,7 @@ export default {
       },
       options: [],
       tableData: [],
+      resData: [],
       multipleSelection: [],
       currentPage: 1,
       total: 0,
@@ -194,6 +207,7 @@ export default {
             }
           })
           this.tableData = res.data.data
+          this.resData = res.data
           this.options = res.data.group
           this.total = res.data.total
         }
