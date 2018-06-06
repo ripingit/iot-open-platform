@@ -52,7 +52,7 @@ export default {
         let timer = setTimeout(() => {
           document.body.removeChild(scaleContainer)
           clearTimeout(timer)
-        }, 300)
+        }, 550)
       })
 
       scaleContainer.appendChild(iconDel)

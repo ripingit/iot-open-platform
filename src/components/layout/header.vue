@@ -21,7 +21,7 @@
             <p v-on:click.stop="showSetPanel">{{userAccount}}</p>
             <transition name="slide">
               <ul class="control-panel" v-show="isPanelShow">
-                <li v-if="identity === ''" @click="routeGo('/manage/user/authention')">认证</li>
+                <li v-if="identity === identityCode.COOP" @click="routeGo('/manage/user/authention')">认证</li>
                 <li @click="routeGo(resetPassPath)">修改密码</li>
                 <li @click="signOut">退出</li>
               </ul>

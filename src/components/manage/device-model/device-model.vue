@@ -15,6 +15,7 @@
                 class="time"
                 v-model="formInline.ChoiceTime"
                 type="daterange"
+                value-format="yyyy-MM-dd"
                 :editable="false"
                 range-separator="至"
                 start-placeholder="开始日期"
@@ -22,10 +23,7 @@
               </el-date-picker>
             </el-form-item>
             <el-form-item label="">
-              <el-select v-model="formInline.company" placeholder="请选择">
-                <el-option label="区域一" value="shanghai"></el-option>
-                <el-option label="区域二" value="beijing"></el-option>
-              </el-select>
+              <el-input v-model="formInline.query_by_name"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="onSubmit">查询</el-button>
@@ -116,7 +114,7 @@ export default {
       dialogVisible: false,
       formInline: {
         ChoiceTime: '',
-        company: ''
+        query_by_name: ''
       },
       tableData: [],
       resData: [],
@@ -134,7 +132,10 @@ export default {
       let loading = this.vmLoadingFull()
       let param = this.createFormData({
         page: parseInt(this.currentPage),
-        page_size: parseInt(this.page)
+        page_size: parseInt(this.page),
+        query_by_name: this.formInline.query_by_name,
+        start_time: this.formInline.ChoiceTime ? this.formInline.ChoiceTime[0] : '',
+        end_time: this.formInline.ChoiceTime ? this.formInline.ChoiceTime[1] : ''
       })
       this.$http.post(EQUIPMENT_MODEL_QUERY, param).then(res => {
         loading.close()

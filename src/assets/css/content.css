@@ -23,6 +23,7 @@
 }
 
 .table .el-select,
+.table .el-input,
 .table .btn-search {
   margin-left: 1.5rem;
   width: auto;

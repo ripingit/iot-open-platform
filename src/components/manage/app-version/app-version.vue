@@ -9,18 +9,12 @@
         <el-date-picker
           v-model="inputVal1"
           type="daterange"
+          value-format="yyyy-MM-dd"
           range-separator="至"
           start-placeholder="开始日期"
           end-placeholder="结束日期">
         </el-date-picker>
-        <el-select v-model="inputVal2" placeholder="请选择公司">
-          <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
+        <el-input v-model="selectParam.query_by_name" placeholder="请输入"></el-input>
         <el-button class="btn-search" type="primary" @click="searchData">查询</el-button>
         <el-button icon="el-icon-delete" v-if="vmHasAuth(PermissionsLib.DEL_APP, res)" type="danger" circle class="btn-circle-delete" @click="operationData('delete')"></el-button>
       </el-row>
@@ -123,14 +117,16 @@ export default {
   data () {
     return {
       inputVal1: '',
-      inputVal2: '',
       options: [],
       multipleSelection: [],
       tableData: [],
       res: [],
       selectParam: {
         page: 1,
-        page_size: 10
+        page_size: 10,
+        query_by_name: '',
+        start_time: '',
+        end_time: ''
       },
       totalAll: 0,
       detailDialogVisible: false,
@@ -150,6 +146,9 @@ export default {
   },
   methods: {
     searchData () {
+      this.selectParam.page = 1
+      this.selectParam.start_time = this.inputVal1 ? this.inputVal1[0] : ''
+      this.selectParam.end_time = this.inputVal1 ? this.inputVal1[1] : ''
       this.loadData()
     },
     handleCurrentChange (val) {
@@ -228,8 +227,9 @@ export default {
     width: 54.17rem;
   }
 
-  .container /deep/ .el-select {
-    border: none;
+  .container /deep/ .table .el-input {
+    width:auto;
+    margin-left:1.5rem;
   }
 
   .detail_item{

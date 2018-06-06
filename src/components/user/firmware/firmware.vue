@@ -12,10 +12,10 @@
         <div class="table">
           <el-row>
             <el-col :span="5">
-              <el-input
+              <!--<el-input
                 placeholder="请输入内容">
                 <i slot="prefix" class="el-input__icon el-icon-search"></i>
-              </el-input>
+              </el-input>-->
               <el-button @click="showAddDialog" class="btn-circle-delete" type="primary" icon="iconfont icon-tianjia" circle></el-button>
             </el-col>
           </el-row>
@@ -31,9 +31,9 @@
                   width="80">
                 </el-table-column>
                 <el-table-column
-                  prop="product_code"
+                  prop="product_name"
                   label="型号"
-                  width="180">
+                  width="200">
                 </el-table-column>
                 <el-table-column
                   prop="rom_ver"
@@ -76,6 +76,7 @@
           <el-row>
             <el-col>
               <el-pagination
+                v-if="tableData.data.length !== 0"
                 @size-change="getFirmwareLists"
                 @current-change="getFirmwareLists"
                 :page-size="10"
@@ -229,7 +230,7 @@ export default {
   },
   computed: {
     loading () {
-      return this.tableData.data.length === 0 && this.tableData.status !== undefined
+      return this.tableData.status === undefined
     }
   },
   methods: {

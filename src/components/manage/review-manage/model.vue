@@ -12,7 +12,7 @@
         <div class="table">
           <el-row>
             <el-col :span="24">
-              <el-date-picker
+              <!--<el-date-picker
                 v-model="value1"
                 type="date"
                 placeholder="请选择提交时间">
@@ -25,9 +25,9 @@
                   :value="item.value">
                 </el-option>
               </el-select>
-              <el-button class="btn-search" type="primary">查询</el-button>
+              <el-button class="btn-search" type="primary">查询</el-button>-->
               <el-button v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_MODEL, tableData.res)"
-                        class="btn-circle-delete"
+                        class="btn-circle-delete btn-circle-right"
                         type="danger"
                         icon="el-icon-delete"
                         circle
@@ -104,6 +104,7 @@
           <el-row>
             <el-col>
               <el-pagination
+                v-if="tableData.data.length !== 0"
                 @size-change="getAuditList"
                 @current-change="getAuditList"
                 :page-size="10"
@@ -206,7 +207,7 @@ export default {
   },
   computed: {
     loading () {
-      return this.tableData.data.length === 0 && this.tableData.status !== undefined
+      return this.tableData.status === undefined
     }
   },
   methods: {

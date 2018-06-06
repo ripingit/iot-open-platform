@@ -7,11 +7,11 @@
     <el-row class="table">
       <el-row>
         <el-col :span="5">
-          <el-input
+          <!--<el-input
             placeholder="点击此处搜索"
             v-model="inputVal">
             <i slot="prefix" class="el-input__icon el-icon-search" @click="searchData()"></i>
-          </el-input>
+          </el-input>-->
           <el-button icon="el-icon-plus" type="primary" circle class="btn-circle-add" @click="operationData('add')"></el-button>
           <el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete" @click="operationData('delete')"></el-button>
         </el-col>

@@ -1,6 +1,14 @@
 import store from '@/store/index'
 import Vue from 'vue'
 
+let RoutingInterception = (to, from, next) => {
+  let authState = store.getters.getAuthState
+  if (authState !== Vue.prototype.authCode.PASS) {
+    Vue.prototype.vmMsgWarning('未通过认证，无法使用！'); return
+  }
+  next()
+}
+
 let layout = [
   {
     path: '/manage',
@@ -53,17 +61,20 @@ let userRoute = [
     path: 'model/:index',
     name: 'model',
     component: resolve => require(['@/components/user/device-model/device-model'], resolve),
-    meta: { title: '设备型号', identity: [0] }
+    meta: { title: '设备型号', identity: [0] },
+    beforeEnter: RoutingInterception
   }, {
     path: 'firmware/:index',
     name: 'firmware',
     component: resolve => require(['@/components/user/firmware/firmware'], resolve),
-    meta: { title: '固件管理', identity: [0] }
+    meta: { title: '固件管理', identity: [0] },
+    beforeEnter: RoutingInterception
   }, {
     path: 'appVersion/:index',
     name: 'appVersion',
     component: resolve => require(['@/components/user/app/app-manage'], resolve),
-    meta: { title: 'app版本', identity: [0] }
+    meta: { title: 'app版本', identity: [0] },
+    beforeEnter: RoutingInterception
   }, {
     path: 'key',
     name: 'key',

@@ -12,7 +12,7 @@
         <div class="table">
           <el-row>
             <el-col :span="24">
-              <el-date-picker
+              <!--<el-date-picker
                 v-model="value"
                 type="date"
                 placeholder="请选择提交时间">
@@ -25,11 +25,11 @@
                   :value="item.value">
                 </el-option>
               </el-select>
-              <el-button class="btn-search" type="primary" @click="searchData">查询</el-button>
+              <el-button class="btn-search" type="primary" @click="searchData">查询</el-button>-->
               <el-button
                 v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_CATEGORY, res)"
                 @click="operationData('delete')"
-                class="btn-circle-delete" type="danger" icon="el-icon-delete" circle></el-button>
+                class="btn-circle-delete" type="danger" icon="el-icon-delete btn-circle-right" circle></el-button>
             </el-col>
           </el-row>
           <el-row>
@@ -176,6 +176,7 @@ export default {
       value1: '',
       tableData: [],
       res: [],
+      status: undefined,
       selectParam: {
         page: 1,
         page_size: 10
@@ -190,7 +191,7 @@ export default {
   },
   computed: {
     loading () {
-      return this.tableData.length === 0 && this.tableData.status !== undefined
+      return this.status === undefined
     }
   },
   methods: {
@@ -263,6 +264,7 @@ export default {
           this.tableData = res.data.data
           this.totalAll = res.data.total
           this.res = res.data.res
+          this.status = res.data.status
         }
       }).catch(e => {
         this.vmMsgError('网络错误！')

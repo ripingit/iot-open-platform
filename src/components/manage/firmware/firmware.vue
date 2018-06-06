@@ -13,21 +13,18 @@
           <el-row>
             <el-col :span="24">
               <el-date-picker
-                v-model="value6"
+                v-model="searchDate"
                 type="daterange"
                 range-separator="至"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期">
               </el-date-picker>
-              <el-select v-model="value6" placeholder="请选择">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-              <el-button class="btn-search" type="primary">查询</el-button>
+              <el-input
+                placeholder="请输入查询关键字"
+                v-model="searchKeyWord"
+                clearable>
+              </el-input>
+              <el-button class="btn-search" type="primary" @click="getFirmwareLists(1)">查询</el-button>
             </el-col>
           </el-row>
           <el-row>
@@ -42,9 +39,9 @@
                   width="80">
                 </el-table-column>
                 <el-table-column
-                  prop="product_code"
+                  prop="product_name"
                   label="型号"
-                  width="120">
+                  width="200">
                 </el-table-column>
                 <el-table-column
                   prop="rom_ver"
@@ -81,6 +78,7 @@
           <el-row>
             <el-col>
               <el-pagination
+                v-if="tableData.data.length !== 0"
                 @size-change="getFirmwareLists"
                 @current-change="getFirmwareLists"
                 :page-size="10"
@@ -109,10 +107,10 @@ export default {
   data () {
     return {
       isDialogVisibleList: false,
-      options: [],
       isGetHistory: false,
       historyRecord: [],
-      value6: '',
+      searchDate: [],
+      searchKeyWord: '',
       tableData: {
         data: [],
         page: '1',
@@ -128,7 +126,7 @@ export default {
   },
   computed: {
     loading () {
-      return this.tableData.data.length === 0 && this.tableData.status !== undefined
+      return this.tableData.status === undefined
     }
   },
   methods: {
@@ -151,7 +149,10 @@ export default {
     getFirmwareLists (currentPage) {
       let data = this.createFormData({
         page: currentPage,
-        page_size: 10
+        page_size: 10,
+        query_by_name: this.searchKeyWord,
+        start_time: this.searchDate.length > 0 ? this.searchDate[0] : '',
+        end_time: this.searchDate.length > 0 ? this.searchDate[1] : ''
       })
       this.$http.post(GET_ADMIN_FIRMWARES_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {

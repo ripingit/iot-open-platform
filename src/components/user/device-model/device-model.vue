@@ -10,11 +10,11 @@
       <el-row class="table">
         <el-row>
           <el-col :span="5">
-            <el-input
-              placeholder="点击此处搜索"
-              v-model="inputVal">
-              <i slot="prefix" class="el-input__icon el-icon-search" @click="SearchData()"></i>
-            </el-input>
+            <!--<el-input-->
+              <!--placeholder="点击此处搜索"-->
+              <!--v-model="query_by_name">-->
+              <!--<i slot="prefix" class="el-input__icon el-icon-search" @click="SearchData()"></i>-->
+            <!--</el-input>-->
             <el-button icon="el-icon-plus" type="primary" circle class="btn-circle-delete" @click="addDevice()"></el-button>
           </el-col>
         </el-row>
@@ -385,7 +385,7 @@ export default {
       showList1: false,
       showList2: false,
       showList3: false,
-      inputVal: '',
+      query_by_name: '',
       dialogTitle: '',
       formAdd: {
         product_name: '',
@@ -464,7 +464,8 @@ export default {
       let loading = this.vmLoadingFull()
       let param = this.createFormData({
         page: parseInt(this.currentPage),
-        page_size: parseInt(this.page)
+        page_size: parseInt(this.page),
+        query_by_name: this.query_by_name
       })
       this.$http.post(USER_EQUIPMENT_MODEL_QUERY, param).then(res => {
         loading.close()
@@ -594,7 +595,7 @@ export default {
       })
     },
     SearchData () {
-      console.log('搜索')
+      this.onSubmit()
     },
     Delete (row) {
       let codeArr = []
