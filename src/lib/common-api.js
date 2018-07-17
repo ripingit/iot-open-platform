@@ -96,12 +96,7 @@ exports.install = function (Vue, options) {
     let formData = new FormData()
     for (let key in obj) {
       if (obj.hasOwnProperty(key)) {
-        if (obj[key] instanceof Array || obj[key] instanceof Object) {
-          // let value = obj[key]
-          // formData.append(key, JSON.stringify(value))
-        } else {
-          formData.append(key, obj[key])
-        }
+        formData.append(key, obj[key])
       }
     }
     return formData

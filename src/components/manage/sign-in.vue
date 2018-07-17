@@ -198,8 +198,17 @@ export default {
     // }
 
     this.getToken()
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
+  },
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        this.signIn()
+      }
+    },
     rememberPass () {
       localStorage['_ck'] = this.pwChecked
     },
@@ -236,7 +245,7 @@ export default {
               this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id })
               this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, menuRouteMap) })
               this.$router.addRoutes(createRoutes(res.data.title))
-              this.$router.push('/manage/home/0')
+              this.$router.push('/manage/admin/home/0')
             }
           }).catch(e => {
             this.vmMsgError('网络错误！')

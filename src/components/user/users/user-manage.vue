@@ -10,12 +10,11 @@
     <el-row>
       <el-col :span="24">
         <div class="table">
-          <el-row>
+         <!-- <el-row>
             <el-col :span="24">
               <el-date-picker
                 v-model="searchDate"
                 type="daterange"
-                value-format="yyyy-MM-dd"
                 range-separator="至"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期">
@@ -27,7 +26,7 @@
               </el-input>
               <el-button class="btn-search" type="primary" @click="getUsersLists(1)">查询</el-button>
             </el-col>
-          </el-row>
+          </el-row> -->
           <el-row>
             <el-col :span="24">
               <el-table
@@ -41,8 +40,7 @@
                 </el-table-column>
                 <el-table-column
                   prop="user_name"
-                  label="用户"
-                  width="200">
+                  label="用户">
                 </el-table-column>
                 <el-table-column
                   prop="create_time"
@@ -65,9 +63,8 @@
                   label="最后一次登录">
                 </el-table-column>
                 <el-table-column
-                  prop="company_name"
-                  label="所属公司"
-                  width="300">
+                  prop="device_num"
+                  label="绑定设备数">
                 </el-table-column>
                 <el-table-column label="操作">
                   <template slot-scope="scope">
@@ -122,14 +119,14 @@
 
 <script>
 import '@/assets/css/content.css'
-import { ADMIN_USERS_GET } from '@/lib/api'
+import { COOP_USERS_GET } from '@/lib/api'
 
 export default {
   data () {
     return {
       loading: false,
       isDialogVisibleList: false,
-      searchDate: null,
+      searchDate: [],
       searchKeyWord: '',
       tableData: {
         data: [],
@@ -158,17 +155,8 @@ export default {
   },
   created () {
     this.getUsersLists(1)
-    document.body.addEventListener('keydown', this.keyCodeDown, false)
-  },
-  beforeDestroy () {
-    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
-    keyCodeDown (e) {
-      if (e.keyCode === 13) {
-        this.getUsersLists(1)
-      }
-    },
     spanMethod ({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 0) {
         if (rowIndex % 2 === 0) {
@@ -190,13 +178,10 @@ export default {
     getUsersLists (currentPage) {
       let data = this.createFormData({
         page: currentPage,
-        page_size: 20,
-        query_by_name: this.searchKeyWord,
-        start_time: this.searchDate ? this.searchDate[0] : '',
-        end_time: this.searchDate ? this.searchDate[1] : ''
+        page_size: 20
       })
       this.loading = true
-      this.$http.post(ADMIN_USERS_GET, data).then(res => {
+      this.$http.post(COOP_USERS_GET, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
         }

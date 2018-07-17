@@ -53,12 +53,13 @@
           </el-table-column>
           <el-table-column
             prop="product_name"
-            label="型号">
+            label="型号名称">
           </el-table-column>
           <el-table-column
             prop="product_code"
-            label="型号代码">
-          </el-table-column>
+            label="型号代码"
+            width="150">
+            </el-table-column>
           <el-table-column
             prop="nbi_code"
             label="连接方式">
@@ -86,12 +87,16 @@
             label="固件版本">
           </el-table-column>
           <el-table-column
+            prop="upgrade_time"
+            label="添加时间">
+          </el-table-column>
+          <el-table-column
             prop="company_name"
             label="所属公司">
           </el-table-column>
         </el-table>
       </el-row>
-      <el-row type="flex" justify="center">
+      <el-row v-if="total>page" type="flex" justify="center">
         <el-pagination
           @current-change="handleCurrentChange"
           :current-page.sync="currentPage"
@@ -121,13 +126,22 @@ export default {
       multipleSelection: [],
       currentPage: 1,
       total: 0,
-      page: 10
+      page: 20
     }
   },
   created () {
     this.onSubmit()
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
+  },
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        this.onSubmit()
+      }
+    },
     onSubmit () {
       let loading = this.vmLoadingFull()
       let param = this.createFormData({

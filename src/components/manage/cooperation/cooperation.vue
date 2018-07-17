@@ -14,6 +14,7 @@
               <el-date-picker
                 v-model="searchDate"
                 type="daterange"
+                value-format="yyyy-MM-dd"
                 range-separator="至"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期">
@@ -94,8 +95,8 @@ import { GET_COOP_COMPANY_POST, DELETE_COOP_COMPANY_POST } from '@/lib/api'
 export default {
   data () {
     return {
-      options: [],
-      searchDate: '',
+      loading: false,
+      searchDate: null,
       searchKeyWord: '',
       tableData: {
         data: [],
@@ -108,29 +109,36 @@ export default {
   },
   created () {
     this.getCoopLists(1)
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
   },
-  computed: {
-    loading () {
-      return this.tableData.status === undefined
-    }
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        this.getCoopLists(1)
+      }
+    },
     handleSelectionChange (val) {
       this.selectedData = val
     },
     getCoopLists (currentPage) {
       let data = this.createFormData({
         page: currentPage,
-        page_size: 10,
+        page_size: 20,
         query_by_name: this.searchKeyWord,
-        start_time: this.searchDate.length > 0 ? this.searchDate[0] : '',
-        end_time: this.searchDate.length > 0 ? this.searchDate[1] : ''
+        start_time: this.searchDate ? this.searchDate[0] : '',
+        end_time: this.searchDate ? this.searchDate[1] : ''
       })
+      this.loading = true
       this.$http.post(GET_COOP_COMPANY_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
         }
+        this.loading = false
       }).catch(e => {
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     },
@@ -144,12 +152,15 @@ export default {
       this.vmConfirm({
         msg: '确认要删除选中记录吗？',
         confirmCallback: () => {
+          let wait = this.vmLoadingFull()
           this.$http.post(DELETE_COOP_COMPANY_POST, data).then(res => {
             if (this.vmResponseHandler(res)) {
               this.getCoopLists(this.tableData.page)
               this.vmMsgSuccess('删除成功！')
             }
+            wait.close()
           }).catch(e => {
+            wait.close()
             this.vmMsgError('网络错误！')
           })
         }

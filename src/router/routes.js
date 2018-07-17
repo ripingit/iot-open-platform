@@ -17,11 +17,6 @@ let layout = [
       {
         path: '',
         redirect: '/manage/user/authention'
-      }, {
-        path: 'home/:index',
-        name: 'home',
-        component: resolve => require(['@/components/home/home'], resolve),
-        meta: { title: '首页' }
       }
     ]
   }
@@ -42,12 +37,22 @@ let admin = {
       name: 'resetAdminPass',
       component: resolve => require(['@/components/manage/edit-password'], resolve),
       meta: { title: '修改密码', identity: [1] }
+    }, {
+      path: 'home/:index',
+      name: 'home',
+      component: resolve => require(['@/components/manage/home'], resolve),
+      meta: { title: '首页' }
     }
   ]
 }
 
 let userRoute = [
   {
+    path: 'home/:index',
+    name: 'home',
+    component: resolve => require(['@/components/user/home'], resolve),
+    meta: { title: '首页' }
+  }, {
     path: 'authention',
     name: 'authention',
     component: resolve => require(['@/components/user/auth'], resolve),
@@ -74,6 +79,12 @@ let userRoute = [
     name: 'appVersion',
     component: resolve => require(['@/components/user/app/app-manage'], resolve),
     meta: { title: 'app版本', identity: [0] },
+    beforeEnter: RoutingInterception
+  }, {
+    path: 'userManagement/:index',
+    name: 'userManagement',
+    component: resolve => require(['@/components/user/users/user-manage'], resolve),
+    meta: { title: '用户管理', identity: [0] },
     beforeEnter: RoutingInterception
   }, {
     path: 'key',
@@ -162,7 +173,7 @@ let adminRoute = [
       path: 'admins/:index',
       name: 'admins',
       component: resolve => require(['@/components/manage/admin/admin'], resolve),
-      meta: { title: '用户管理', identity: [1] }
+      meta: { title: '用户信息', identity: [1] }
     }
   }, {
     id: 11001,
@@ -184,6 +195,14 @@ let adminRoute = [
         name: 'memberPower',
         component: resolve => require(['@/components/manage/admin/memberPower'], resolve)
       }]
+    }
+  }, {
+    id: 12001,
+    route: {
+      path: 'userManage/:index',
+      name: 'userManage',
+      component: resolve => require(['@/components/manage/users/user-manage'], resolve),
+      meta: { title: '用户管理', identity: [1] }
     }
   }
 ]

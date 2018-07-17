@@ -29,7 +29,7 @@
               <el-button
                 v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_CATEGORY, res)"
                 @click="operationData('delete')"
-                class="btn-circle-delete" type="danger" icon="el-icon-delete btn-circle-right" circle></el-button>
+                class="btn-circle-delete btn-circle-right" type="danger" icon="el-icon-delete" circle></el-button>
             </el-col>
           </el-row>
           <el-row>
@@ -63,10 +63,10 @@
                 <el-table-column
                   label="状态">
                   <template slot-scope="scope">
-                    <span :class="scope.row.is_review === 9 ? 'wait'
+                    <span :class="scope.row.is_review === 0 ? 'wait'
                     : scope.row.is_review === 1 ? 'pass'
                     : scope.row.is_review === 2 ? 'reject' : ''">
-                    {{scope.row.is_review === 9 ? '待审核'
+                    {{scope.row.is_review === 0 ? '待审核'
                     : scope.row.is_review === 1 ? '已通过'
                     : scope.row.is_review === 2 ? '已驳回' : ''}}
                     </span>
@@ -143,14 +143,14 @@
         <el-input
             type="textarea"
             resize="none"
-            :readonly="detailData.is_review!==9"
+            :readonly="detailData.is_review!==0"
             :rows="4"
             placeholder="请说明"
             v-model="detailData.review_mark">
           </el-input>
         </el-col>
       </el-row>
-      <el-row class="label-sug" v-show="detailData.is_review===9">
+      <el-row class="label-sug" v-show="detailData.is_review===0">
         <el-col :span="11">
           <el-button class="btn-reject" type="danger" @click="reviewCategory(2)">驳回</el-button>
         </el-col>
@@ -170,6 +170,7 @@ import { REVIEW_AUDIT_CATEGORY_SELECT, REVIEW_AUDIT_CATEGORY_DEL, REVIEW_AUDIT_C
 export default {
   data () {
     return {
+      loading: false,
       isDetailDialogVisible: false,
       options: [],
       value: '',
@@ -179,7 +180,7 @@ export default {
       status: undefined,
       selectParam: {
         page: 1,
-        page_size: 10
+        page_size: 20
       },
       totalAll: 0,
       detailData: {},
@@ -188,11 +189,6 @@ export default {
   },
   created () {
     this.loadData()
-  },
-  computed: {
-    loading () {
-      return this.status === undefined
-    }
   },
   methods: {
     handleSelectionChange (val) {
@@ -259,6 +255,7 @@ export default {
     },
     loadData () {
       let data = this.createFormData(this.selectParam)
+      this.loading = true
       this.$http.post(REVIEW_AUDIT_CATEGORY_SELECT, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
@@ -266,7 +263,9 @@ export default {
           this.res = res.data.res
           this.status = res.data.status
         }
+        this.loading = false
       }).catch(e => {
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     }

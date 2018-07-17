@@ -47,8 +47,13 @@
                 </el-table-column>
                 <el-table-column
                   prop="product_name"
-                  label="型号"
+                  label="型号名称"
                   width="200">
+                </el-table-column>
+                <el-table-column
+                  prop="product_code"
+                  label="型号代码"
+                  width="150">
                 </el-table-column>
                 <el-table-column
                   prop="rom_ver"
@@ -66,10 +71,10 @@
                   prop="is_review"
                   label="状态">
                   <template slot-scope="scope">
-                    <span :class="scope.row.is_review === 9 ? 'wait'
+                    <span :class="scope.row.is_review === 0 ? 'wait'
                     : scope.row.is_review === 1 ? 'pass'
                     : scope.row.is_review === 2 ? 'reject' : ''">
-                    {{scope.row.is_review === 9 ? '待审核'
+                    {{scope.row.is_review === 0 ? '待审核'
                     : scope.row.is_review === 1 ? '已通过'
                     : scope.row.is_review === 2 ? '已驳回' : ''}}
                     </span>
@@ -143,8 +148,7 @@
       </el-row>
       <el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">更新说明</el-col>
-        <el-col :span="22" :sm="21" class="label-value">
-          {{reviewData.change_log}}
+        <el-col :span="22" :sm="21" class="label-value" v-html="vmEscapeToHTML(reviewData.change_log)">
         </el-col>
       </el-row>
       <el-row class="label-sug">
@@ -157,6 +161,12 @@
           </el-input>
         </el-col>
       </el-row>
+      <!--<el-row class="label-row">
+        <el-col :span="2" :sm="3" class="label-name">提示</el-col>
+        <el-col :span="22" :sm="21" class="label-value">
+        {{ reviewData.upload_status }}
+        </el-col>
+      </el-row>-->
       <el-row class="label-sug">
         <el-col :span="11">
           <el-button class="btn-reject" type="danger" @click="reviewAudit(2)">驳回</el-button>
@@ -177,6 +187,7 @@ import { GET_ADMIN_AUDIT_FIRMWARES_POST, REVIEW_ADMIN_AUDIT_FIRMWARE_POST, DELET
 export default {
   data () {
     return {
+      loading: false,
       form: {
         name: '',
         region: '区域一'
@@ -196,18 +207,15 @@ export default {
         rom_ver: '',
         file_id: '',
         change_log: '',
-        review_mark: ''
+        review_mark: '',
+        state: false,
+        upload_status: ''
       },
       selectedData: []
     }
   },
   created () {
     this.getAuditList(1)
-  },
-  computed: {
-    loading () {
-      return this.tableData.status === undefined
-    }
   },
   methods: {
     handleSelectionChange (val) {
@@ -220,18 +228,23 @@ export default {
       this.reviewData.file_id = row.file_id
       this.reviewData.change_log = row.change_log
       this.reviewData.review_mark = ''
+      this.reviewData.state = row.state
+      this.reviewData.upload_status = row.upload_status
       this.isDetailDialogVisible = true
     },
     getAuditList (currentPage) {
       let data = this.createFormData({
         page: currentPage,
-        page_size: 10
+        page_size: 20
       })
+      this.loading = true
       this.$http.post(GET_ADMIN_AUDIT_FIRMWARES_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
         }
+        this.loading = false
       }).catch(e => {
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     },
@@ -246,12 +259,15 @@ export default {
       this.vmConfirm({
         msg: '确认要删除选中记录吗？',
         confirmCallback: () => {
+          let wait = this.vmLoadingFull()
           this.$http.post(DELETE_ADMIN_AUDIT_FIRMWARE_POST, data).then(res => {
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page)
               this.vmMsgSuccess('删除成功！')
             }
+            wait.close()
           }).catch(e => {
+            wait.close()
             this.vmMsgError('网络错误！')
           })
         }
@@ -259,6 +275,9 @@ export default {
     },
     reviewAudit (review) {
       // review: 1通过 2未通过
+      // if (!this.reviewData.state) {
+      //   this.vmMsgWarning('不能进行审核，原因：' + this.reviewData.upload_status + '！'); return
+      // }
       let data = this.createFormData({
         product_code: this.reviewData.product_code,
         is_review: review,
@@ -268,13 +287,16 @@ export default {
       this.vmConfirm({
         msg: review === 1 ? '确认通过该固件的审核？' : '确认驳回该固件的审核？',
         confirmCallback: () => {
+          let wait = this.vmLoadingFull()
           this.$http.post(REVIEW_ADMIN_AUDIT_FIRMWARE_POST, data).then(res => {
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page)
               this.isDetailDialogVisible = false
               this.vmMsgSuccess('提交成功！')
             }
+            wait.close()
           }).catch(e => {
+            wait.close()
             this.vmMsgError('网络错误！')
           })
         }

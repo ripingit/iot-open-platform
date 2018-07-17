@@ -32,12 +32,26 @@
                 </el-table-column>
                 <el-table-column
                   prop="product_name"
-                  label="型号"
+                  label="型号名称"
                   width="200">
+                </el-table-column>
+                <el-table-column
+                  prop="product_code"
+                  label="型号代码"
+                  width="150">
                 </el-table-column>
                 <el-table-column
                   prop="rom_ver"
                   label="固件版本">
+                </el-table-column>
+                <el-table-column
+                  prop="romType"
+                  label="固件类型">
+                  <template slot-scope="scope">
+                    {{scope.row.romType === 1 ? '正式'
+                    : scope.row.romType === 2 ? '临时'
+                    : scope.row.romType === 3 ? '灰度' : ''}}
+                  </template>
                 </el-table-column>
                 <el-table-column
                   prop="upgrade_time"
@@ -47,10 +61,10 @@
                   prop="is_review"
                   label="状态">
                   <template slot-scope="scope">
-                    <span :class="scope.row.is_review === 9 ? 'wait'
+                    <span :class="scope.row.is_review === 0 ? 'wait'
                     : scope.row.is_review === 1 ? 'pass'
                     : scope.row.is_review === 2 ? 'reject' : ''">
-                    {{scope.row.is_review === 9 ? '待审核'
+                    {{scope.row.is_review === 0 ? '待审核'
                     : scope.row.is_review === 1 ? '已通过'
                     : scope.row.is_review === 2 ? '已驳回' : ''}}
                     </span>
@@ -59,6 +73,13 @@
                 <el-table-column
                   prop="review_time"
                   label="审核时间">
+                </el-table-column>
+                <el-table-column
+                  prop="upload_status"
+                  label="上传状态">
+                  <template slot-scope="scope">
+                    {{ scope.row.upload_status.join('') }}
+                  </template>
                 </el-table-column>
                 <el-table-column label="操作">
                   <template slot-scope="scope">
@@ -79,7 +100,7 @@
                 v-if="tableData.data.length !== 0"
                 @size-change="getFirmwareLists"
                 @current-change="getFirmwareLists"
-                :page-size="10"
+                :page-size="20"
                 layout="prev, pager, next, jumper"
                 :total="tableData.total">
               </el-pagination>
@@ -96,9 +117,17 @@
             <el-option
               v-for="item in productCodes"
               :key="item.product_code"
-              :label="item.product_name"
+              :label="item.product_code"
               :value="item.product_code">
             </el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item class="form-row" label="固件类型" prop="rom_type">
+          <el-select v-model="form.rom_type" placeholder="请选择固件类型" no-data-text="无数据">
+            <el-option label="正式" :value="1"></el-option>
+            <el-option label="临时" :value="2"></el-option>
+            <el-option label="灰度" :value="3"></el-option>
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
@@ -174,19 +203,40 @@ export default {
           callback(new Error('请输入MD5值'))
         } else if (rule.field === 'change_log') {
           callback(new Error('请输入升级描述'))
+        } else if (rule.field === 'rom_type') {
+          callback(new Error('请选择固件类型'))
         }
       }
       callback()
     }
     return {
+      loading: false,
       editorOption: {
         modules: {
-          toolbar: ''
+          toolbar: '',
+          clipboard: {
+            matchers: [
+              // 去除quill编辑器粘贴剪切板信息时的格式，仅保留纯文本
+              [Node.ELEMENT_NODE, (node, delta) => {
+                let ops = []
+                delta.ops.forEach(op => {
+                  if (op.insert && typeof op.insert === 'string') {
+                    ops.push({
+                      insert: op.insert
+                    })
+                  }
+                })
+                delta.ops = ops
+                return delta
+              }]
+            ]
+          }
         },
         placeholder: '请输入升级描述'
       },
       form: {
         product_code: '',
+        rom_type: '',
         rom_ver: '',
         rom: '',
         md5: '',
@@ -210,6 +260,9 @@ export default {
         product_code: [
           { validator: validateIsEmpty, trigger: 'change' }
         ],
+        rom_type: [
+          { validator: validateIsEmpty, trigger: 'change' }
+        ],
         rom_ver: [
           { validator: validateIsEmpty, trigger: 'change' }
         ],
@@ -227,31 +280,38 @@ export default {
   },
   created () {
     this.getFirmwareLists(1)
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
   },
-  computed: {
-    loading () {
-      return this.tableData.status === undefined
-    }
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        this.submitFirmware()
+      }
+    },
     getFirmwareLists (currentPage) {
       let data = this.createFormData({
         page: currentPage,
-        page_size: 10
+        page_size: 20
       })
+      this.loading = true
       this.$http.post(GET_COOP_FIRMWARES_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
           this.productCodes = res.data.product
         }
+        this.loading = false
       }).catch(e => {
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     },
     onBeforeUpload (file) {
       let sizeM = file.size / 1024 / 1024
-      if (sizeM > 90) {
-        this.vmMsgError('固件大小不能超过 90 M！')
+      if (sizeM > 20) {
+        this.vmMsgError('固件大小不能超过 20 M！')
         return false
       }
     },
@@ -271,17 +331,24 @@ export default {
     },
     onUploadProgress (event, file, fileList) {
       this.isRomploading = true
-      this.form.rom = event.percent + '%'
+      this.form.rom = Math.ceil(event.percent) + '%'
     },
     onUploadError (err, file, fileList) {
       this.isRomploading = false
       this.form.rom = ''
       this.vmMsgError(err)
     },
-
+    // codeChange (args) {
+    //   let temp = this.productCodes.find(o => o.product_code === args)
+    //   if (temp) {
+    //     if (temp.prodt_code.includes('YHUB')) { this.isShow = true } else { this.isShow = false }
+    //     this.form.rom_ver = temp.rom_ver
+    //   }
+    // },
     submitFirmware () {
       this.$refs['updateForm'].validate((valid) => {
         if (valid) {
+          let wait = this.vmLoadingFull()
           this.$http.post(COOP_FIRMWARES_ADD_POST, this.createFormData(this.form)).then(res => {
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('提交成功！')
@@ -289,7 +356,11 @@ export default {
               this.getFirmwareLists(this.tableData.page)
               this.$refs['updateForm'].resetFields()
             }
+            this.isShow = false
+            wait.close()
           }).catch(() => {
+            wait.close()
+            this.isShow = false
             this.vmMsgError('网络错误！')
           })
         }
@@ -359,6 +430,10 @@ export default {
 }
 .reject {
   color: #ff5d66;
+}
+
+.el-radio /deep/ .el-radio__label {
+  color: #fff;
 }
 /** 本页定制 end */
 </style>

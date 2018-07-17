@@ -14,7 +14,7 @@ exports.install = function (Vue, options) {
     // 驳回
     REJECT: 2,
     // 等待
-    WAIT: 9
+    WAIT: 0
   }
 
   /** 登陆者身份码 */

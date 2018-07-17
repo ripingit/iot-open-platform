@@ -52,8 +52,13 @@
                 </el-table-column>
                 <el-table-column
                   prop="product_name"
-                  label="型号"
+                  label="型号名称"
                   width="120">
+                </el-table-column>
+                <el-table-column
+                  prop="product_code"
+                  label="型号代码"
+                  width="150">
                 </el-table-column>
                 <el-table-column
                   prop="company_name"
@@ -67,10 +72,10 @@
                   prop="is_review"
                   label="状态">
                   <template slot-scope="scope">
-                    <span :class="scope.row.is_review === 9 ? 'wait'
+                    <span :class="scope.row.is_review === 0 ? 'wait'
                     : scope.row.is_review === 1 ? 'pass'
                     : scope.row.is_review === 2 ? 'reject' : ''">
-                    {{scope.row.is_review === 9 ? '待审核'
+                    {{scope.row.is_review === 0 ? '待审核'
                     : scope.row.is_review === 1 ? '已通过'
                     : scope.row.is_review === 2 ? '已驳回' : ''}}
                     </span>
@@ -180,6 +185,7 @@ export default {
   components: { ScaleImgComponent },
   data () {
     return {
+      loading: false,
       isDetailDialogVisible: false,
       options: [],
       value1: '',
@@ -205,11 +211,6 @@ export default {
   created () {
     this.getAuditList(1)
   },
-  computed: {
-    loading () {
-      return this.tableData.status === undefined
-    }
-  },
   methods: {
     handleSelectionChange (val) {
       this.selectedData = val
@@ -232,15 +233,18 @@ export default {
     getAuditList (currentPage) {
       let data = this.createFormData({
         page: currentPage,
-        page_size: 10
+        page_size: 20
       })
+      this.loading = true
       this.$http.post(GET_ADMIN_AUDIT_MODEL_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
           this.connectionMode = res.data.Nbi
           this.deviceCategory = res.data.prodtList
         }
+        this.loading = false
       }).catch(e => {
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     },
@@ -254,12 +258,15 @@ export default {
       this.vmConfirm({
         msg: '确认要删除选中记录吗？',
         confirmCallback: () => {
+          let wait = this.vmLoadingFull()
           this.$http.post(DELETE_ADMIN_AUDIT_MODEL_POST, data).then(res => {
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page)
               this.vmMsgSuccess('删除成功！')
             }
+            wait.close()
           }).catch(e => {
+            wait.close()
             this.vmMsgError('网络错误！')
           })
         }
@@ -275,13 +282,16 @@ export default {
       this.vmConfirm({
         msg: review === 1 ? '确认通过该设备型号的审核？' : '确认驳回该设备型号的审核？',
         confirmCallback: () => {
+          let wait = this.vmLoadingFull()
           this.$http.post(REVIEW_ADMIN_AUDIT_MODEL_POST, data).then(res => {
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page)
               this.isDetailDialogVisible = false
               this.vmMsgSuccess('提交成功！')
             }
+            wait.close()
           }).catch(e => {
+            wait.close()
             this.vmMsgError('网络错误！')
           })
         }

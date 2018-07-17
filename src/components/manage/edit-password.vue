@@ -71,14 +71,25 @@ export default {
       }
     }
   },
+  created () {
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
+  },
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
+  },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        this.changePass()
+      }
+    },
     changePass () {
       this.$refs['editForm'].validate((valid) => {
         if (valid) {
           this.$http.post(ADMIN_CHANGE_PASS_POST, this.createFormData(this.formData)).then(res => {
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('修改成功！')
-              this.$router.push('/manage/home/1')
+              this.$router.push('/manage/admin/home/1')
             }
           }).catch((e) => {
             this.vmMsgError('网络错误！')

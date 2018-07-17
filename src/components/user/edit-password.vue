@@ -77,7 +77,7 @@ export default {
       rules: {
         new_pass: [
           { validator: validateIsEmpty, trigger: 'blur' },
-          { min: 8, max: 50, message: '长度在 8 到 50 个字符', trigger: 'blur' }
+          { min: 8, max: 30, message: '长度在 8 到 30 个字符', trigger: 'blur' }
         ],
         confirmNewPass: [
           { validator: validatePass, trigger: 'blur' }
@@ -88,8 +88,19 @@ export default {
       }
     }
   },
+  created () {
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
+  },
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
+  },
   components: { CheckCodeComponent },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        this.changePass()
+      }
+    },
     getCheckCode () {
       let data = this.createFormData({
         type: 2
@@ -111,7 +122,7 @@ export default {
           this.$http.post(CHANGE_PASS_POST, this.createFormData(this.formData)).then(res => {
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('修改成功！')
-              this.$router.push('/manage/home/1')
+              this.$router.push('/manage/user/home/1')
             }
           }).catch((e) => {
             this.vmMsgError('网络错误！')

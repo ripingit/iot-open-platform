@@ -182,7 +182,7 @@ export default {
         ],
         new_pass: [
           { validator: validateIsEmpty, trigger: 'blur' },
-          { min: 8, max: 50, message: '长度在 8 到 50 个字符', trigger: 'blur' }
+          { min: 8, max: 30, message: '长度在 8 到 30 个字符', trigger: 'blur' }
         ],
         confirmPass: [
           { validator: validatePass, trigger: 'blur' }
@@ -202,8 +202,22 @@ export default {
     }
 
     this.getToken()
+
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
+  },
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        if (this.isForgotVisible) {
+          this.changePassword()
+        } else {
+          this.signIn()
+        }
+      }
+    },
     rememberPass () {
       localStorage['_ck'] = this.pwChecked
     },
@@ -359,6 +373,7 @@ export default {
     text-decoration: none;
     font-size: 1.17rem;
     margin-top: 0.2rem;
+    cursor: pointer;
   }
 
   .sign-up {

@@ -1,6 +1,12 @@
 /** 后台菜单路由映射 */
 export const menuRouteMap = [
   {
+    id: 12001,
+    path: '/manage/admin/userManage',
+    icon: 'icon-yonghuguanli',
+    name: '用户管理',
+    auth: true
+  }, {
     id: 1001,
     path: '/manage/admin/category',
     icon: 'icon-shebeileibie',
@@ -58,15 +64,7 @@ export const menuRouteMap = [
     icon: 'icon-APPbanben1',
     name: 'APP管理',
     auth: true
-  },
-  // {
-  //   id: 10001,
-  //   path: '/manage/admin/users',
-  //   icon: 'icon-yonghuguanli',
-  //   name: '用户管理',
-  //   auth: true
-  // },
-  {
+  }, {
     path: '',
     icon: 'icon-guanliyuan',
     name: '管理员',

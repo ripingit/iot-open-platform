@@ -12,7 +12,7 @@
               <span>今日注册用户</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
+              <span>{{headerData.reg_today}}</span>
             </el-row>
           </div>
         </div>
@@ -22,7 +22,7 @@
               <span>总注册用户</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
+              <span>{{headerData.all_reg}}</span>
             </el-row>
           </div>
         </div>
@@ -32,7 +32,7 @@
               <span>在线设备</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
+              <span>{{headerData.online_device}}</span>
             </el-row>
           </div>
         </div>
@@ -42,7 +42,7 @@
               <span>设备总数</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
+              <span>{{headerData.all_device}}</span>
             </el-row>
           </div>
         </div>
@@ -52,7 +52,7 @@
               <span>今日下载数</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
+              <span>0</span>
             </el-row>
           </div>
         </div>
@@ -62,7 +62,7 @@
               <span>APP总下载数</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
-              <span>2521</span>
+              <span>0</span>
             </el-row>
           </div>
         </div>
@@ -72,32 +72,34 @@
           <el-col :span="5">
             <el-date-picker
               style="width: 100%"
-              v-model="timeValue"
+              v-model="selectParam.start_time"
               type="date"
-              placeholder="选择日期">
+              value-format="yyyy-MM-dd"
+              placeholder="选择日期"
+              @change="loadData">
             </el-date-picker>
           </el-col>
-          <el-col :span="5" :offset="1">
-            <el-select v-model="selectValue" placeholder="选择指标">
+          <!--<el-col :span="5" :offset="1">
+            <el-select v-model="selectParam.type" placeholder="选择指标">
               <el-option
-                v-for="item in options"
+                v-for="item in indicators"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value">
               </el-option>
             </el-select>
-          </el-col>
+          </el-col>-->
           <el-col :offset="1" :span="13">
-            <el-checkbox-group v-model="checkList">
-              <el-checkbox label="前一日"></el-checkbox>
-              <el-checkbox label="上周同期"></el-checkbox>
-            </el-checkbox-group>
+            <el-radio-group v-model="selectParam.type" @change="loadData">
+              <el-radio label="yesterday">前一日</el-radio>
+              <el-radio label="week">上周同期</el-radio>
+            </el-radio-group>
           </el-col>
         </el-row>
-        <el-row type="flex" align="middle" justify="center" class="item_chart_label">
+        <!--<el-row type="flex" align="middle" justify="center" class="item_chart_label">
           <span>设备在线：1252202（2018-02-05 08:00-09:00）</span>
           <span>打开APP：1252202（2018-02-05 08:00-09:00）</span>
-        </el-row>
+        </el-row>-->
         <el-row class="item_chart_content">
           <chart :options="polar" style="width:100%;height: 100%"></chart>
         </el-row>
@@ -105,42 +107,42 @@
     </el-row>
     <el-row class="item_table">
       <el-table
-        :data="tableData2"
+        :data="tableData"
         style="width: 100%">
         <el-table-column
-          prop="date"
+          prop="create_time"
           label="时间"
-          min-width="160">
+          min-width="120">
         </el-table-column>
         <el-table-column
-          prop="name"
+          prop="new_users"
           label="新增用户"
-          min-width="160">
+          min-width="100">
         </el-table-column>
         <el-table-column
-          prop="address"
+          prop="all_users"
           label="用户总数"
-          min-width="160">
+          min-width="100">
         </el-table-column>
         <el-table-column
-          prop="address"
+          prop="new_device"
           label="新增设备"
-          min-width="160">
+          min-width="100">
         </el-table-column>
         <el-table-column
-          prop="address"
+          prop="all_device"
           label="设备总数"
-          min-width="160">
+          min-width="100">
         </el-table-column>
         <el-table-column
-          prop="address"
+          prop="active_users"
           label="活跃用户"
-          min-width="160">
+          min-width="100">
         </el-table-column>
         <el-table-column
-          prop="address"
+          prop="service_num"
           label="增值服务"
-          min-width="160">
+          min-width="100">
         </el-table-column>
       </el-table>
     </el-row>
@@ -151,48 +153,20 @@ import 'echarts/lib/chart/line'
 import 'echarts/lib/component/tooltip'
 import 'echarts/lib/component/title'
 import 'echarts/lib/component/legend'
+import { COOP_HOMEDATA_QUERY } from '@/lib/api.js'
 
 import '@/assets/css/content.css'
 
 export default {
   data () {
     return {
-      timeValue: '',
-      options: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }],
-      selectValue: '',
-      checkList: [],
-      tableData2: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }],
+      indicators: [],
+      tableData: [],
+      selectParam: {
+        start_time: '',
+        type: ''
+      },
+      headerData: {},
       polar: {
         title: {
           text: ''
@@ -210,7 +184,7 @@ export default {
           textStyle: {
             color: '#b3b3b3'
           },
-          data: ['今日注册', '今日下载', 'IP']
+          data: ['设备上线', '今日注册']
         },
         toolbox: {
           feature: {
@@ -233,7 +207,7 @@ export default {
                 color: '#b3b3b3'
               }
             },
-            data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00']
+            data: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00']
           }
         ],
         yAxis: [
@@ -255,9 +229,8 @@ export default {
         ],
         series: [
           {
-            name: '今日注册',
+            name: '设备上线',
             type: 'line',
-            stack: '总量',
             symbol: 'circle', // 小圆点形状
             symbolSize: '6', // 小圆点大小
             itemStyle: { // 小圆点颜色
@@ -271,12 +244,11 @@ export default {
               color: '#3da0f4',
               width: '1'
             },
-            data: [120, 132, 101, 134, 90, 230, 210]
+            data: []
           },
           {
-            name: '今日下载',
+            name: '今日注册',
             type: 'line',
-            stack: '总量',
             symbol: 'circle',
             symbolSize: '6',
             itemStyle: {
@@ -290,31 +262,30 @@ export default {
               color: '#fa77a3',
               width: '1'
             },
-            data: [220, 182, 191, 234, 290, 330, 310]
-          },
-          {
-            name: 'IP',
-            type: 'line',
-            stack: '总量',
-            symbol: 'circle',
-            symbolSize: '6',
-            itemStyle: {
-              color: '#2acba7'
-            },
-            areaStyle: {
-              color: '#2acba7',
-              opacity: '0.2'
-            },
-            lineStyle: {
-              color: '#2acba7',
-              width: '1'
-            },
-            data: [150, 232, 201, 154, 190, 330, 410]
+            data: []
           }]
       }
     }
   },
-  methods: {}
+  created () {
+    this.loadData()
+    setInterval(this.loadData, 24 * 60 * 60 * 1000)
+  },
+  methods: {
+    loadData () {
+      let data = this.createFormData(this.selectParam)
+      this.$http.post(COOP_HOMEDATA_QUERY, data).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.tableData = res.data.data.historyRec
+          this.headerData = res.data.data.header
+          this.polar.series[0].data = res.data.graph.online_device
+          this.polar.series[1].data = res.data.graph.reg_today
+        }
+      }).catch(e => {
+        this.vmMsgError('网络错误！')
+      })
+    }
+  }
 }
 </script>
 <style scoped>
@@ -332,7 +303,6 @@ export default {
     color: #808080;
     margin-top: .33rem;
   }
-
   .item_content {
     width: 100%;
     height: 44.41rem;
@@ -399,11 +369,11 @@ export default {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
   }
-  .el-input /deep/ .el-input__icon {
+  .item_chart .el-input /deep/ .el-input__icon {
     line-height: 1;
   }
 
-  .el-input /deep/ input, .el-select /deep/ input {
+  .item_chart .el-input /deep/ input,.item_chart .el-select /deep/ input {
     height: 2.17rem;
   }
   .item_chart_label{
@@ -454,5 +424,8 @@ export default {
     box-sizing: border-box;
     padding: 2rem 4.5rem;
     background-color: #36393e;
+  }
+  .el-radio{
+    color: #ffffff;
   }
 </style>

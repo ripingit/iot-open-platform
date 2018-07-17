@@ -148,13 +148,23 @@ export default {
       multipleSelection: [],
       currentPage: 1,
       total: 0,
-      page: 10
+      page: 20
     }
   },
   created () {
     this.onSubmit()
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
+  },
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        if (this.dialogVisible) { this.EnsureAdd(); return }
+        this.onSubmit()
+      }
+    },
     onSubmit () {
       let loading = this.vmLoadingFull()
       let param = this.createFormData({

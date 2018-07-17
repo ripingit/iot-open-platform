@@ -18,7 +18,7 @@
       </el-row>
       <el-row>
         <el-table
-          element-loading-text="拼命加载中"
+          v-loading="loading"
           :data="tableData"
           @selection-change="handleSelectionChange"
           style="width: 100%;">
@@ -166,9 +166,10 @@ export default {
       tableData: [],
       selectParam: {
         page: 1,
-        page_size: 10
+        page_size: 20
       },
       totalAll: 0,
+      loading: false,
       dialogVisible: false,
       detailDialogVisible: false,
       ruleForm: {
@@ -202,8 +203,18 @@ export default {
   },
   created () {
     this.loadData()
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
+  },
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        if (this.updateStyle !== 'add') { return }
+        this.submitForm()
+      }
+    },
     searchData () {
       this.selectParam.page = 1
       this.loadData()
@@ -287,12 +298,15 @@ export default {
     },
     loadData () {
       let data = this.createFormData(this.selectParam)
+      this.loading = true
       this.$http.post(APP_SELECT_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
           this.totalAll = res.data.total
         }
+        this.loading = false
       }).catch(e => {
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     }

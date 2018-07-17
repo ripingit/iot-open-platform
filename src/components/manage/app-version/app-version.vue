@@ -16,11 +16,11 @@
         </el-date-picker>
         <el-input v-model="selectParam.query_by_name" placeholder="请输入"></el-input>
         <el-button class="btn-search" type="primary" @click="searchData">查询</el-button>
-        <el-button icon="el-icon-delete" v-if="vmHasAuth(PermissionsLib.DEL_APP, res)" type="danger" circle class="btn-circle-delete" @click="operationData('delete')"></el-button>
+        <el-button icon="el-icon-delete" v-if="vmHasAuth(PermissionsLib.DEL_APP, res)" type="danger" circle class="btn-circle-delete btn-circle-right" @click="operationData('delete')"></el-button>
       </el-row>
       <el-row>
         <el-table
-          element-loading-text="拼命加载中"
+          v-loading="loading"
           :data="tableData"
           @selection-change="handleSelectionChange"
           style="width: 100%;">
@@ -116,6 +116,7 @@ import { APP_MANAGE_SELECT_POST, APP_MANAGE_DEL_POST } from '@/lib/api.js'
 export default {
   data () {
     return {
+      loading: false,
       inputVal1: '',
       options: [],
       multipleSelection: [],
@@ -123,7 +124,7 @@ export default {
       res: [],
       selectParam: {
         page: 1,
-        page_size: 10,
+        page_size: 20,
         query_by_name: '',
         start_time: '',
         end_time: ''
@@ -143,8 +144,17 @@ export default {
   },
   created () {
     this.loadData()
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
+  },
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        this.searchData()
+      }
+    },
     searchData () {
       this.selectParam.page = 1
       this.selectParam.start_time = this.inputVal1 ? this.inputVal1[0] : ''
@@ -194,13 +204,16 @@ export default {
     },
     loadData () {
       let data = this.createFormData(this.selectParam)
+      this.loading = true
       this.$http.post(APP_MANAGE_SELECT_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
           this.totalAll = res.data.total
           this.res = res.data.res
         }
+        this.loading = false
       }).catch(e => {
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     }

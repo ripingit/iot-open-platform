@@ -124,7 +124,7 @@ export default {
         ],
         text_pass: [
           { validator: validateIsEmpty, trigger: 'blur' },
-          { min: 8, max: 50, message: '长度在 8 到 50 个字符', trigger: 'blur' }
+          { min: 8, max: 30, message: '长度在 8 到 30 个字符', trigger: 'blur' }
         ],
         confirmPassword: [
           { validator: validatePassPass, trigger: 'blur' }
@@ -138,7 +138,18 @@ export default {
       }
     }
   },
+  created () {
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
+  },
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
+  },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        this.signUp()
+      }
+    },
     /** 获取验证码 */
     getVerificationCode () {
       if (!this.formData.user_name) {

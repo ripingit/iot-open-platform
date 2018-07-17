@@ -13,11 +13,15 @@ export default {
   name: 'App',
   created () {
     // 用于解决界面刷新后路由失效的问题
-    this.$http.post(ADMIN_AUTH_GET).then(res => {
-      if (res.data.title) {
-        this.$router.addRoutes(createRoutes(res.data.title))
-      }
-    })
+    if (this.$store.getters.getUserIdentity === this.identityCode.ADMIN) {
+      this.$http.post(ADMIN_AUTH_GET).then(res => {
+        if (res.data.title) {
+          this.$router.addRoutes(createRoutes(res.data.title))
+        }
+      })
+    } else {
+      this.$router.addRoutes(createRoutes())
+    }
   }
 }
 </script>

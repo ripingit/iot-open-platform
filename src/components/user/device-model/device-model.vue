@@ -29,14 +29,15 @@
             </el-table-column>
             <el-table-column
               prop="product_name"
-              label="型号">
+              label="型号名称">
             </el-table-column>
+            <!--<el-table-column-->
+              <!--prop="product_code"-->
+              <!--label="型号代码"-->
+              <!--width="150">-->
+            <!--</el-table-column>-->
             <el-table-column
-              prop="product_code"
-              label="型号代码">
-            </el-table-column>
-            <el-table-column
-              prop="prodt_code"
+              prop="prodt_code2"
               label="设备类别">
             </el-table-column>
             <el-table-column
@@ -65,7 +66,7 @@
               prop="is_review"
               label="审核状态">
               <template slot-scope="scope">
-                <span v-if="scope.row.is_review===9">待审核</span>
+                <span v-if="scope.row.is_review===0">待审核</span>
                 <span v-if="scope.row.is_review===1" style="color: #2acba7">已通过</span>
                 <span v-if="scope.row.is_review===2" style="color: #ff5d66">已驳回</span>
               </template>
@@ -97,7 +98,7 @@
             </el-table-column>
           </el-table>
         </el-row>
-        <el-row type="flex" justify="center">
+        <el-row v-if="total>page" type="flex" justify="center">
           <el-pagination
             @current-change="handleCurrentChange"
             :current-page.sync="currentPage"
@@ -115,6 +116,10 @@
         <el-form label-width="100px" status-icon :model="formAdd" ref="AddForm" :rules="rules">
           <el-form-item label="型号名称" class="form-row" prop="product_name">
             <el-input v-model="formAdd.product_name"></el-input>
+            <span class="form-tip">*</span>
+          </el-form-item>
+          <el-form-item label="型号代码" class="form-row" prop="product_code">
+            <el-input v-model="formAdd.product_code" maxlength="6"></el-input>
             <span class="form-tip">*</span>
           </el-form-item>
           <el-form-item label="连接方式" class="form-row" prop="nbi_code">
@@ -294,6 +299,7 @@
 <script>
 import '@/assets/css/content.css'
 import ScaleImgComponent from '@/components/_ui/scale-img.vue'
+import { validateProductCode } from '../../../lib/validate.js'
 import {USER_EQUIPMENT_MODEL_QUERY,
   USER_EQUIPMENT_MODEL_UPLOADIMG,
   USER_EQUIPMENT_MODEL_ADD,
@@ -306,6 +312,8 @@ export default {
       if (value === '') {
         if (rule.field === 'product_name') {
           callback(new Error('请输入型号名称'))
+        } else if (rule.field === 'product_code') {
+          callback(new Error('请输入型号代码'))
         } else if (rule.field === 'nbi_code') {
           callback(new Error('请选择连接方式'))
         } else if (rule.field === 'prodt_code') {
@@ -329,6 +337,12 @@ export default {
         } else if (rule.field === 'num2') {
           callback(new Error('请输入开关数量'))
         }
+      } else {
+        if (rule.field === 'product_code') {
+          if (!validateProductCode(value)) {
+            callback(new Error('最大长度不超过6位字符，且只能包含字母和数字'))
+          }
+        }
       }
       callback()
     }
@@ -336,6 +350,9 @@ export default {
       rules: {
         product_name: [
           { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        product_code: [
+          { validator: validateIsEmpty, trigger: 'change' }
         ],
         nbi_code: [
           { validator: validateIsEmpty, trigger: 'change' }
@@ -389,6 +406,7 @@ export default {
       dialogTitle: '',
       formAdd: {
         product_name: '',
+        product_code: '',
         nbi_code: [],
         prodt_code: [],
         pic1: '',
@@ -453,13 +471,26 @@ export default {
       dialogData: [],
       currentPage: 1,
       total: 0,
-      page: 10
+      page: 20
     }
   },
   created () {
     this.onSubmit()
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
+  },
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        if (this.dialogVisible) {
+          this.EnsureSubmit()
+        } else if (this.editDialog) {
+          this.ConfigSubmit()
+        }
+      }
+    },
     onSubmit () {
       let loading = this.vmLoadingFull()
       let param = this.createFormData({
@@ -474,8 +505,12 @@ export default {
           return false
         }
         if (this.vmResponseHandler(res)) {
+          let prodtObj = {}
           res.data.prodtList.forEach(val => {
             this.prodt_code_options = val
+            val.forEach(subval => {
+              prodtObj[subval.prodt_code] = subval.prodt_name
+            })
           })
           let codeObj = {}
           res.data.Nbi.forEach(val => {
@@ -489,7 +524,7 @@ export default {
               val.nbi_code = val.nbi_code.map(subval => codeObj[subval]).join('、')
             }
             if (Array.isArray(val.prodt_code)) {
-              val.prodt_code = val.prodt_code.join('、')
+              val.prodt_code2 = val.prodt_code.map(subval => prodtObj[subval]).join('、')
             }
             return val
           })
@@ -536,47 +571,65 @@ export default {
         return
       }
       this.dialogData = row
-      this.showList1 = this.dialogData.prodt_code.split('、').indexOf('IPCC') > -1
-      this.showList2 = this.dialogData.prodt_code.split('、').indexOf('BHSC') > -1
-      this.showList3 = this.dialogData.prodt_code.split('、').indexOf('CMSW') > -1
+      this.showList1 = this.dialogData.prodt_code.indexOf('IPCC') > -1
+      this.showList2 = this.dialogData.prodt_code.indexOf('BHSC') > -1
+      this.showList3 = this.dialogData.prodt_code.indexOf('CMSW') > -1
       this.editDialog = true
-      let rowData = JSON.parse(row.config_status)
-      this.formConfig = {
-        class0: rowData[0].conf.class,
-        dec: rowData[0].conf.dec,
-        chans: rowData[0].conf.chans,
-        pipc_dv: rowData[0].conf.pipc_dv,
-        audio: rowData[0].conf.audio,
-        num: rowData[1].conf.num,
-        num2: rowData[2].conf.num
+      this.formConfig = {}
+      if (row.config_status) {
+        let rowData = JSON.parse(row.config_status)
+        this.formConfig = {
+          class0: rowData[0].conf.class,
+          dec: rowData[0].conf.dec,
+          chans: rowData[0].conf.chans,
+          pipc_dv: rowData[0].conf.pipc_dv,
+          audio: rowData[0].conf.audio,
+          num: rowData[0].conf.num,
+          num2: rowData[0].conf.num
+        }
       }
     },
     ConfigSubmit () {
       this.$refs['ConfigForm'].validate((valid) => {
         if (valid) {
-          let param = this.createFormData({
-            product_code: this.dialogData.product_code,
-            config: JSON.stringify([{
-              prodt_code: 'IPCC',
-              conf: {
-                class: parseInt(this.formConfig.class0),
-                chans: parseInt(this.formConfig.chans),
-                dec: parseInt(this.formConfig.dec),
-                pipc_dv: parseInt(this.formConfig.pipc_dv),
-                audio: parseInt(this.formConfig.audio)
-              }
-            }, {
-              prodt_code: 'BHSC',
-              conf: {
-                num: parseInt(this.formConfig.num)
-              }
-            }, {
-              prodt_code: 'CMSW',
-              conf: {
-                num: parseInt(this.formConfig.num2)
-              }
-            }])
-          })
+          let param = null
+          if (this.showList1) {
+            param = this.createFormData({
+              product_code: this.dialogData.product_code,
+              config: JSON.stringify([{
+                prodt_code: 'IPCC',
+                conf: {
+                  class: parseInt(this.formConfig.class0),
+                  chans: parseInt(this.formConfig.chans),
+                  dec: parseInt(this.formConfig.dec),
+                  pipc_dv: parseInt(this.formConfig.pipc_dv),
+                  audio: parseInt(this.formConfig.audio)
+                }
+              }])
+            })
+          }
+          if (this.showList2) {
+            param = this.createFormData({
+              product_code: this.dialogData.product_code,
+              config: JSON.stringify([{
+                prodt_code: 'BHSC',
+                conf: {
+                  num: parseInt(this.formConfig.num)
+                }
+              }])
+            })
+          }
+          if (this.showList3) {
+            param = this.createFormData({
+              product_code: this.dialogData.product_code,
+              config: JSON.stringify([{
+                prodt_code: 'CMSW',
+                conf: {
+                  num: parseInt(this.formConfig.num2)
+                }
+              }])
+            })
+          }
           this.$http.post(USER_EQUIPMENT_MODEL_CONFIG, param).then(res => {
             if (res.data.statu === 0) {
               this.$router.push('/signin')

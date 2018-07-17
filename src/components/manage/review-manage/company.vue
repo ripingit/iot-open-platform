@@ -58,10 +58,10 @@
                   prop="is_review"
                   label="状态">
                   <template slot-scope="scope">
-                    <span :class="scope.row.is_review === 9 ? 'wait'
+                    <span :class="scope.row.is_review === 0 ? 'wait'
                     : scope.row.is_review === 1 ? 'pass'
                     : scope.row.is_review === 2 ? 'reject' : ''">
-                    {{scope.row.is_review === 9 ? '待审核'
+                    {{scope.row.is_review === 0 ? '待审核'
                     : scope.row.is_review === 1 ? '已通过'
                     : scope.row.is_review === 2 ? '已驳回' : ''}}
                     </span>
@@ -174,6 +174,7 @@ export default {
   components: { ScaleImgComponent },
   data () {
     return {
+      loading: false,
       reviewData: {
         name: '',
         addr: '',
@@ -198,19 +199,12 @@ export default {
   created () {
     this.getAuditList(1)
   },
-  computed: {
-    loading () {
-      return this.tableData.status === undefined
-    }
-  },
   methods: {
     handleSelectionChange (val) {
       this.selectedData = val
     },
     dataFormatter (row, column, cellValue, index) {
       return row.is_review === this.authCode.WAIT ? '' : cellValue
-    },
-    search () {
     },
     showDetailDialog (index, row) {
       this.reviewData.reviewMark = ''
@@ -225,13 +219,16 @@ export default {
     getAuditList (currentPage) {
       let data = this.createFormData({
         page: currentPage,
-        page_size: 10
+        page_size: 20
       })
+      this.loading = true
       this.$http.post(GET_AUDIT_COMPANY_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
         }
+        this.loading = false
       }).catch(e => {
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     },
@@ -245,12 +242,15 @@ export default {
       this.vmConfirm({
         msg: '确认要删除选中记录吗？',
         confirmCallback: () => {
+          let wait = this.vmLoadingFull()
           this.$http.post(DELETE_AUDIT_COMPANY_POST, data).then(res => {
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page)
               this.vmMsgSuccess('删除成功！')
             }
+            wait.close()
           }).catch(e => {
+            wait.close()
             this.vmMsgError('网络错误！')
           })
         }
@@ -266,13 +266,16 @@ export default {
       this.vmConfirm({
         msg: review === 1 ? '确认通过该公司的认证？' : '确认驳回该公司的认证？',
         confirmCallback: () => {
+          let wait = this.vmLoadingFull()
           this.$http.post(REVIEW_AUDIT_COMPANY_POST, data).then(res => {
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page)
               this.isDetailDialogVisible = false
               this.vmMsgSuccess('提交成功！')
             }
+            wait.close()
           }).catch(e => {
+            wait.close()
             this.vmMsgError('网络错误！')
           })
         }

@@ -186,3 +186,15 @@ export const ADMIN_USERS_QUERY = 'manage/admin.php?m=Admin&c=AdminGroup&a=groupU
 
 /** 管理员,用户组成员,用户组用户解除授权 */
 export const ADMIN_USERS_REMOVE = 'manage/admin.php?m=Admin&c=AdminGroup&a=groupUserSet'
+
+/** 管理员, 用户管理获取用户 */
+export const ADMIN_USERS_GET = 'manage/admin.php?m=Admin&c=UserList&a=userList'
+
+/** 合作商, 用户管理获取用户 */
+export const COOP_USERS_GET = 'manage/index.php?m=Home&c=UserList&a=userList'
+
+/** 管理员，首页 */
+export const ADMIN_HOMEDATA_QUERY = '/manage/admin.php?m=Admin&c=Index&a=homePage'
+
+/** 合作商，首页 */
+export const COOP_HOMEDATA_QUERY = '/manage/index.php?m=Home&c=Index&a=homePage'

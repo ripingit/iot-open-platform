@@ -5,7 +5,7 @@ import { AUTH_CHANGE, IDENTITY_UPDATE, USER_KEY_UPDATE, USER_ID_UPDATE } from '@
 
 export const moduleUserState = {
   state: {
-    // 认证状态：-1未提交认证，9审核中，1已通过，2未通过
+    // 认证状态：-1未提交认证，0审核中，1已通过，2未通过
     authState: -1,
     // 身份标识
     identity: -1,

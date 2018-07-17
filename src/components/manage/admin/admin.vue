@@ -79,7 +79,7 @@
          </el-table-column>
        </el-table>
      </el-row>
-      <el-row type="flex" justify="center">
+      <el-row  v-if="total>page" type="flex" justify="center">
         <el-pagination
           @current-change="handleCurrentChange"
           :current-page.sync="currentPage"
@@ -181,13 +181,27 @@ export default {
       multipleSelection: [],
       currentPage: 1,
       total: 0,
-      page: 10
+      page: 20
     }
   },
   created () {
     this.onSubmit()
+    document.body.addEventListener('keydown', this.keyCodeDown, false)
+  },
+  beforeDestroy () {
+    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
+    keyCodeDown (e) {
+      if (e.keyCode === 13) {
+        if (this.dialogVisible) {
+          this.EnsureSubmit()
+        }
+        if (this.dialogVisible2) {
+          this.EnsureSubmit2()
+        }
+      }
+    },
     onSubmit () {
       let loading = this.vmLoadingFull()
       let param = this.createFormData({

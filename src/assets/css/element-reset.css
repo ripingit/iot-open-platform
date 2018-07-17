@@ -21,6 +21,7 @@
   background-color: #F56C6C;
   border-color: #F56C6C;
 }
+.el-message-box__title,
 .el-message .el-icon-success,
 .el-message .el-icon-warning,
 .el-message .el-icon-error,
@@ -52,8 +53,14 @@
 }
 
 /** loading */
-.el-loading-mask {
+/* 表格loading */
+.el-table .el-loading-mask {
   background-color: rgba(0, 0, 0, 0) !important;
+}
+
+/* 全屏loading */
+.el-loading-mask {
+  background-color: rgba(56, 56, 56, 0.76) !important
 }
 
 /** input */

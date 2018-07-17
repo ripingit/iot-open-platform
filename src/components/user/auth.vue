@@ -250,7 +250,7 @@ export default {
         if (valid) {
           this.$http.post(PARTNER_AUTH_POST, this.createFormData(this.form)).then(res => {
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess('提交成功！')
+              this.vmMsgSuccess('审核提交成功，审核周期为24小时内，我们将尽快处理！')
               this.isDialogVisible = false
               this.isUploading = true
               this.uploadProgress = ''

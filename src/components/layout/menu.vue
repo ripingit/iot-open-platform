@@ -9,9 +9,13 @@
             text-color="rgba(255, 255, 255, 0.5)"
             active-text-color="#ffd04b">
             <el-menu-item-group v-if="identity === identityCodes.COOP">
-              <el-menu-item index="1" @click="routeGo('/manage/home', $event)">
+              <el-menu-item index="1" @click="routeGo('/manage/user/home', $event)">
                 <i class="iconfont icon-shouye"></i>
                 <span slot="title">首页</span>
+              </el-menu-item>
+              <el-menu-item index="5" @click="routeGo('/manage/user/userManagement', $event)">
+                <i class="iconfont icon-yonghuguanli"></i>
+                <span slot="title">用户管理</span>
               </el-menu-item>
               <el-menu-item index="2" @click="routeGo('/manage/user/model', $event)">
                 <i class="iconfont icon-shebeixinghao"></i>
@@ -25,13 +29,13 @@
                 <i class="iconfont icon-APPbanben1"></i>
                 <span slot="title">APP管理</span>
               </el-menu-item>
-              <el-menu-item index="5" @click="routeGo('/manage/user/sKey', $event)">
+              <el-menu-item index="6" @click="routeGo('/manage/user/sKey', $event)">
                 <i class="iconfont icon-KEY"></i>
                 <span slot="title">KEY</span>
               </el-menu-item>
             </el-menu-item-group>
             <el-menu-item-group v-else-if="identity === identityCodes.ADMIN">
-              <el-menu-item index="0" @click="routeGo('/manage/home', $event)">
+              <el-menu-item index="0" @click="routeGo('/manage/admin/home', $event)">
                 <i class="iconfont icon-shouye"></i>
                 <span slot="title">首页</span>
               </el-menu-item>

@@ -58,29 +58,33 @@ export default {
         if (this.vmResponseHandler(res)) {
           this.resData = res.data
           let treeData = []
-          res.data.data.forEach(val => {
-            let node = {
-              hasChecked: val.status,
-              allChecked: true,
-              label: val.method,
-              id: val.cmd_id,
-              child: [],
-              childChecked: []
-            }
-            val.child.forEach(subVal => {
-              node.child.push({
-                checked: subVal.status,
-                label: subVal.method,
-                id: subVal.cmd_id
-              })
-              if (subVal.status) {
-                node.childChecked.push(subVal)
-              } else {
-                node.allChecked = false
+          if (res.data.data && Array.isArray(res.data.data)) {
+            res.data.data.forEach(val => {
+              let node = {
+                hasChecked: val.status,
+                allChecked: true,
+                label: val.method,
+                id: val.cmd_id,
+                child: [],
+                childChecked: []
               }
+              if (val.child && Array.isArray(val.child)) {
+                val.child.forEach(subVal => {
+                  node.child.push({
+                    checked: subVal.status,
+                    label: subVal.method,
+                    id: subVal.cmd_id
+                  })
+                  if (subVal.status) {
+                    node.childChecked.push(subVal)
+                  } else {
+                    node.allChecked = false
+                  }
+                })
+              }
+              treeData.push(node)
             })
-            treeData.push(node)
-          })
+          }
           this.groupData = treeData
         }
       }
