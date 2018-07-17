@@ -6,7 +6,7 @@
         <p class="title-en">ADMIN POWER MANAGE</p>
       </el-col>
     </el-row>
-    <el-row class="table">
+    <el-row class="table" v-loading="loading">
       <el-col :span="24" class="VisitPower-checkbox" v-for="group in groupData" :key="group.cmd_id">
         <el-checkbox class="VisitPower-checkbox-1" :indeterminate="group.hasChecked" v-model="group.allChecked" @change="CheckAll(group)">{{group.label}}</el-checkbox>
         <div style="margin: 1.5rem 0;"></div>
@@ -37,7 +37,8 @@ export default {
       group_id: this.$route.params.group_id,
       groupData: [],
       resData: [],
-      cmd_id: []
+      cmd_id: [],
+      loading: false
     }
   },
   created () {
@@ -45,12 +46,12 @@ export default {
   },
   methods: {
     onSubmit () {
-      let loading = this.vmLoadingFull()
+      this.loading = true
       let param = this.createFormData({
         group_id: parseInt(this.group_id)
       })
       this.$http.post(ADMIN_POWERS_QUERY, param).then(res => {
-        loading.close()
+        this.loading = false
         if (res.data.statu === 0) {
           this.$router.push('/login')
           return false
@@ -89,7 +90,7 @@ export default {
         }
       }
       ).catch(() => {
-        loading.close()
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     },

@@ -73,6 +73,10 @@
 .el-input input:focus {
   border-color: inherit
 }
+.el-input.is-disabled .el-input__inner {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
 
 /** checkbox */
 .el-checkbox .el-checkbox__inner {

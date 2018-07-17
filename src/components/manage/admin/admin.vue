@@ -31,6 +31,7 @@
      <el-row>
        <el-table
          ref="multipleTable"
+         v-loading="loading"
          :data="tableData"
          style="width: 100%;"
          @selection-change="handleSelectionChange">
@@ -138,6 +139,7 @@ import { ADMIN_USER_QUERY,
   ADMIN_USER_POWER_ADD,
   ADMIN_USER_RESET_PWD
 } from '../../../lib/api.js'
+import _ from 'lodash'
 export default {
   data () {
     let validateIsEmpty = (rule, value, callback) => {
@@ -181,7 +183,8 @@ export default {
       multipleSelection: [],
       currentPage: 1,
       total: 0,
-      page: 20
+      page: 20,
+      loading: false
     }
   },
   created () {
@@ -203,13 +206,13 @@ export default {
       }
     },
     onSubmit () {
-      let loading = this.vmLoadingFull()
+      this.loading = true
       let param = this.createFormData({
         page: parseInt(this.currentPage),
         page_size: parseInt(this.page)
       })
       this.$http.post(ADMIN_USER_QUERY, param).then(res => {
-        loading.close()
+        this.loading = false
         if (res.data.statu === 0) {
           this.$router.push('/login')
           return false
@@ -227,11 +230,11 @@ export default {
         }
       }
       ).catch(() => {
-        loading.close()
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     },
-    EnsureSubmit () {
+    EnsureSubmit: _.debounce(function () {
       this.$refs['AddForm'].validate((valid) => {
         if (valid) {
           let param = this.createFormData(this.formAdd)
@@ -251,8 +254,8 @@ export default {
           })
         }
       })
-    },
-    EnsureSubmit2 () {
+    }, 300),
+    EnsureSubmit2: _.debounce(function () {
       this.$refs['AddForm'].validate((valid) => {
         if (valid) {
           let param = this.createFormData({
@@ -275,7 +278,7 @@ export default {
           })
         }
       })
-    },
+    }, 300),
     Delete () {
       if (!this.multipleSelection.length) {
         this.vmMsgWarning('请选择记录')

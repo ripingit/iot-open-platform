@@ -112,7 +112,7 @@
 <script>
 import '@/assets/css/content.css'
 import { APP_MANAGE_SELECT_POST, APP_MANAGE_DEL_POST } from '@/lib/api.js'
-
+import _ from 'lodash'
 export default {
   data () {
     return {
@@ -202,7 +202,7 @@ export default {
     handleClose (done) {
       done()
     },
-    loadData () {
+    loadData: _.debounce(function () {
       let data = this.createFormData(this.selectParam)
       this.loading = true
       this.$http.post(APP_MANAGE_SELECT_POST, data).then(res => {
@@ -216,7 +216,7 @@ export default {
         this.loading = false
         this.vmMsgError('网络错误！')
       })
-    }
+    }, 300)
   }
 }
 </script>

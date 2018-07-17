@@ -20,6 +20,7 @@
         </el-row>
         <el-row>
           <el-table
+            v-loading="loading"
             :data="tableData"
             style="width: 100%;">
             <el-table-column
@@ -31,14 +32,14 @@
               prop="product_name"
               label="型号名称">
             </el-table-column>
-            <!--<el-table-column-->
-              <!--prop="product_code"-->
-              <!--label="型号代码"-->
-              <!--width="150">-->
-            <!--</el-table-column>-->
+            <el-table-column
+              prop="product_code"
+              label="型号代码">
+            </el-table-column>
             <el-table-column
               prop="prodt_code2"
-              label="设备类别">
+              label="设备类别"
+              width="200">
             </el-table-column>
             <el-table-column
               prop="nbi_code"
@@ -305,6 +306,7 @@ import {USER_EQUIPMENT_MODEL_QUERY,
   USER_EQUIPMENT_MODEL_ADD,
   USER_EQUIPMENT_MODEL_DEL,
   USER_EQUIPMENT_MODEL_CONFIG } from '../../../lib/api.js'
+import _ from 'lodash'
 export default {
   components: { ScaleImgComponent },
   data () {
@@ -388,6 +390,7 @@ export default {
           { validator: validateIsEmpty, trigger: 'blur' }
         ]
       },
+      loading: false,
       uploadPath: USER_EQUIPMENT_MODEL_UPLOADIMG,
       picPath: '',
       dialogVisibleImg: false,
@@ -491,15 +494,15 @@ export default {
         }
       }
     },
-    onSubmit () {
-      let loading = this.vmLoadingFull()
+    onSubmit: _.debounce(function () {
+      this.loading = true
       let param = this.createFormData({
         page: parseInt(this.currentPage),
         page_size: parseInt(this.page),
         query_by_name: this.query_by_name
       })
       this.$http.post(USER_EQUIPMENT_MODEL_QUERY, param).then(res => {
-        loading.close()
+        this.loading = false
         if (res.data.statu === 0) {
           this.$router.push('/signin')
           return false
@@ -532,15 +535,15 @@ export default {
         }
       }
       ).catch(() => {
-        loading.close()
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
-    },
+    }, 300),
     addDevice () {
       this.dialogTitle = '添加型号'
       this.dialogVisible = true
     },
-    EnsureSubmit () {
+    EnsureSubmit: _.debounce(function () {
       this.$refs['AddForm'].validate((valid) => {
         if (valid) {
           let param = this.createFormData(this.formAdd)
@@ -564,7 +567,7 @@ export default {
           })
         }
       })
-    },
+    }, 300),
     editDevice (row) {
       if (row.is_review !== 1) {
         this.vmMsgWarning('只有通过审核才能进行型号配置！')
@@ -589,7 +592,7 @@ export default {
         }
       }
     },
-    ConfigSubmit () {
+    ConfigSubmit: _.debounce(function () {
       this.$refs['ConfigForm'].validate((valid) => {
         if (valid) {
           let param = null
@@ -646,7 +649,7 @@ export default {
           })
         }
       })
-    },
+    }, 300),
     SearchData () {
       this.onSubmit()
     },

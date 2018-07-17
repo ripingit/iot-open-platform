@@ -91,7 +91,7 @@
 <script>
 import '@/assets/css/content.css'
 import { GET_COOP_COMPANY_POST, DELETE_COOP_COMPANY_POST } from '@/lib/api'
-
+import _ from 'lodash'
 export default {
   data () {
     return {
@@ -123,7 +123,7 @@ export default {
     handleSelectionChange (val) {
       this.selectedData = val
     },
-    getCoopLists (currentPage) {
+    getCoopLists: _.debounce(function (currentPage) {
       let data = this.createFormData({
         page: currentPage,
         page_size: 20,
@@ -141,7 +141,7 @@ export default {
         this.loading = false
         this.vmMsgError('网络错误！')
       })
-    },
+    }, 300),
     deleteCoop () {
       if (this.selectedData.length <= 0) {
         this.vmMsgError('请选择需要删除的合作商！'); return

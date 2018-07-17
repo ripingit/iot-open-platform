@@ -64,7 +64,7 @@
 import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
 import { validateEmail, validatePhone } from '@/lib/validate.js'
 import { CODE_POST, SIGNUP_POST } from '@/lib/api.js'
-
+import _ from 'lodash'
 export default {
   components: { CheckCodeComponent },
   data () {
@@ -151,7 +151,7 @@ export default {
       }
     },
     /** 获取验证码 */
-    getVerificationCode () {
+    getVerificationCode: _.debounce(function () {
       if (!this.formData.user_name) {
         this.toResetBtnCode = true
         this.vmMsgWarning('请填写手机号或邮箱'); return
@@ -170,8 +170,8 @@ export default {
         this.vmMsgError('网络错误！')
         this.toResetBtnCode = true
       })
-    },
-    signUp () {
+    }, 300),
+    signUp: _.debounce(function () {
       this.$refs['signUpForm'].validate((valid) => {
         if (valid) {
           this.$http.post(SIGNUP_POST, this.createFormData(this.formData)).then(res => {
@@ -184,7 +184,7 @@ export default {
           })
         }
       })
-    }
+    }, 300)
   }
 }
 </script>

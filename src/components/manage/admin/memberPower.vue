@@ -9,6 +9,7 @@
     <el-row class="table">
       <el-col :span="24">
         <el-table
+          v-loading="loading"
           :data="tableData"
           style="width: 100%;">
           <el-table-column
@@ -52,7 +53,8 @@ export default{
     return {
       group_id: this.$route.params.group_id,
       tableData: [],
-      resData: []
+      resData: [],
+      loading: false
     }
   },
   created () {
@@ -60,12 +62,12 @@ export default{
   },
   methods: {
     onSubmit () {
-      let loading = this.vmLoadingFull()
+      this.loading = true
       let param = this.createFormData({
         group_id: parseInt(this.group_id)
       })
       this.$http.post(ADMIN_USERS_QUERY, param).then(res => {
-        loading.close()
+        this.loading = false
         if (res.data.statu === 0) {
           this.$router.push('/login')
           return false
@@ -76,7 +78,7 @@ export default{
         }
       }
       ).catch(() => {
-        loading.close()
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     },

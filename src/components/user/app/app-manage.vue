@@ -150,7 +150,7 @@ import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 import { quillEditor } from 'vue-quill-editor'
 import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST } from '@/lib/api.js'
-
+import _ from 'lodash'
 export default {
   components: { quillEditor },
   data () {
@@ -272,7 +272,7 @@ export default {
     handleClose (done) {
       done()
     },
-    submitForm () {
+    submitForm: _.debounce(function () {
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
           let data = this.createFormData(this.ruleForm)
@@ -295,8 +295,8 @@ export default {
           return false
         }
       })
-    },
-    loadData () {
+    }, 300),
+    loadData: _.debounce(function () {
       let data = this.createFormData(this.selectParam)
       this.loading = true
       this.$http.post(APP_SELECT_POST, data).then(res => {
@@ -309,7 +309,7 @@ export default {
         this.loading = false
         this.vmMsgError('网络错误！')
       })
-    }
+    }, 300)
   }
 }
 </script>

@@ -187,7 +187,7 @@ import {
   COOP_FIRMWARES_UPLOAD_POST,
   COOP_FIRMWARES_ADD_POST,
   GET_COOP_FIRMWARE_HISTORY_POST } from '@/lib/api'
-
+import _ from 'lodash'
 export default {
   components: { TimeLineComponent, quillEditor },
   data () {
@@ -291,7 +291,7 @@ export default {
         this.submitFirmware()
       }
     },
-    getFirmwareLists (currentPage) {
+    getFirmwareLists: _.debounce(function (currentPage) {
       let data = this.createFormData({
         page: currentPage,
         page_size: 20
@@ -307,7 +307,7 @@ export default {
         this.loading = false
         this.vmMsgError('网络错误！')
       })
-    },
+    }, 300),
     onBeforeUpload (file) {
       let sizeM = file.size / 1024 / 1024
       if (sizeM > 20) {
@@ -345,7 +345,7 @@ export default {
     //     this.form.rom_ver = temp.rom_ver
     //   }
     // },
-    submitFirmware () {
+    submitFirmware: _.debounce(function () {
       this.$refs['updateForm'].validate((valid) => {
         if (valid) {
           let wait = this.vmLoadingFull()
@@ -365,7 +365,7 @@ export default {
           })
         }
       })
-    },
+    }, 300),
     showAddDialog () {
       this.isDialogVisible = true
     },

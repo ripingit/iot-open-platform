@@ -123,6 +123,7 @@
 import '@/assets/css/content.css'
 import TimeLineComponent from '../../_ui/time-line.vue'
 import { GET_ADMIN_FIRMWARES_POST, GET_ADMIN_FIRMWARE_HISTORY_POST } from '@/lib/api'
+import _ from 'lodash'
 
 export default {
   components: { TimeLineComponent },
@@ -173,7 +174,7 @@ export default {
         this.vmMsgError('网络错误！')
       })
     },
-    getFirmwareLists (currentPage) {
+    getFirmwareLists: _.debounce(function (currentPage) {
       let data = this.createFormData({
         page: currentPage,
         page_size: 20,
@@ -191,7 +192,7 @@ export default {
         this.loading = false
         this.vmMsgError('网络错误！')
       })
-    }
+    }, 300)
   }
 }
 </script>

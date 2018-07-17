@@ -35,7 +35,7 @@
 <script>
 import '@/assets/css/content.css'
 import { ADMIN_CHANGE_PASS_POST } from '../../lib/api.js'
-
+import _ from 'lodash'
 export default {
   data () {
     let validatePass = (rule, value, callback) => {
@@ -83,7 +83,7 @@ export default {
         this.changePass()
       }
     },
-    changePass () {
+    changePass: _.debounce(function () {
       this.$refs['editForm'].validate((valid) => {
         if (valid) {
           this.$http.post(ADMIN_CHANGE_PASS_POST, this.createFormData(this.formData)).then(res => {
@@ -96,7 +96,7 @@ export default {
           })
         }
       })
-    }
+    }, 300)
   }
 }
 </script>

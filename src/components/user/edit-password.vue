@@ -45,7 +45,7 @@
 import CheckCodeComponent from '../_ui/verificate-code.vue'
 import '@/assets/css/content.css'
 import { CODE_POST, CHANGE_PASS_POST } from '../../lib/api.js'
-
+import _ from 'lodash'
 export default {
   data () {
     let validatePass = (rule, value, callback) => {
@@ -101,7 +101,7 @@ export default {
         this.changePass()
       }
     },
-    getCheckCode () {
+    getCheckCode: _.debounce(function () {
       let data = this.createFormData({
         type: 2
       })
@@ -115,8 +115,8 @@ export default {
         this.vmMsgError('网络错误！')
         this.toResetBtnCode = true
       })
-    },
-    changePass () {
+    }, 300),
+    changePass: _.debounce(function () {
       this.$refs['editForm'].validate((valid) => {
         if (valid) {
           this.$http.post(CHANGE_PASS_POST, this.createFormData(this.formData)).then(res => {
@@ -129,7 +129,7 @@ export default {
           })
         }
       })
-    }
+    }, 300)
   }
 }
 </script>

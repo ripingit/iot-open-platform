@@ -48,6 +48,7 @@
       <el-row>
         <el-table
           ref="multipleTable"
+          v-loading="loading"
           :data="tableData"
           style="width: 100%;"
           @selection-change="handleSelectionChange">
@@ -113,6 +114,7 @@
 <script>
 import '@/assets/css/content.css'
 import { EQUIPMENT_CATEGORY_QUERY, EQUIPMENT_CATEGORY_ADD, EQUIPMENT_CATEGORY_DELETE } from '../../../lib/api.js'
+import _ from 'lodash'
 export default {
   data () {
     let validateIsEmpty = (rule, value, callback) => {
@@ -148,7 +150,8 @@ export default {
       multipleSelection: [],
       currentPage: 1,
       total: 0,
-      page: 20
+      page: 20,
+      loading: false
     }
   },
   created () {
@@ -165,8 +168,8 @@ export default {
         this.onSubmit()
       }
     },
-    onSubmit () {
-      let loading = this.vmLoadingFull()
+    onSubmit: _.debounce(function () {
+      this.loading = true
       let param = this.createFormData({
         page: parseInt(this.currentPage),
         page_size: parseInt(this.page),
@@ -175,7 +178,7 @@ export default {
         end_time: this.formInline.ChoiceTime ? this.formInline.ChoiceTime[1] : ''
       })
       this.$http.post(EQUIPMENT_CATEGORY_QUERY, param).then(res => {
-        loading.close()
+        this.loading = false
         if (res.data.statu === 0) {
           this.$router.push('/login')
           return false
@@ -185,12 +188,11 @@ export default {
           this.resData = res.data
           this.total = res.data.total
         }
-      }
-      ).catch(() => {
-        loading.close()
+      }).catch(() => {
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
-    },
+    }, 300),
     addDevice () {
       this.dialogVisible = true
     },

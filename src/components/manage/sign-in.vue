@@ -115,7 +115,7 @@ import { ADMIN_TOKEN_POST, ADMIN_SIGNIN_POST } from '@/lib/api.js'
 import { IDENTITY_UPDATE, AUTH_UPDATE } from '@/store/mutations-type'
 import { createRoutes } from '@/router/routes'
 import { generateMenus, menuRouteMap } from '@/lib/route-map-menu'
-
+import _ from 'lodash'
 export default {
   components: { CheckCodeComponent },
   data () {
@@ -221,7 +221,7 @@ export default {
         this.vmMsgError('网络错误！')
       })
     },
-    signIn () {
+    signIn: _.debounce(function () {
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
           let loading = this.vmLoadingFull()
@@ -253,7 +253,7 @@ export default {
           })
         }
       })
-    },
+    }, 300),
 
     forgotPass () {
       this.isForgotVisible = true

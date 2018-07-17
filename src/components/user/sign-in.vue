@@ -119,7 +119,7 @@ import { validateEmail, validatePhone } from '@/lib/validate.js'
 import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST } from '@/lib/api.js'
 import { AUTH_CHANGE, IDENTITY_UPDATE } from '@/store/mutations-type'
 import { createRoutes } from '@/router/routes'
-
+import _ from 'lodash'
 export default {
   components: { CheckCodeComponent },
   data () {
@@ -230,7 +230,7 @@ export default {
         this.vmMsgError('网络错误！')
       })
     },
-    signIn () {
+    signIn: _.debounce(function () {
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
           let loading = this.vmLoadingFull()
@@ -262,12 +262,12 @@ export default {
           })
         }
       })
-    },
+    }, 300),
 
     forgotPass () {
       this.isForgotVisible = true
     },
-    getCheckCode () {
+    getCheckCode: _.debounce(function () {
       if (!this.formDataCheck.user_name) {
         this.toResetBtnCode = true
         this.vmMsgWarning('请填写手机号或邮箱'); return
@@ -286,8 +286,8 @@ export default {
         this.vmMsgError('网络错误！')
         this.toResetBtnCode = true
       })
-    },
-    changePassword () {
+    }, 300),
+    changePassword: _.debounce(function () {
       this.$refs['checkForm'].validate((valid) => {
         if (valid) {
           this.$http.post(LOST_PASS_POST, this.createFormData(this.formDataCheck)).then(res => {
@@ -300,7 +300,7 @@ export default {
           })
         }
       })
-    }
+    }, 300)
   }
 }
 </script>

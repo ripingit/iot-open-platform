@@ -123,7 +123,7 @@
 <script>
 import '@/assets/css/content.css'
 import { ADMIN_USERS_GET } from '@/lib/api'
-
+import _ from 'lodash'
 export default {
   data () {
     return {
@@ -187,7 +187,7 @@ export default {
     showListDialog (index, row) {
       this.isDialogVisibleList = true
     },
-    getUsersLists (currentPage) {
+    getUsersLists: _.debounce(function (currentPage) {
       let data = this.createFormData({
         page: currentPage,
         page_size: 20,
@@ -205,7 +205,7 @@ export default {
         this.loading = false
         this.vmMsgError('网络错误！')
       })
-    }
+    }, 300)
   }
 }
 </script>
