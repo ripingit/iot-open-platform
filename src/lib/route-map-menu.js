@@ -82,6 +82,12 @@ export const menuRouteMap = [
       }
     ],
     auth: true
+  }, {
+    id: 13001,
+    path: '/manage/admin/goodsManage',
+    icon: 'icon-guanliyuan',
+    name: '商品管理',
+    auth: true
   }
 ]
 

@@ -54,12 +54,12 @@
                   label="固件版本">
                 </el-table-column>
                 <el-table-column
-                  prop="romType"
+                  prop="rom_type"
                   label="固件类型">
                   <template slot-scope="scope">
-                    {{scope.row.romType === 1 ? '正式'
-                    : scope.row.romType === 2 ? '临时'
-                    : scope.row.romType === 3 ? '灰度' : ''}}
+                    {{scope.row.rom_type === 1 ? '正式'
+                    : scope.row.rom_type === 2 ? '临时'
+                    : scope.row.rom_type === 3 ? '灰度' : ''}}
                   </template>
                 </el-table-column>
                 <el-table-column

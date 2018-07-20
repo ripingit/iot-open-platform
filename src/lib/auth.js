@@ -29,6 +29,7 @@ exports.install = function (Vue, options) {
     EDIT_USER_GROUP_AUTH: { id: 11006, name: '修改用户组权限' },
     ADD_USER_GROUP_AUTH: { id: 11005, name: '添加用户组权限' },
     DEL_USER_GROUP_USER: { id: 11007, name: '删除用户组成员' },
-    REMOVE_USER_FROM: { id: 11008, name: '用户组解除用户' }
+    REMOVE_USER_FROM: { id: 11008, name: '用户组解除用户' },
+    GOODS_ADD: { id: 13002, name: '商品添加' }
   }
 }

@@ -21,6 +21,10 @@ const router = new Router({
       path: '/signup',
       component: resolve => require(['@/components/user/sign-up'], resolve),
       meta: { title: '注册' }
+    }, {
+      path: '/qrcode',
+      component: resolve => require(['@/components/qrcode'], resolve),
+      meta: { title: '二维码' }
     }
   ]
 })

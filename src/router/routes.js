@@ -46,6 +46,15 @@ let admin = {
   ]
 }
 
+let dealerRoute = [
+  {
+    path: 'deviceManage',
+    name: 'deviceManage',
+    component: resolve => require(['@/components/dealer/device-manage'], resolve),
+    meta: { title: '设备管理' }
+  }
+]
+
 let userRoute = [
   {
     path: 'home/:index',
@@ -204,6 +213,14 @@ let adminRoute = [
       component: resolve => require(['@/components/manage/users/user-manage'], resolve),
       meta: { title: '用户管理', identity: [1] }
     }
+  }, {
+    id: 13001,
+    route: {
+      path: 'goodsManage/:index',
+      name: 'goodsManage',
+      component: resolve => require(['@/components/manage/goods-manage/goods-manage'], resolve),
+      meta: { title: '商品管理', identity: [1] }
+    }
   }
 ]
 
@@ -218,7 +235,7 @@ export function createRoutes (menu) {
     }
     layout[0].children.push(admin)
   } else if (identity === Vue.prototype.identityCode.COOP) {
-    user.children = userRoute
+    user.children = userRoute.concat(dealerRoute)
     layout[0].children.push(user)
   }
   return layout

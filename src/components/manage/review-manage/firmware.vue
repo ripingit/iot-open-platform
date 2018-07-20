@@ -147,6 +147,12 @@
         </el-col>
       </el-row>
       <el-row class="label-row">
+        <el-col :span="2" :sm="3" class="label-name">固件类型</el-col>
+        <el-col :span="22" :sm="21" class="label-value">
+          {{reviewData.rom_type}}
+        </el-col>
+      </el-row>
+      <el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">更新说明</el-col>
         <el-col :span="22" :sm="21" class="label-value" v-html="vmEscapeToHTML(reviewData.change_log)">
         </el-col>
@@ -209,7 +215,8 @@ export default {
         change_log: '',
         review_mark: '',
         state: false,
-        upload_status: ''
+        upload_status: '',
+        rom_type: ''
       },
       selectedData: []
     }
@@ -230,6 +237,7 @@ export default {
       this.reviewData.review_mark = ''
       this.reviewData.state = row.state
       this.reviewData.upload_status = row.upload_status
+      this.reviewData.rom_type = this.firmwareTypeCode[row.rom_type]
       this.isDetailDialogVisible = true
     },
     getAuditList (currentPage) {

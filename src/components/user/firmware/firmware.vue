@@ -45,12 +45,10 @@
                   label="固件版本">
                 </el-table-column>
                 <el-table-column
-                  prop="romType"
+                  prop="rom_type"
                   label="固件类型">
                   <template slot-scope="scope">
-                    {{scope.row.romType === 1 ? '正式'
-                    : scope.row.romType === 2 ? '临时'
-                    : scope.row.romType === 3 ? '灰度' : ''}}
+                  {{ firmwareTypeCode[scope.row.rom_type] }}
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -78,10 +76,10 @@
                   prop="upload_status"
                   label="上传状态">
                   <template slot-scope="scope">
-                    {{ scope.row.upload_status.join('') }}
+                    {{ scope.row.upload_status ? scope.row.upload_status.join('') : '' }}
                   </template>
                 </el-table-column>
-                <el-table-column label="操作">
+                <el-table-column label="操作" width="120">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"
@@ -89,6 +87,12 @@
                       icon="iconfont icon-gengduo"
                       circle
                       @click="showListDialog(scope.$index, scope.row)"></el-button>
+                    <el-button
+                      class="btn-circle"
+                      size="mini"
+                      icon="el-icon-upload"
+                      circle
+                      @click="showReleaseDialog(scope.row)"></el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -172,6 +176,71 @@
     <el-dialog title="固件升级记录" :visible.sync="isDialogVisibleList" center>
       <TimeLineComponent :data="historyRecord" :loading="isGetHistory"></TimeLineComponent>
     </el-dialog>
+
+    <el-dialog title="发布条件" :visible.sync="isDialogVisibleRelease" center>
+      <el-form label-position="right" status-icon label-width="100px" :model="formRelease" :rules="rules" ref="releaseForm">
+        <el-form-item class="form-row" label="升级地区" prop="country_id">
+          <el-select v-model="formRelease.country_id" placeholder="请选择升级地区" no-data-text="无数据">
+            <el-option
+              v-for="item in countrys"
+              :key="item.code"
+              :label="item.name"
+              :value="item.code"></el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item class="form-row" label="经销商" prop="dealer">
+          <el-select v-model="formRelease.dealer" placeholder="请选择经销商" no-data-text="无数据">
+            <el-option label="正式" :value="1"></el-option>
+            <el-option label="临时" :value="2"></el-option>
+            <el-option label="灰度" :value="3"></el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item class="form-row" label="升级版本" prop="rom_ver">
+          <el-select v-model="formRelease.rom_ver" placeholder="请选择升级版本" no-data-text="无数据">
+            <el-option
+              v-for="item in romVersion"
+              :key="item.rom_ver"
+              :label="item.rom_ver"
+              :value="item.rom_ver"></el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item class="form-row code-panel" label="升级到版本" prop="target_rom_ver">
+          <el-select v-model="formRelease.target_rom_ver" @change="romVersionChange" placeholder="请选择升级到版本" no-data-text="无数据">
+            <el-option
+              v-for="item in romVersion"
+              :key="item.rom_ver"
+              :label="item.rom_ver"
+              :value="item.rom_ver"></el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item class="form-row" label="选择的版本为" prop="pub_ver_type">
+          <el-input v-model="formRelease.pub_ver_type" disabled auto-complete="off" readonly placeholder="自动填写"></el-input>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item class="form-row" label="升级数量" prop="update_percent">
+          <el-input v-model="formRelease.update_percent" auto-complete="off" placeholder="固件上传后自动填写"></el-input>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item class="form-row code-panel" label="更新类型" prop="if_force_upd">
+          <el-select v-model="formRelease.if_force_upd" placeholder="请选择更新类型" no-data-text="无数据">
+            <el-option label="强制更新" :value="1"></el-option>
+            <el-option label="非强制更新" :value="2"></el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item class="form-row" label="上次升级数量" prop="md5">
+          <el-input v-model="form.md5" auto-complete="off" placeholder="固件上传后自动填写"></el-input>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item class="form-row">
+          <el-button class="btn-submit" type="primary" @click="submitFirmware">提交</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -186,7 +255,10 @@ import {
   GET_COOP_FIRMWARES_POST,
   COOP_FIRMWARES_UPLOAD_POST,
   COOP_FIRMWARES_ADD_POST,
-  GET_COOP_FIRMWARE_HISTORY_POST } from '@/lib/api'
+  GET_COOP_FIRMWARE_HISTORY_POST,
+  GET_ROM_VER_POST,
+  FIRMWARE_RELEASE_POST } from '@/lib/api'
+import { country } from '@/lib/const'
 import _ from 'lodash'
 export default {
   components: { TimeLineComponent, quillEditor },
@@ -211,6 +283,7 @@ export default {
     }
     return {
       loading: false,
+      countrys: country,
       editorOption: {
         modules: {
           toolbar: '',
@@ -249,6 +322,7 @@ export default {
       isRomploading: false,
       isDialogVisible: false,
       isDialogVisibleList: false,
+      isDialogVisibleRelease: false,
       tableData: {
         data: [],
         page: '1',
@@ -275,7 +349,18 @@ export default {
         change_log: [
           { validator: validateIsEmpty, trigger: 'change' }
         ]
-      }
+      },
+      formRelease: {
+        country_id: '',
+        dealer: '',
+        device_id: '',
+        rom_ver: '',
+        target_rom_ver: '',
+        update_percent: '',
+        if_force_upd: '',
+        pub_ver_type: ''
+      },
+      romVersion: []
     }
   },
   created () {
@@ -310,8 +395,8 @@ export default {
     }, 300),
     onBeforeUpload (file) {
       let sizeM = file.size / 1024 / 1024
-      if (sizeM > 20) {
-        this.vmMsgError('固件大小不能超过 20 M！')
+      if (sizeM > 80) {
+        this.vmMsgError('固件大小不能超过 80 M！')
         return false
       }
     },
@@ -345,6 +430,11 @@ export default {
     //     this.form.rom_ver = temp.rom_ver
     //   }
     // },
+    romVersionChange (value) {
+      let romType = this.romVersion.find(o => o.rom_ver === value).rom_type
+      let verType = this.firmwareVerCode[romType]
+      this.formRelease.pub_ver_type = verType || '未知'
+    },
     submitFirmware: _.debounce(function () {
       this.$refs['updateForm'].validate((valid) => {
         if (valid) {
@@ -384,7 +474,43 @@ export default {
         this.isGetHistory = false
         this.vmMsgError('网络错误！')
       })
-    }
+    },
+    showReleaseDialog (row) {
+      this.isDialogVisibleRelease = true
+      this.getRomVer(row.product_code)
+    },
+
+    getRomVer (code) {
+      this.$http.post(GET_ROM_VER_POST, this.createFormData({product_code: code})).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.romVersion = res.data.data
+        }
+      }).catch(() => {
+        this.vmMsgError('网络错误！')
+      })
+    },
+
+    addDeviceVersion: _.debounce(function () {
+      this.$refs['updateForm'].validate((valid) => {
+        if (valid) {
+          let wait = this.vmLoadingFull()
+          this.$http.post(FIRMWARE_RELEASE_POST, this.createFormData(this.form)).then(res => {
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('提交成功！')
+              this.isDialogVisible = false
+              this.getFirmwareLists(this.tableData.page)
+              this.$refs['updateForm'].resetFields()
+            }
+            this.isShow = false
+            wait.close()
+          }).catch(() => {
+            wait.close()
+            this.isShow = false
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
+    }, 300)
   }
 }
 </script>

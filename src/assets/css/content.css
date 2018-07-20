@@ -37,6 +37,13 @@
   border: 1px solid #808080;
 }
 
+.table .el-select .el-input {
+  margin-left: 0;
+}
+.table .el-select .el-input input {
+  border: none;
+}
+
 .btn-circle {
   background: rgb(94, 94, 94);
   color: #fff;
@@ -61,6 +68,10 @@
   position: absolute;
   top: -4.67rem;
   right: 13.5rem;
+}
+
+.el-dialog .btn-submit {
+  margin-top: 4.33rem;
 }
 
 /** 过渡动画 */
