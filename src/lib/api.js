@@ -221,7 +221,40 @@ export const UPDATE_GOOD_POST = prefix + '/admin.php?m=Admin&c=Goods&a=goodsupda
 export const DELETE_GOOD_POST = prefix + '/admin.php?m=Admin&c=Goods&a=goodsdelete'
 
 /** 合作商固件管理，获取固件版本 */
-export const GET_ROM_VER_POST = prefix + '/index.php?m=Home&c=Rom&a=deviceRomVer'
+export const GET_ROM_VER_POST = prefix + '/index.php?m=Home&c=Rom&a=adminRomUpdCondGet'
 
 /** 合作商固件管理，固件升级发布 */
 export const FIRMWARE_RELEASE_POST = prefix + '/index.php?m=Home&c=Rom&a=adminRomUpdCondAdd'
+
+/** 合作商Key管理，查询Key */
+export const GET_KEY_ID_POST = prefix + '/index.php?m=Home&c=Key&a=oauthBaseList'
+
+/** 合作商Key管理，生成Key */
+export const GENERATE_KEY_ID_POST = prefix + '/index.php?m=Home&c=Key&a=oauthBaseAdd'
+
+/** 合作商key管理，删除Key */
+export const COOP_DELETE_KEY_POST = prefix + '/index.php?m=Home&c=Key&a=oauthBaseDel'
+
+/** 获取app下载地址 */
+export const GET_DOWNLOAD_URL_POST = prefix + '/index.php?m=Home&c=AppQrcode&a=appVerList'
+
+/** 合作商app管理，查询app ID */
+export const GET_CLIENT_ID_POST = prefix + '/index.php?m=Home&c=App&a=baseList'
+
+/** 合作商设备生产，查询设备 */
+export const GET_EQUIPMENT_POST = prefix + '/index.php?m=Home&c=Production&a=adminDeviceRootsList'
+
+/** 合作商设备生产，设备返修信息查询 */
+export const GET_EQUIPMENT_REWORK_POST = prefix + '/index.php?m=Home&c=Production&a=adminDeviceRepairList'
+
+/** 合作商设备生产，设备返修图片上传 */
+export const REWORK_UPLOAD_PIC_POST = prefix + '/index.php?m=Home&c=Production&a=putObject'
+
+/** 合作商设备生产，添加设备返修 */
+export const REWORK_ADD_POST = prefix + '/index.php?m=Home&c=Production&a=adminDeviceRepairAdd'
+
+/** admin设备生产，查询设备 */
+export const GET_ADMIN_EQUIPMENT_POST = prefix + '/admin.php?m=Admin&c=Production&a=adminDeviceRootsList'
+
+/** admin设备生产，设备返修信息查询 */
+export const GET_ADMIN_EQUIPMENT_REWORK_POST = prefix + '/admin.php?m=Admin&c=Production&a=adminDeviceRepairList'

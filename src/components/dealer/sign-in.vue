@@ -39,15 +39,20 @@
             </el-form>
           </el-col>
         </el-row>
-        <!--<el-row>
+        <el-row>
           <el-col :span="24" class="forgot">
              <el-checkbox v-model="pwChecked" @click="rememberPass">记住密码</el-checkbox>
              <a @click="forgotPass">忘记密码？</a>
           </el-col>
-        </el-row>-->
+        </el-row>
         <el-row>
           <el-col :span="24">
              <el-button type="primary" @click="signIn">登录</el-button>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+             <router-link to="/signup" class="sign-up">还没账号？去注册</router-link>
           </el-col>
         </el-row>
       </div>
@@ -111,10 +116,9 @@ YUCnRYiiN30nW7KNiuD6XigaiNQ/hTwBPWPykUKXTiC3tzA06iyVcyts+rIFlUJR
 import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
 import JSEncrypt from 'jsencrypt'
 import { validateEmail, validatePhone } from '@/lib/validate.js'
-import { ADMIN_TOKEN_POST, ADMIN_SIGNIN_POST } from '@/lib/api.js'
-import { IDENTITY_UPDATE, AUTH_UPDATE } from '@/store/mutations-type'
-import { createRoutes } from '@/router/routes/index'
-import { generateMenus, adminMenuRouteMap } from '@/lib/route-menu-map'
+import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST } from '@/lib/api.js'
+import { AUTH_CHANGE, IDENTITY_UPDATE } from '@/store/mutations-type'
+import { createRoutes } from '@/router/routes'
 import _ from 'lodash'
 export default {
   components: { CheckCodeComponent },
@@ -178,7 +182,7 @@ export default {
         ],
         new_pass: [
           { validator: validateIsEmpty, trigger: 'blur' },
-          { min: 8, max: 50, message: '长度在 8 到 50 个字符', trigger: 'blur' }
+          { min: 8, max: 30, message: '长度在 8 到 30 个字符', trigger: 'blur' }
         ],
         confirmPass: [
           { validator: validatePass, trigger: 'blur' }
@@ -190,14 +194,15 @@ export default {
     }
   },
   created () {
-    // let pwdChecked = localStorage['_ck']
-    // this.pwChecked = !pwdChecked ? true : Boolean(pwdChecked)
+    let pwdChecked = localStorage['_ck']
+    this.pwChecked = pwdChecked === undefined ? true : Boolean(pwdChecked)
 
-    // if (this.pwChecked) {
-    //   this.formData.account = localStorage['_acd']
-    // }
+    if (this.pwChecked) {
+      this.formData.account = localStorage['_acd']
+    }
 
     this.getToken()
+
     document.body.addEventListener('keydown', this.keyCodeDown, false)
   },
   beforeDestroy () {
@@ -206,14 +211,18 @@ export default {
   methods: {
     keyCodeDown (e) {
       if (e.keyCode === 13) {
-        this.signIn()
+        if (this.isForgotVisible) {
+          this.changePassword()
+        } else {
+          this.signIn()
+        }
       }
     },
     rememberPass () {
       localStorage['_ck'] = this.pwChecked
     },
     getToken () {
-      this.$http.post(ADMIN_TOKEN_POST).then(res => {
+      this.$http.post(TOKEN_POST).then(res => {
         if (this.vmResponseHandler(res)) {
           sessionStorage['token'] = res.data.token
         }
@@ -239,13 +248,13 @@ export default {
             user_name: this.formData.account,
             password: encrypt.encrypt(token + this.formData.password)
           })
-          this.$http.post(ADMIN_SIGNIN_POST, data).then(res => {
+          this.$http.post(SIGNIN_POST, data).then(res => {
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id })
-              this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, adminMenuRouteMap) })
-              this.$router.addRoutes(createRoutes(res.data.title))
-              this.$router.push('/manage/admin/home/0')
+              this.$store.commit(AUTH_CHANGE, { authState: res.data.company_status })
+              this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id || this.identityCode.COOP })
+              this.$router.addRoutes(createRoutes())
+              this.$router.push('/manage')
             }
           }).catch(e => {
             this.vmMsgError('网络错误！')
@@ -258,40 +267,40 @@ export default {
     forgotPass () {
       this.isForgotVisible = true
     },
-    getCheckCode () {
-      // if (!this.formDataCheck.user_name) {
-      //   this.toResetBtnCode = true
-      //   this.vmMsgWarning('请填写手机号或邮箱'); return
-      // }
-      // let data = this.createFormData({
-      //   type: 2,
-      //   user_name: this.formDataCheck.user_name
-      // })
-      // this.$http.post(CODE_POST, data).then(res => {
-      //   if (this.vmResponseHandler(res)) {
-      //     this.vmMsgSuccess('验证码已发送！')
-      //   } else {
-      //     this.toResetBtnCode = true
-      //   }
-      // }).catch((e) => {
-      //   this.vmMsgError('网络错误！')
-      //   this.toResetBtnCode = true
-      // })
-    },
-    changePassword () {
-      // this.$refs['checkForm'].validate((valid) => {
-      //   if (valid) {
-      //     this.$http.post(LOST_PASS_POST, this.createFormData(this.formDataCheck)).then(res => {
-      //       if (this.vmResponseHandler(res)) {
-      //         this.vmMsgSuccess('您的密码已成功重置！')
-      //         this.isForgotVisible = false
-      //       }
-      //     }).catch(() => {
-      //       this.vmMsgError('网络错误！')
-      //     })
-      //   }
-      // })
-    }
+    getCheckCode: _.debounce(function () {
+      if (!this.formDataCheck.user_name) {
+        this.toResetBtnCode = true
+        this.vmMsgWarning('请填写手机号或邮箱'); return
+      }
+      let data = this.createFormData({
+        type: 2,
+        user_name: this.formDataCheck.user_name
+      })
+      this.$http.post(CODE_POST, data).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.vmMsgSuccess('验证码已发送！')
+        } else {
+          this.toResetBtnCode = true
+        }
+      }).catch((e) => {
+        this.vmMsgError('网络错误！')
+        this.toResetBtnCode = true
+      })
+    }, 300),
+    changePassword: _.debounce(function () {
+      this.$refs['checkForm'].validate((valid) => {
+        if (valid) {
+          this.$http.post(LOST_PASS_POST, this.createFormData(this.formDataCheck)).then(res => {
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('您的密码已成功重置！')
+              this.isForgotVisible = false
+            }
+          }).catch(() => {
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
+    }, 300)
   }
 }
 </script>
@@ -364,6 +373,7 @@ export default {
     text-decoration: none;
     font-size: 1.17rem;
     margin-top: 0.2rem;
+    cursor: pointer;
   }
 
   .sign-up {

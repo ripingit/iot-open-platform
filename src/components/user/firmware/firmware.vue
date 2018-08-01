@@ -90,7 +90,7 @@
                     <el-button
                       class="btn-circle"
                       size="mini"
-                      icon="el-icon-upload"
+                      icon="iconfont icon-shengji"
                       circle
                       @click="showReleaseDialog(scope.row)"></el-button>
                   </template>
@@ -114,7 +114,7 @@
       </el-col>
     </el-row>
 
-    <el-dialog title="更新版本" :visible.sync="isDialogVisible" center>
+    <el-dialog title="更新版本" :visible.sync="isDialogVisible" center class="update">
       <el-form label-position="right" status-icon label-width="100px" :model="form" :rules="rules" ref="updateForm">
         <el-form-item class="form-row" label="选择型号" prop="product_code">
           <el-select v-model="form.product_code" placeholder="请选择固件型号" no-data-text="请先添加设备型号">
@@ -178,66 +178,73 @@
     </el-dialog>
 
     <el-dialog title="发布条件" :visible.sync="isDialogVisibleRelease" center>
-      <el-form label-position="right" status-icon label-width="100px" :model="formRelease" :rules="rules" ref="releaseForm">
-        <el-form-item class="form-row" label="升级地区" prop="country_id">
-          <el-select v-model="formRelease.country_id" placeholder="请选择升级地区" no-data-text="无数据">
-            <el-option
-              v-for="item in countrys"
-              :key="item.code"
-              :label="item.name"
-              :value="item.code"></el-option>
-          </el-select>
-          <span class="form-tip">*</span>
+      <el-form label-position="right" status-icon label-width="140px" :model="formRelease" :rules="releaseRules" ref="releaseForm">
+        <el-form-item class="form-row" label="本次版本">
+          <span class="pTxt">{{formRelease.target_rom_ver}}</span>
         </el-form-item>
-        <el-form-item class="form-row" label="经销商" prop="dealer">
-          <el-select v-model="formRelease.dealer" placeholder="请选择经销商" no-data-text="无数据">
-            <el-option label="正式" :value="1"></el-option>
-            <el-option label="临时" :value="2"></el-option>
-            <el-option label="灰度" :value="3"></el-option>
-          </el-select>
-          <span class="form-tip">*</span>
+        <el-form-item class="form-row" label="升级类型">
+          <span class="pTxt">{{ firmwareTypeCode[formRelease.pub_ver_type] || '未知'}}</span>
         </el-form-item>
-        <el-form-item class="form-row" label="升级版本" prop="rom_ver">
-          <el-select v-model="formRelease.rom_ver" placeholder="请选择升级版本" no-data-text="无数据">
+        <el-form-item class="form-row" label="选择升级版本" prop="rom_ver">
+          <el-select v-model="formRelease.rom_ver" multiple collapse-tags placeholder="请选择升级版本" no-data-text="无数据" @change="testSelectAll">
+            <el-option label="全选" value="all" v-if="romVersion.length!==0"></el-option>
             <el-option
               v-for="item in romVersion"
               :key="item.rom_ver"
               :label="item.rom_ver"
               :value="item.rom_ver"></el-option>
           </el-select>
-          <span class="form-tip">*</span>
-        </el-form-item>
-        <el-form-item class="form-row code-panel" label="升级到版本" prop="target_rom_ver">
-          <el-select v-model="formRelease.target_rom_ver" @change="romVersionChange" placeholder="请选择升级到版本" no-data-text="无数据">
-            <el-option
-              v-for="item in romVersion"
-              :key="item.rom_ver"
-              :label="item.rom_ver"
-              :value="item.rom_ver"></el-option>
-          </el-select>
-          <span class="form-tip">*</span>
-        </el-form-item>
-        <el-form-item class="form-row" label="选择的版本为" prop="pub_ver_type">
-          <el-input v-model="formRelease.pub_ver_type" disabled auto-complete="off" readonly placeholder="自动填写"></el-input>
-          <span class="form-tip">*</span>
-        </el-form-item>
-        <el-form-item class="form-row" label="升级数量" prop="update_percent">
-          <el-input v-model="formRelease.update_percent" auto-complete="off" placeholder="固件上传后自动填写"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row code-panel" label="更新类型" prop="if_force_upd">
           <el-select v-model="formRelease.if_force_upd" placeholder="请选择更新类型" no-data-text="无数据">
-            <el-option label="强制更新" :value="1"></el-option>
-            <el-option label="非强制更新" :value="2"></el-option>
+            <el-option label="强制更新" :value="2"></el-option>
+            <el-option label="非强制更新" :value="1"></el-option>
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="上次升级数量" prop="md5">
-          <el-input v-model="form.md5" auto-complete="off" placeholder="固件上传后自动填写"></el-input>
+        <el-form-item class="form-row number" :label="formRelease.pub_ver_type === firmwareTypeMap.GRAYSCALE ? '' : '升级数量'" prop="update_percent">
+          <el-input v-model="formRelease.update_percent" auto-complete="off" :style="{width: formRelease.pub_ver_type === firmwareTypeMap.FORMAL ? '25rem' : '18rem'  }" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
+            <span slot="suffix">%</span>
+          </el-input>
+          <el-button @click="showDeviceID" class="btn-deviceid-add" size="medium" type="primary" v-if="formRelease.pub_ver_type !== firmwareTypeMap.FORMAL">设备ID</el-button>
           <span class="form-tip">*</span>
         </el-form-item>
+        <el-form-item class="form-row" label="升级地区" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
+          <el-select v-model="formRelease.country_id" multiple collapse-tags placeholder="请选择升级地区" no-data-text="无数据">
+            <el-option label="中国" value="CN"></el-option>
+            <el-option label="美国" value="US"></el-option>
+            <el-option label="巴西" value="BR"></el-option>
+            <el-option label="阿联酋" value="AE"></el-option>
+            <el-option label="阿尔及利亚" value="DZ"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item class="form-row code-panel" label="经销商" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
+          <el-select v-model="formRelease.dealer" placeholder="请选择经销商" no-data-text="无数据">
+            <el-option label="强制更新" :value="1"></el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item class="form-row" label="上次升级完成数量">
+          <span class="pTxt">{{deviceIDForm.update_done_num}}</span>
+        </el-form-item>
         <el-form-item class="form-row">
-          <el-button class="btn-submit" type="primary" @click="submitFirmware">提交</el-button>
+          <el-button class="btn-submit" type="primary" @click="addDeviceVersion">发布条件</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <el-dialog title="设备ID" :visible.sync="deviceIdVisible" center>
+      <el-form label-position="right" label-width="100px" :model="deviceIDForm" ref="deviceIDForm">
+        <el-form-item class="form-row" label="设备ID">
+          <el-input type="textarea" rows="6" resize="none" v-model="deviceIDForm.device_id" placeholder="设备ID，每行一个" @keyup.enter.native="testDeviceId" @keyup.delete.native="testDeviceId"></el-input>
+        </el-form-item>
+        <el-form-item class="form-row">
+          <span class="pTxt">共：{{deviceIDForm.total}}</span>
+          <span class="gap pTxt">重复：{{deviceIDForm.repeat}}</span>
+          <span class="gap pTxt">成功：{{deviceIDForm.succeed}}</span>
+        </el-form-item>
+        <el-form-item class="form-row">
+          <el-button class="btn-submit" type="primary" @click="addDeviceID">确定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -263,6 +270,7 @@ import _ from 'lodash'
 export default {
   components: { TimeLineComponent, quillEditor },
   data () {
+    let reg = /^[0-9]*$/
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
         if (rule.field === 'product_code') {
@@ -277,6 +285,26 @@ export default {
           callback(new Error('请输入升级描述'))
         } else if (rule.field === 'rom_type') {
           callback(new Error('请选择固件类型'))
+        }
+      }
+      callback()
+    }
+    let releaseIsEmpty = (rule, value, callback) => {
+      if (value === '') {
+        if (rule.field === 'update_percent') {
+          callback(new Error('请输入升级数量'))
+        } else if (rule.field === 'if_force_upd') {
+          callback(new Error('请选择更新类型'))
+        }
+      } else {
+        if (rule.field === 'update_percent') {
+          if (!reg.test(value)) {
+            callback(new Error('只能输入数字'))
+          }
+        } else if (rule.field === 'rom_ver') {
+          if (value.length === 0) {
+            callback(new Error('请选择升级版本'))
+          }
         }
       }
       callback()
@@ -315,10 +343,29 @@ export default {
         md5: '',
         change_log: ''
       },
+      deviceIDForm: {
+        update_done_num: '',
+        device_id: '',
+        total: 0,
+        repeat: 0,
+        succeed: 0
+      },
+      formRelease: {
+        product_code: '',
+        country_id: [],
+        dealer: '',
+        device_id: '',
+        rom_ver: [],
+        target_rom_ver: '',
+        update_percent: '',
+        if_force_upd: [],
+        pub_ver_type: ''
+      },
       isGetHistory: false,
       historyRecord: [],
       productCodes: [],
       uploadPath: COOP_FIRMWARES_UPLOAD_POST,
+      deviceIdVisible: false,
       isRomploading: false,
       isDialogVisible: false,
       isDialogVisibleList: false,
@@ -350,31 +397,45 @@ export default {
           { validator: validateIsEmpty, trigger: 'change' }
         ]
       },
-      formRelease: {
-        country_id: '',
-        dealer: '',
-        device_id: '',
-        rom_ver: '',
-        target_rom_ver: '',
-        update_percent: '',
-        if_force_upd: '',
-        pub_ver_type: ''
+      releaseRules: {
+        rom_ver: [
+          { validator: releaseIsEmpty, trigger: 'change' }
+        ],
+        update_percent: [
+          { validator: releaseIsEmpty, trigger: 'blur' }
+        ],
+        if_force_upd: [
+          { validator: releaseIsEmpty, trigger: 'change' }
+        ]
       },
       romVersion: []
     }
   },
   created () {
     this.getFirmwareLists(1)
-    document.body.addEventListener('keydown', this.keyCodeDown, false)
   },
   beforeDestroy () {
-    document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
-    keyCodeDown (e) {
-      if (e.keyCode === 13) {
-        this.submitFirmware()
-      }
+    showAddDialog () {
+      this.isDialogVisible = true
+    },
+    showListDialog (index, row) {
+      this.isDialogVisibleList = true
+      this.isGetHistory = true
+      let data = this.createFormData({
+        product_code: row.product_code,
+        rom_type: row.rom_type
+      })
+      this.$http.post(GET_COOP_FIRMWARE_HISTORY_POST, data).then(res => {
+        this.isGetHistory = false
+        if (this.vmResponseHandler(res)) {
+          this.historyRecord = res.data.data
+        }
+      }).catch(() => {
+        this.isGetHistory = false
+        this.vmMsgError('网络错误！')
+      })
     },
     getFirmwareLists: _.debounce(function (currentPage) {
       let data = this.createFormData({
@@ -430,11 +491,6 @@ export default {
     //     this.form.rom_ver = temp.rom_ver
     //   }
     // },
-    romVersionChange (value) {
-      let romType = this.romVersion.find(o => o.rom_ver === value).rom_type
-      let verType = this.firmwareVerCode[romType]
-      this.formRelease.pub_ver_type = verType || '未知'
-    },
     submitFirmware: _.debounce(function () {
       this.$refs['updateForm'].validate((valid) => {
         if (valid) {
@@ -446,68 +502,87 @@ export default {
               this.getFirmwareLists(this.tableData.page)
               this.$refs['updateForm'].resetFields()
             }
-            this.isShow = false
             wait.close()
           }).catch(() => {
             wait.close()
-            this.isShow = false
             this.vmMsgError('网络错误！')
           })
         }
       })
     }, 300),
-    showAddDialog () {
-      this.isDialogVisible = true
-    },
-    showListDialog (index, row) {
-      this.isDialogVisibleList = true
-      this.isGetHistory = true
-      let data = this.createFormData({
-        product_code: row.product_code
-      })
-      this.$http.post(GET_COOP_FIRMWARE_HISTORY_POST, data).then(res => {
-        this.isGetHistory = false
-        if (this.vmResponseHandler(res)) {
-          this.historyRecord = res.data.data
-        }
-      }).catch(() => {
-        this.isGetHistory = false
-        this.vmMsgError('网络错误！')
-      })
-    },
     showReleaseDialog (row) {
       this.isDialogVisibleRelease = true
-      this.getRomVer(row.product_code)
+      this.getRomVer(row.product_code, row.rom_ver, row.rom_type)
     },
 
-    getRomVer (code) {
-      this.$http.post(GET_ROM_VER_POST, this.createFormData({product_code: code})).then(res => {
+    getRomVer (code, ver, type) {
+      this.formRelease.product_code = code
+      this.formRelease.target_rom_ver = ver
+      this.formRelease.pub_ver_type = type
+      this.$http.post(GET_ROM_VER_POST, this.createFormData({product_code: code, rom_ver: ver})).then(res => {
         if (this.vmResponseHandler(res)) {
-          this.romVersion = res.data.data
+          this.romVersion = res.data.romver
+          this.formRelease.rom_ver = res.data.data.rom_ver
+          this.formRelease.update_percent = res.data.data.update_percent
+          this.formRelease.country_id = res.data.data.country_id
+          this.formRelease.if_force_upd = res.data.data.if_force_upd
+          this.formRelease.device_id = res.data.data.device_id.join('\n')
+          this.deviceIDForm.update_done_num = res.data.data.update_done_num
         }
       }).catch(() => {
         this.vmMsgError('网络错误！')
       })
+    },
+    testSelectAll (val) {
+      let allValues = []
+      if (val.includes('all')) {
+        // 保留所有版本值
+        for (let item of this.romVersion) {
+          allValues.push(item.rom_ver)
+        }
+        this.formRelease.rom_ver = allValues
+      }
+    },
+    showDeviceID () {
+      this.deviceIdVisible = true
+      this.deviceIDForm.device_id = this.formRelease.device_id
+      this.testDeviceId()
+    },
+    testDeviceId () {
+      let ary = this.deviceIDForm.device_id.split(/[\n,]/g)
+      let nAry = ary.filter(function (val) {
+        return val !== ''
+      })
+      let succeedAry = new Set(nAry)
+      this.deviceIDForm.total = nAry.length
+      this.deviceIDForm.succeed = succeedAry.size
+      this.deviceIDForm.repeat = this.deviceIDForm.total - this.deviceIDForm.succeed
+    },
+    addDeviceID () {
+      this.deviceIdVisible = false
+      this.formRelease.device_id = this.deviceIDForm.device_id
     },
 
     addDeviceVersion: _.debounce(function () {
-      this.$refs['updateForm'].validate((valid) => {
+      this.$refs['releaseForm'].validate((valid) => {
         if (valid) {
           let wait = this.vmLoadingFull()
-          this.$http.post(FIRMWARE_RELEASE_POST, this.createFormData(this.form)).then(res => {
-            if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess('提交成功！')
-              this.isDialogVisible = false
-              this.getFirmwareLists(this.tableData.page)
-              this.$refs['updateForm'].resetFields()
-            }
-            this.isShow = false
+          if (this.formRelease.country_id.length !== 0 || this.formRelease.device_id !== '') {
+            this.$http.post(FIRMWARE_RELEASE_POST, this.createFormData(this.formRelease)).then(res => {
+              if (this.vmResponseHandler(res)) {
+                this.vmMsgSuccess('提交成功！')
+                this.isDialogVisibleRelease = false
+                this.getFirmwareLists(this.tableData.page)
+              }
+              wait.close()
+            }).catch(() => {
+              wait.close()
+              this.vmMsgError('网络错误！')
+            })
+          } else {
+            this.vmMsgWarning('升级地区和设备ID必须填写其中一个！')
             wait.close()
-          }).catch(() => {
-            wait.close()
-            this.isShow = false
-            this.vmMsgError('网络错误！')
-          })
+          }
         }
       })
     }, 300)
@@ -518,8 +593,9 @@ export default {
 <style scoped>
 /** 本页定制 start */
 .el-dialog__wrapper /deep/ .el-dialog{
-  width: 50rem;
+  width: 51rem;
 }
+
 .el-dialog .btn-submit {
   margin-top: 4.33rem;
 }
@@ -540,7 +616,7 @@ export default {
   position: absolute;
   width: 5rem;
   height: 2.17rem;
-  right: 6.5rem;
+  right: 7.5rem;
   top: 0.6rem;
   font-size: 1rem;
   background: #1f7ecf;
@@ -560,6 +636,16 @@ export default {
 
 .el-radio /deep/ .el-radio__label {
   color: #fff;
+}
+.btn-deviceid-add {
+  width: 6.7rem;
+  height: 3.33rem;
+}
+.gap {
+  margin-left: 1rem;
+}
+.pTxt{
+  color: #ffffff;
 }
 /** 本页定制 end */
 </style>

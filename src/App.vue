@@ -7,7 +7,7 @@
 <script>
 import '@/assets/css/element-reset.css'
 import { ADMIN_AUTH_GET } from '@/lib/api.js'
-import { createRoutes } from '@/router/routes'
+import { createRoutes } from '@/router/routes/index'
 
 export default {
   name: 'App',

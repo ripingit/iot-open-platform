@@ -27,6 +27,16 @@ exports.install = function (Vue, options) {
     DEALER: 'dealer'
   }
 
+  /** 固件类型码 */
+  Vue.prototype.firmwareTypeMap = {
+    // 正式
+    FORMAL: 1,
+    // 临时
+    TEMP: 2,
+    // 灰度
+    GRAYSCALE: 3
+  }
+
   /** 固件类型 */
   Vue.prototype.firmwareTypeCode = {
     1: '正式',
@@ -68,5 +78,18 @@ exports.install = function (Vue, options) {
   Vue.prototype.goodSaleCode = {
     1: '已上架',
     2: '已下架'
+  }
+
+  /** 设备解绑状态 */
+  Vue.prototype.untieCode = {
+    1: '成功',
+    2: '失败',
+    3: '解绑中'
+  }
+
+  /** 设备返修方式 */
+  Vue.prototype.repairWayCode = {
+    1: '更换',
+    2: '维修'
   }
 }

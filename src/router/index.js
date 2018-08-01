@@ -22,7 +22,7 @@ const router = new Router({
       component: resolve => require(['@/components/user/sign-up'], resolve),
       meta: { title: '注册' }
     }, {
-      path: '/qrcode',
+      path: '/qrcode/:appName/:company',
       component: resolve => require(['@/components/qrcode'], resolve),
       meta: { title: '二维码' }
     }
@@ -30,9 +30,9 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  let filter = ['/signin', '/signup', '/login']
+  let filter = ['/signin', '/signup', '/login', '/qrcode']
 
-  if (filter.includes(to.fullPath)) {
+  if (filter.includes(to.fullPath) || to.fullPath.indexOf('/qrcode') !== -1) {
     next(); return
   }
   if (store.getters.getUserIdentity !== Vue.prototype.identityCode.ADMIN &&

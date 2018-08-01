@@ -117,8 +117,9 @@ import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
 import JSEncrypt from 'jsencrypt'
 import { validateEmail, validatePhone } from '@/lib/validate.js'
 import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST } from '@/lib/api.js'
-import { AUTH_CHANGE, IDENTITY_UPDATE } from '@/store/mutations-type'
-import { createRoutes } from '@/router/routes'
+import { AUTH_CHANGE, IDENTITY_UPDATE, AUTH_UPDATE } from '@/store/mutations-type'
+import { createRoutes } from '@/router/routes/index'
+import { coopMenuRouteMap } from '@/lib/route-menu-map'
 import _ from 'lodash'
 export default {
   components: { CheckCodeComponent },
@@ -253,6 +254,7 @@ export default {
             if (this.vmResponseHandler(res)) {
               this.$store.commit(AUTH_CHANGE, { authState: res.data.company_status })
               this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id || this.identityCode.COOP })
+              this.$store.commit(AUTH_UPDATE, { menus: coopMenuRouteMap })
               this.$router.addRoutes(createRoutes())
               this.$router.push('/manage')
             }

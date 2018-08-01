@@ -40,7 +40,7 @@
           </el-table-column>
           <el-table-column
             prop="company_name"
-            min-width="150"
+            min-width="240"
             label="所属公司">
           </el-table-column>
           <el-table-column
@@ -49,14 +49,18 @@
             label="版本号">
           </el-table-column>
           <el-table-column
-            prop="url"
-            min-width="200"
-            label="URL">
-          </el-table-column>
-          <el-table-column
             prop="review_time"
             min-width="180"
             label="更新时间">
+          </el-table-column>
+          <el-table-column
+            prop="QrcodeUrl"
+            min-width="200"
+            label="二维码">
+            <template slot-scope="scope">
+              <ScaleImgComponent :path="scope.row.QrcodeUrl" style="width:5rem;height:5rem" alt="图2"></ScaleImgComponent>
+              <p class="download" style="font-size: 12px; cursor: pointer" @click="download(scope.row.QrcodeUrl)">下载二维码</p>
+            </template>
           </el-table-column>
           <el-table-column
             prop=""
@@ -96,9 +100,6 @@
         <el-form-item label="版本">
           <span class="detail_item">{{detailData.ver}}</span>
         </el-form-item>
-        <el-form-item label="下载地址">
-          <a :href="detailData.url" target="_blank" class="download">{{detailData.url}}</a>
-        </el-form-item>
         <el-form-item label="MD5值">
           <span class="detail_item">{{detailData.md5}}</span>
         </el-form-item>
@@ -111,9 +112,11 @@
 </template>
 <script>
 import '@/assets/css/content.css'
+import ScaleImgComponent from '@/components/_ui/scale-img.vue'
 import { APP_MANAGE_SELECT_POST, APP_MANAGE_DEL_POST } from '@/lib/api.js'
 import _ from 'lodash'
 export default {
+  components: { ScaleImgComponent },
   data () {
     return {
       loading: false,

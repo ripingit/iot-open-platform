@@ -33,23 +33,32 @@
           </el-table-column>
           <el-table-column
             prop="app_name"
-            min-width="150"
+            min-width="120"
             label="APP名称">
           </el-table-column>
           <el-table-column
             prop="ver"
-            min-width="150"
+            min-width="120"
             label="版本号">
           </el-table-column>
           <el-table-column
-            prop="url"
-            min-width="200"
-            label="URL">
+            prop="review_time"
+            min-width="150"
+            label="时间">
           </el-table-column>
           <el-table-column
-            prop="review_time"
-            min-width="180"
-            label="时间">
+            prop="client_id"
+            min-width="200"
+            label="使用KEY">
+          </el-table-column>
+          <el-table-column
+            prop="QrcodeUrl"
+            min-width="120"
+            label="二维码">
+            <template slot-scope="scope">
+              <ScaleImgComponent :path="scope.row.QrcodeUrl" style="width:5rem;height:5rem" alt="图2"></ScaleImgComponent>
+              <p class="download" style="font-size: 12px; cursor: pointer" @click="download(scope.row.QrcodeUrl)">下载二维码</p>
+            </template>
           </el-table-column>
           <el-table-column
             prop=""
@@ -59,15 +68,15 @@
               <el-button
                 class="btn-circle"
                 size="mini"
-                icon="iconfont icon-gengduo"
+                icon="iconfont icon-shengji"
                 circle
-                @click="operationData('select',scope.$index)"></el-button>
+                @click="operationData('edit',scope.$index)"></el-button>
               <el-button
                 class="btn-circle"
                 size="mini"
-                icon="iconfont icon-bianji"
+                icon="iconfont icon-gengduo"
                 circle
-                @click="operationData('edit',scope.$index)"></el-button>
+                @click="operationData('select',scope.$index)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -96,23 +105,48 @@
         <el-form-item label="APP名称" prop="app_name" class="form-row">
           <el-input v-model="ruleForm.app_name" placeholder="请输入app名称" v-show="updateStyle==='add'"></el-input>
           <el-input v-model="ruleForm.app_name" readonly v-show="updateStyle==='update'"></el-input>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item label="APP ID" prop="client_id" class="form-row">
+          <el-select v-model="ruleForm.client_id" placeholder="请选择app id" no-data-text="无数据" v-show="updateStyle==='add'">
+            <el-option
+              v-for="(item, index) in clientIds"
+              :key="index"
+              :label="item"
+              :value="item"></el-option>
+          </el-select>
+          <el-input v-model="ruleForm.client_id" readonly v-show="updateStyle==='update'"></el-input>
+          <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="版本" prop="ver" class="form-row">
           <el-input v-model="ruleForm.ver" placeholder="请输入app版本"></el-input>
+          <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="下载地址" prop="url" class="form-row">
-          <el-input v-model="ruleForm.url" placeholder="请输入app下载地址"></el-input>
+        <el-form-item label="下载地址" prop="" class="form-row code-panel">
+          <el-select v-model="storeName" placeholder="请选择应用商店" no-data-text="无数据" @change="appStoreChange">
+            <el-option
+              v-for="(item, index) in appStore"
+              :key="index"
+              :label="item.name"
+              :value="item.id"></el-option>
+          </el-select>
+          <el-button @click="loadDownloadDialog" size="medium" type="primary">更多</el-button>
+          <div class="split-line"></div>
+          <el-input v-model="storeUrl" placeholder="请输入app下载地址" @change="downloadUrlSet"></el-input>
+          <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="MD5值" prop="md5" class="form-row">
           <el-input v-model="ruleForm.md5" placeholder="请输入app MD5值"></el-input>
+          <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="升级描述" prop="change_log" class="form-row">
           <quill-editor ref="myTextEditor"
                         v-model="ruleForm.change_log"
                         :options="editorOption">
           </quill-editor>
+          <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" style="margin-top: 4.33rem">
+        <el-form-item class="form-row">
           <el-button type="primary" @click="submitForm" class="btn-submit">提交</el-button>
         </el-form-item>
       </el-form>
@@ -130,14 +164,28 @@
         <el-form-item label="版本">
           <span class="detail_item">{{detailData.ver}}</span>
         </el-form-item>
-        <el-form-item label="下载地址">
-          <a :href="detailData.url" target="_blank" class="download">{{detailData.url}}</a>
-        </el-form-item>
         <el-form-item label="MD5值">
           <span class="detail_item">{{detailData.md5}}</span>
         </el-form-item>
         <el-form-item label="升级描述">
           <span class="detail_item" v-html="vmEscapeToHTML(detailData.change_log)"></span>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
+    <el-dialog
+      center
+      title="下载地址"
+      width="56rem"
+      :visible.sync="isDownloadDialogShow"
+      :close-on-click-modal="false"
+      :before-close="closeDownloadDialog">
+      <el-form label-width="150px">
+        <el-form-item v-for="(item, index) in appStore" :key="item.id" :label="item.name" class="form-row">
+          <el-input v-model="ruleForm.url[index].url" placeholder="请输入下载地址"></el-input>
+        </el-form-item>
+        <el-form-item class="form-row">
+          <el-button type="primary" @click="closeDownloadDialog" class="btn-submit">确定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -148,13 +196,32 @@ import '@/assets/css/content.css'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
+import ScaleImgComponent from '@/components/_ui/scale-img.vue'
 import { quillEditor } from 'vue-quill-editor'
-import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST } from '@/lib/api.js'
+import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST, GET_CLIENT_ID_POST } from '@/lib/api.js'
+import { appStore } from '@/lib/const'
 import _ from 'lodash'
 export default {
-  components: { quillEditor },
+  components: { quillEditor, ScaleImgComponent },
   data () {
+    let validateIsEmpty = (rule, value, callback) => {
+      if (value === '') {
+        if (rule.field === 'app_name') {
+          callback(new Error('请输入app名称'))
+        } else if (rule.field === 'ver') {
+          callback(new Error('请输入版本号'))
+        } else if (rule.field === 'change_log') {
+          callback(new Error('请输入升级描述'))
+        } else if (rule.field === 'md5') {
+          callback(new Error('请输入md5值'))
+        } else if (rule.field === 'client_id') {
+          callback(new Error('请输入App ID'))
+        }
+      }
+      callback()
+    }
     return {
+      appStore: appStore,
       editorOption: {
         modules: {
           toolbar: ''
@@ -168,40 +235,46 @@ export default {
         page: 1,
         page_size: 20
       },
+      storeName: '',
+      storeUrl: '',
       totalAll: 0,
       loading: false,
       dialogVisible: false,
       detailDialogVisible: false,
+      isDownloadDialogShow: false,
       ruleForm: {
+        client_id: '',
         app_name: '',
         ver: '',
         change_log: '',
-        url: '',
+        url: appStore,
         md5: ''
       },
       updateStyle: 'update',
       rules: {
         app_name: [
-          { required: true, message: '请输入app名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+          { validator: validateIsEmpty, trigger: 'blur' },
+          { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+        ],
+        client_id: [
+          { validator: validateIsEmpty, trigger: 'blur' }
         ],
         ver: [
-          { required: true, message: '请输入版本号', trigger: 'blur' }
+          { validator: validateIsEmpty, trigger: 'blur' }
         ],
         change_log: [
-          { required: true, message: '请输入升级描述', trigger: 'blur' }
-        ],
-        url: [
-          { required: true, message: '请输入下载地址', trigger: 'blur' }
+          { validator: validateIsEmpty, trigger: 'blur' }
         ],
         md5: [
-          { required: true, message: '请输入md5值', trigger: 'blur' }
+          { validator: validateIsEmpty, trigger: 'blur' }
         ]
       },
-      detailData: {}
+      detailData: {},
+      clientIds: []
     }
   },
   created () {
+    this.getClientId()
     this.loadData()
     document.body.addEventListener('keydown', this.keyCodeDown, false)
   },
@@ -214,6 +287,16 @@ export default {
         if (this.updateStyle !== 'add') { return }
         this.submitForm()
       }
+    },
+
+    getClientId () {
+      this.$http.post(GET_CLIENT_ID_POST).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.clientIds = res.data.data
+        }
+      }).catch(e => {
+        this.vmMsgError('网络错误！')
+      })
     },
     searchData () {
       this.selectParam.page = 1
@@ -234,14 +317,37 @@ export default {
         this.updateStyle = 'add'
         this.dialogVisible = true
         for (let key in this.ruleForm) {
-          this.ruleForm[key] = ''
+          key !== 'url' && (this.ruleForm[key] = '')
+          if (key === 'url') {
+            this.ruleForm.url.forEach(o => { o.url = '' })
+          }
+          this.storeName = this.appStore[0].id
+          this.storeUrl = ''
         }
       } else if (type === 'edit') {
         this.updateStyle = 'update'
         this.dialogVisible = true
         for (let key in this.ruleForm) {
-          this.ruleForm[key] = key === 'change_log' ? this.vmEscapeToHTML(this.tableData[ix][key]) : this.tableData[ix][key]
+          let value = this.tableData[ix][key]
+          // 存在老数据app下载地址为字符串的，需要将其转换成现在的数组格式
+          if (key === 'change_log') {
+            this.ruleForm[key] = this.vmEscapeToHTML(value)
+          } else if (key === 'url') {
+            if (this.isJsonString(value)) {
+              let parseObj = JSON.parse(value)
+              for (let item of parseObj) {
+                let tp = this.ruleForm.url.find(o => o.id === item.id)
+                tp.url = item.url
+              }
+            } else {
+              this.ruleForm[key][0].url = value
+            }
+          } else {
+            this.ruleForm[key] = value
+          }
         }
+        this.storeName = 0
+        this.storeUrl = this.ruleForm.url[0].url
       } else {
         let data
         let ary = []
@@ -272,10 +378,33 @@ export default {
     handleClose (done) {
       done()
     },
+
+    downloadUrlSet () {
+      let temp = this.ruleForm.url.find(o => o.id === parseInt(this.storeName))
+      temp.url = this.storeUrl
+    },
+
+    appStoreChange () {
+      let temp = this.ruleForm.url.find(o => o.id === parseInt(this.storeName))
+      !temp ? (this.storeUrl = '') : (this.storeUrl = temp.url)
+    },
+
+    loadDownloadDialog () {
+      this.isDownloadDialogShow = true
+    },
+
+    closeDownloadDialog () {
+      this.storeUrl = this.ruleForm.url[0].url
+      this.isDownloadDialogShow = false
+    },
+
     submitForm: _.debounce(function () {
+      if (!this.ruleForm.url[0].url) { this.vmMsgError('安卓通用下载地址为必填！'); return }
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
+          this.ruleForm.url = JSON.stringify(this.ruleForm.url) // 转成字符串传给后台
           let data = this.createFormData(this.ruleForm)
+          this.ruleForm.url = JSON.parse(this.ruleForm.url) // 在转回数组以便前台显示
           let loading = this.vmLoadingFull()
           this.$http.post(APP_ADD_POST, data).then(res => {
             loading.close()
@@ -309,7 +438,39 @@ export default {
         this.loading = false
         this.vmMsgError('网络错误！')
       })
-    }, 300)
+    }, 300),
+
+    // 下载图片
+    download (data) {
+      this.downloadFile('二维码.png', data)
+    },
+
+    downloadFile (fileName, content) {
+      let aLink = document.createElement('a')
+      let blob = this.base64ToBlob(content) // new Blob([content]);
+
+      let evt = document.createEvent('HTMLEvents')
+      evt.initEvent('click', true, true) // initEvent 不加后两个参数在FF下会报错  事件类型，是否冒泡，是否阻止浏览器的默认行为
+      aLink.download = fileName
+      aLink.href = URL.createObjectURL(blob)
+
+      // aLink.dispatchEvent(evt);
+      aLink.click()
+    },
+    // base64转blob
+    base64ToBlob (code) {
+      let parts = code.split(';base64,')
+      let contentType = parts[0].split(':')[1]
+      let raw = window.atob(parts[1])
+      let rawLength = raw.length
+
+      let uInt8Array = new Uint8Array(rawLength)
+
+      for (let i = 0; i < rawLength; ++i) {
+        uInt8Array[i] = raw.charCodeAt(i)
+      }
+      return new Blob([uInt8Array], {type: contentType})
+    }
   }
 }
 </script>
@@ -336,5 +497,24 @@ export default {
   }
   .detail_item{
     color: #ffffff;
+  }
+  .split-line {
+    width: 23rem;
+    height: 1px;
+    background: #797979;
+    margin-left: 1rem;
+    position: absolute;
+    z-index: 1;
+  }
+  .code-panel .el-button {
+    position: absolute;
+    width: 5rem;
+    height: 2.17rem;
+    right: 12.5rem;
+    top: 0.5rem;
+    font-size: 1rem;
+    background: #1f7ecf;
+    border: none;
+    padding: 0.56rem 0.83rem;
   }
 </style>
