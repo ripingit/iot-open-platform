@@ -185,7 +185,7 @@
         <el-form-item class="form-row" label="升级类型">
           <span class="pTxt">{{ firmwareTypeCode[formRelease.pub_ver_type] || '未知'}}</span>
         </el-form-item>
-        <el-form-item class="form-row" label="选择升级版本" prop="rom_ver">
+        <el-form-item class="form-row" label="选择升级版本">
           <el-select v-model="formRelease.rom_ver" multiple collapse-tags placeholder="请选择升级版本" no-data-text="无数据" @change="testSelectAll">
             <el-option label="全选" value="all" v-if="romVersion.length!==0"></el-option>
             <el-option
@@ -194,7 +194,6 @@
               :label="item.rom_ver"
               :value="item.rom_ver"></el-option>
           </el-select>
-          <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row code-panel" label="更新类型" prop="if_force_upd">
           <el-select v-model="formRelease.if_force_upd" placeholder="请选择更新类型" no-data-text="无数据">
@@ -203,7 +202,7 @@
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row number" :label="formRelease.pub_ver_type === firmwareTypeMap.GRAYSCALE ? '' : '升级数量'" prop="update_percent">
+        <el-form-item class="form-row number" :label="formRelease.pub_ver_type === firmwareTypeMap.GRAYSCALE ? '' : '升级数量'" :prop="formRelease.pub_ver_type === firmwareTypeMap.GRAYSCALE ? '' : 'update_percent'">
           <el-input v-model="formRelease.update_percent" auto-complete="off" :style="{width: formRelease.pub_ver_type === firmwareTypeMap.FORMAL ? '25rem' : '18rem'  }" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
             <span slot="suffix">%</span>
           </el-input>
@@ -301,10 +300,6 @@ export default {
           if (!reg.test(value)) {
             callback(new Error('只能输入数字'))
           }
-        } else if (rule.field === 'rom_ver') {
-          if (value.length === 0) {
-            callback(new Error('请选择升级版本'))
-          }
         }
       }
       callback()
@@ -398,9 +393,6 @@ export default {
         ]
       },
       releaseRules: {
-        rom_ver: [
-          { validator: releaseIsEmpty, trigger: 'change' }
-        ],
         update_percent: [
           { validator: releaseIsEmpty, trigger: 'blur' }
         ],

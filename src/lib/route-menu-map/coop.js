@@ -33,7 +33,7 @@ export const coopMenuRouteMap = [
   }, {
     id: 0,
     path: '/manage/user/deviceProd',
-    icon: 'icon-KEY',
+    icon: 'icon-shebeishengchan',
     name: '设备生产',
     auth: true
   }

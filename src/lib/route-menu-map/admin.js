@@ -85,13 +85,13 @@ export const adminMenuRouteMap = [
   }, {
     id: 13001,
     path: '/manage/admin/goodsManage',
-    icon: 'icon-guanliyuan',
+    icon: 'icon-shangpinguanli',
     name: '商品管理',
     auth: true
   }, {
     id: 14001,
     path: '/manage/admin/deviceProd',
-    icon: 'icon-guanliyuan',
+    icon: 'icon-shebeishengchan',
     name: '设备生产',
     auth: true
   }
