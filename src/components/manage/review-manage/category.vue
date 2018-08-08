@@ -27,7 +27,7 @@
               </el-select>
               <el-button class="btn-search" type="primary" @click="searchData">查询</el-button>-->
               <el-button
-                v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_CATEGORY, res)"
+                v-if="vmHasAuth(AdminPermissionsLib.DEL_AUDIT_CATEGORY, res)"
                 @click="operationData('delete')"
                 class="btn-circle-delete btn-circle-right" type="danger" icon="el-icon-delete" circle></el-button>
             </el-col>
@@ -93,14 +93,14 @@
                       size="mini"
                       icon="iconfont icon-gengduo"
                       circle
-                      v-if="vmHasAuth(PermissionsLib.REVIEW_AUDIT_CATEGORY, res)"
+                      v-if="vmHasAuth(AdminPermissionsLib.REVIEW_AUDIT_CATEGORY, res)"
                       @click="operationData('select',scope.$index)"></el-button>
                     <!--<el-button
                       class="btn-circle"
                       size="mini"
                       icon="iconfont icon-shanchu"
                       circle
-                      v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_CATEGORY, res)"
+                      v-if="vmHasAuth(AdminPermissionsLib.DEL_AUDIT_CATEGORY, res)"
                       @click="operationData('delete',scope.$index)"></el-button>-->
                   </template>
                 </el-table-column>

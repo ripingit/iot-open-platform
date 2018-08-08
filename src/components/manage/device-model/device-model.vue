@@ -33,7 +33,7 @@
             icon="el-icon-delete"
             type="danger" circle
             class="btn-circle-delete btn-circle-right"
-            v-if="vmHasAuth(PermissionsLib.DEL_DEVICE_MODEL, resData.res)"
+            v-if="vmHasAuth(AdminPermissionsLib.DEL_DEVICE_MODEL, resData.res)"
             @click="Delete()"></el-button>
         </el-col>
       </el-row>

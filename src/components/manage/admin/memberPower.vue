@@ -29,7 +29,7 @@
             width="180">
             <template slot-scope="scope">
               <span class="memberPower-power"
-                    v-if="vmHasAuth(PermissionsLib.REMOVE_USER_FROM, resData.res)"
+                    v-if="vmHasAuth(AdminPermissionsLib.REMOVE_USER_FROM, resData.res)"
                     @click="removePower(scope.row)">解除授权</span>
             </template>
           </el-table-column>

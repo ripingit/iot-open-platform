@@ -39,7 +39,7 @@
                 clearable>
               </el-input>
               <el-button class="btn-search" type="primary" @click="getGoodLists(1)">查询</el-button>
-              <el-button v-if="vmHasAuth(PermissionsLib.GOODS_ADD, tableData.res)" class="btn-circle-delete el-button--primary is-circle" type="primary" icon="el-icon-plus" circle @click="addGoods"></el-button>
+              <el-button v-if="vmHasAuth(AdminPermissionsLib.GOODS_ADD, tableData.res)" class="btn-circle-delete el-button--primary is-circle" type="primary" icon="el-icon-plus" circle @click="addGoods"></el-button>
             </el-col>
           </el-row>
           <el-row>
@@ -100,7 +100,7 @@
                   label="商品状态">
                   <template slot-scope="scope">{{ goodSaleCode[scope.row.is_onsale] }}</template>
                 </el-table-column>
-                <el-table-column label="操作" width="120" v-if="vmHasAuth(PermissionsLib.GOODS_ADD, tableData.res)">
+                <el-table-column label="操作" width="120" v-if="vmHasAuth(AdminPermissionsLib.GOODS_ADD, tableData.res)">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"

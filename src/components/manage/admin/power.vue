@@ -18,13 +18,13 @@
             icon="el-icon-plus"
             type="primary" circle
             class="btn-circle-add"
-            v-if="vmHasAuth(PermissionsLib.ADD_USER_GROUP, resData.res)"
+            v-if="vmHasAuth(AdminPermissionsLib.ADD_USER_GROUP, resData.res)"
             @click="addAdmin()"></el-button>
           <el-button
             icon="el-icon-delete"
             type="danger" circle
             class="btn-circle-delete btn-circle-right"
-            v-if="vmHasAuth(PermissionsLib.DEL_USER_GROUP, resData.res)"
+            v-if="vmHasAuth(AdminPermissionsLib.DEL_USER_GROUP, resData.res)"
             @click="Delete()"></el-button>
         </el-col>
       </el-row>
@@ -54,11 +54,11 @@
             label="授权">
             <template slot-scope="scope">
               <span class="admin-power"
-                    v-if="vmHasAuth(PermissionsLib.ADD_USER_GROUP_AUTH, resData.res)"
+                    v-if="vmHasAuth(AdminPermissionsLib.ADD_USER_GROUP_AUTH, resData.res)"
                     @click="VisitPower(scope.row)">访问授权</span>
               <span class="admin-power"
                     style="margin-left: 1rem;"
-                    v-if="vmHasAuth(PermissionsLib.DEL_USER_GROUP_USER, resData.res)"
+                    v-if="vmHasAuth(AdminPermissionsLib.DEL_USER_GROUP_USER, resData.res)"
                     @click="memberPower(scope.row)">成员授权</span>
             </template>
           </el-table-column>
@@ -81,7 +81,7 @@
                          class="btn-circle"
                          size="mini"
                          circle
-                         v-if="vmHasAuth(PermissionsLib.EDIT_USER_GROUP, resData.res)"
+                         v-if="vmHasAuth(AdminPermissionsLib.EDIT_USER_GROUP, resData.res)"
                          @click="editAdmin(scope.row)"></el-button>
             </template>
           </el-table-column>

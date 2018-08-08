@@ -15,7 +15,9 @@
               <!--v-model="query_by_name">-->
               <!--<i slot="prefix" class="el-input__icon el-icon-search" @click="SearchData()"></i>-->
             <!--</el-input>-->
-            <el-button icon="el-icon-plus" type="primary" circle class="btn-circle-delete" @click="addDevice()"></el-button>
+            <el-button
+              v-if="vmHasAuth(CoopPermissionsLib.ADD_DEVICE_MODEL, res)"
+              icon="el-icon-plus" type="primary" circle class="btn-circle-delete" @click="addDevice()"></el-button>
           </el-col>
         </el-row>
         <el-row>
@@ -83,17 +85,20 @@
             <el-table-column
               prop=""
               label="操作"
+              v-if="vmHasAuth(CoopPermissionsLib.SET_DEVICE_MODEL, res) || vmHasAuth(CoopPermissionsLib.DEL_DEVICE_MODEL, res)"
               width="180">
               <template slot-scope="scope">
                 <el-button class="btn-circle"
                            icon="iconfont icon-bianji"
                            size="mini"
                            circle
+                           v-if="vmHasAuth(CoopPermissionsLib.SET_DEVICE_MODEL, res)"
                            @click="editDevice(scope.row)"></el-button>
                 <el-button class="btn-circle"
                            icon="iconfont icon-shanchu"
                            circle
                            size="mini"
+                           v-if="vmHasAuth(CoopPermissionsLib.DEL_DEVICE_MODEL, res)"
                            @click="Delete(scope.row)"></el-button>
               </template>
             </el-table-column>
@@ -474,7 +479,8 @@ export default {
       dialogData: [],
       currentPage: 1,
       total: 0,
-      page: 20
+      page: 20,
+      res: []
     }
   },
   created () {
@@ -532,6 +538,7 @@ export default {
             return val
           })
           this.total = res.data.total
+          this.res = res.data.res
         }
       }
       ).catch(() => {

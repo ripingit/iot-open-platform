@@ -29,7 +29,7 @@
             width="180">
             <template slot-scope="scope">
               <span class="memberPower-power"
-                    v-if="vmHasAuth(PermissionsLib.REMOVE_USER_FROM, resData.res)"
+                    v-if="vmHasAuth(CoopPermissionsLib.REMOVE_USER_FROM, resData.res)"
                     @click="removePower(scope.row)">解除授权</span>
             </template>
           </el-table-column>
@@ -47,7 +47,7 @@
 </template>
 <script>
 import '@/assets/css/content.css'
-import { ADMIN_USERS_QUERY, ADMIN_USERS_REMOVE } from '../../../lib/api.js'
+import { GET_USERGROUP_LIST_POST, SET_USERGROUP_LIST_POST } from '../../../lib/api.js'
 export default{
   data () {
     return {
@@ -66,12 +66,8 @@ export default{
       let param = this.createFormData({
         group_id: parseInt(this.group_id)
       })
-      this.$http.post(ADMIN_USERS_QUERY, param).then(res => {
+      this.$http.post(GET_USERGROUP_LIST_POST, param).then(res => {
         this.loading = false
-        if (res.data.statu === 0) {
-          this.$router.push('/login')
-          return false
-        }
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
           this.resData = res.data
@@ -91,11 +87,7 @@ export default{
         msg: '确定解除该用户授权？',
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
-          this.$http.post(ADMIN_USERS_REMOVE, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
+          this.$http.post(SET_USERGROUP_LIST_POST, param).then(res => {
             loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('解除成功！')

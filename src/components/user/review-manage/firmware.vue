@@ -2,8 +2,8 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-          <p class="title-cn">审核管理-固件</p>
-          <p class="title-en">AUDIT MANAGEMENT</p>
+        <p class="title-cn">固件审核</p>
+        <p class="title-en">AUDIT MANAGEMENT</p>
       </el-col>
     </el-row>
 
@@ -26,7 +26,6 @@
                 </el-option>
               </el-select>
               <el-button class="btn-search" type="primary">查询</el-button>-->
-              <el-button v-if="vmHasAuth(AdminPermissionsLib.DEL_AUDIT_FIRMWARE, tableData.res)" class="btn-circle-delete btn-circle-right" type="danger" icon="el-icon-delete" circle @click="deleteAudit"></el-button>
             </el-col>
           </el-row>
           <el-row>
@@ -34,12 +33,7 @@
               <el-table
                 v-loading="loading"
                 :data="tableData.data"
-                style="width: 100%"
-                @selection-change="handleSelectionChange">
-                <el-table-column
-                  type="selection"
-                  width="55">
-                </el-table-column>
+                style="width: 100%">
                 <el-table-column
                   type="index"
                   label="编号"
@@ -121,7 +115,7 @@
       </el-col>
     </el-row>
 
-    <el-dialog title="固件更新" :visible.sync="isDetailDialogVisible" center>
+    <el-dialog title="固件审核" :visible.sync="isDetailDialogVisible" center>
       <el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">提交公司</el-col>
         <el-col :span="22" :sm="21" class="label-value">
@@ -161,8 +155,9 @@
       </el-row>
       <el-row class="label-sug">
         <el-col :span="24">
-        <el-input
+          <el-input
             type="textarea"
+            resize="none"
             :rows="4"
             placeholder="请说明"
             v-model="reviewData.review_mark">
@@ -175,13 +170,15 @@
         {{ reviewData.upload_status }}
         </el-col>
       </el-row>-->
-      <el-row class="label-sug">
-        <el-col :span="11">
+      <el-row class="label-sug" :gutter="20">
+        <el-col :span="8">
           <el-button class="btn-reject" type="danger" @click="reviewAudit(2)">驳回</el-button>
         </el-col>
-        <el-col :span="2">&nbsp;</el-col>
-        <el-col :span="11">
+        <el-col :span="8">
           <el-button class="btn-pass" type="success" @click="reviewAudit(1)">通过</el-button>
+        </el-col>
+        <el-col :span="8">
+          <el-button class="btn-pass" type="primary" @click="reviewAudit(9)">待审核</el-button>
         </el-col>
       </el-row>
     </el-dialog>
@@ -190,19 +187,13 @@
 
 <script>
 import '@/assets/css/content.css'
-import { GET_ADMIN_AUDIT_FIRMWARES_POST, REVIEW_ADMIN_AUDIT_FIRMWARE_POST, DELETE_ADMIN_AUDIT_FIRMWARE_POST } from '@/lib/api'
+import { SET_USERFIRMWARE_LIST_POST, SET_USERFIRMWAREREVIEW_LIST_POST } from '@/lib/api'
 
 export default {
   data () {
     return {
       loading: false,
-      form: {
-        name: '',
-        region: '区域一'
-      },
       isDetailDialogVisible: false,
-      options: [],
-      value1: '',
       tableData: {
         data: [],
         page: '1',
@@ -219,17 +210,13 @@ export default {
         state: false,
         upload_status: '',
         rom_type: ''
-      },
-      selectedData: []
+      }
     }
   },
   created () {
     this.getAuditList(1)
   },
   methods: {
-    handleSelectionChange (val) {
-      this.selectedData = val
-    },
     showDetailDialog (index, row) {
       this.reviewData.company_name = row.company_name
       this.reviewData.product_code = row.product_code
@@ -248,7 +235,7 @@ export default {
         page_size: 20
       })
       this.loading = true
-      this.$http.post(GET_ADMIN_AUDIT_FIRMWARES_POST, data).then(res => {
+      this.$http.post(SET_USERFIRMWARE_LIST_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
         }
@@ -256,31 +243,6 @@ export default {
       }).catch(e => {
         this.loading = false
         this.vmMsgError('网络错误！')
-      })
-    },
-    deleteAudit () {
-      if (this.selectedData.length <= 0) {
-        this.vmMsgError('请选择需要删除的固件！'); return
-      }
-      let data = this.createFormData({
-        product_code: this.selectedData[0].product_code,
-        rom_ver: this.selectedData[0].rom_ver
-      })
-      this.vmConfirm({
-        msg: '确认要删除选中记录吗？',
-        confirmCallback: () => {
-          let wait = this.vmLoadingFull()
-          this.$http.post(DELETE_ADMIN_AUDIT_FIRMWARE_POST, data).then(res => {
-            if (this.vmResponseHandler(res)) {
-              this.getAuditList(this.tableData.page)
-              this.vmMsgSuccess('删除成功！')
-            }
-            wait.close()
-          }).catch(e => {
-            wait.close()
-            this.vmMsgError('网络错误！')
-          })
-        }
       })
     },
     reviewAudit (review) {
@@ -295,10 +257,10 @@ export default {
         rom_ver: this.reviewData.rom_ver
       })
       this.vmConfirm({
-        msg: review === 1 ? '确认通过该固件的审核？' : '确认驳回该固件的审核？',
+        msg: review === 1 ? '确认通过该固件的审核？' : review === 2 ? '确认驳回该固件的审核？' : '确认待审核该固件？',
         confirmCallback: () => {
           let wait = this.vmLoadingFull()
-          this.$http.post(REVIEW_ADMIN_AUDIT_FIRMWARE_POST, data).then(res => {
+          this.$http.post(SET_USERFIRMWAREREVIEW_LIST_POST, data).then(res => {
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page)
               this.isDetailDialogVisible = false
@@ -318,21 +280,21 @@ export default {
 
 <style scoped>
 
-/** 定制 start */
-.el-dialog__wrapper /deep/ .el-dialog{
-  width: 54.17rem;
-}
-.wait {
-  color: #b3b3b3;
-}
-.pass {
-  color: #2acba7;
-}
-.reject {
-  color: #ff5d66;
-}
-.download {
-  color: #38a0f8
-}
-/** 定制 end */
+  /** 定制 start */
+  .el-dialog__wrapper /deep/ .el-dialog{
+    width: 54.17rem;
+  }
+  .wait {
+    color: #b3b3b3;
+  }
+  .pass {
+    color: #2acba7;
+  }
+  .reject {
+    color: #ff5d66;
+  }
+  .download {
+    color: #38a0f8
+  }
+  /** 定制 end */
 </style>

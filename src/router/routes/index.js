@@ -18,17 +18,23 @@ let layout = [
   }
 ]
 
+function generateRoutes (menu, router, routes) {
+  for (let obj of menu) {
+    let route = routes.find(o => o.id === obj.cmd_id)
+    if (route) {
+      router.children.push(route.route)
+    }
+  }
+  return router
+}
+
 export function createRoutes (menu) {
   let identity = store.getters.getUserIdentity
   if (identity === Vue.prototype.identityCode.ADMIN) {
-    for (let obj of menu) {
-      let route = adminRoute.find(o => o.id === obj.cmd_id)
-      if (route) {
-        admin.children.push(route.route)
-      }
-    }
-    layout[0].children.push(admin)
+    layout[0].children.push(generateRoutes(menu, admin, adminRoute))
   } else if (identity === Vue.prototype.identityCode.COOP) {
+    layout[0].children.push(generateRoutes(menu, user, userRoute))
+  } else if (identity === Vue.prototype.identityCode.DEALER) {
     user.children = userRoute.concat(dealerRoute)
     layout[0].children.push(user)
   }

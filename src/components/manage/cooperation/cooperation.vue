@@ -25,7 +25,7 @@
                 clearable>
               </el-input>
               <el-button class="btn-search" type="primary" @click="getCoopLists(1)">查询</el-button>
-              <el-button v-if="vmHasAuth(PermissionsLib.DEL_COOP, tableData.res)" class="btn-circle-delete btn-circle-right" type="danger" icon="el-icon-delete" circle @click="deleteCoop"></el-button>
+              <el-button v-if="vmHasAuth(AdminPermissionsLib.DEL_COOP, tableData.res)" class="btn-circle-delete btn-circle-right" type="danger" icon="el-icon-delete" circle @click="deleteCoop"></el-button>
             </el-col>
           </el-row>
           <el-row>

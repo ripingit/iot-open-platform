@@ -16,7 +16,12 @@
                 placeholder="请输入内容">
                 <i slot="prefix" class="el-input__icon el-icon-search"></i>
               </el-input>-->
-              <el-button @click="showAddDialog" class="btn-circle-delete" type="primary" icon="iconfont icon-tianjia" circle></el-button>
+              <el-button
+                @click="showAddDialog"
+                class="btn-circle-delete"
+                type="primary"
+                v-if="vmHasAuth(CoopPermissionsLib.ADD_FIREWARE, tableData.res)"
+                icon="iconfont icon-tianjia" circle></el-button>
             </el-col>
           </el-row>
           <el-row>
@@ -74,24 +79,29 @@
                 </el-table-column>
                 <el-table-column
                   prop="upload_status"
-                  label="上传状态">
+                  label="分发状态">
                   <template slot-scope="scope">
-                    {{ scope.row.upload_status ? scope.row.upload_status.join('') : '' }}
+                    <span :class="scope.row.upload_status.join('') === '' ? 'wait' : scope.row.upload_status.join('') === 'success' ? 'pass' : 'reject'">
+                       {{ scope.row.upload_status.join('') === '' ? '分发中' : scope.row.upload_status.join('') === 'success' ? '成功' : '失败' }}
+                    </span>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" width="120">
+                <el-table-column label="操作" width="120"
+                  v-if="vmHasAuth(CoopPermissionsLib.RECORD_UPDATE_FIREWARE, tableData.res) || vmHasAuth(CoopPermissionsLib.RELEASE_FIREWARE, tableData.res)">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"
                       size="mini"
                       icon="iconfont icon-gengduo"
                       circle
+                      v-if="vmHasAuth(CoopPermissionsLib.RECORD_UPDATE_FIREWARE, tableData.res)"
                       @click="showListDialog(scope.$index, scope.row)"></el-button>
                     <el-button
                       class="btn-circle"
                       size="mini"
                       icon="iconfont icon-shengji"
                       circle
+                      v-if="vmHasAuth(CoopPermissionsLib.RELEASE_FIREWARE, tableData.res)"
                       @click="showReleaseDialog(scope.row)"></el-button>
                   </template>
                 </el-table-column>
@@ -114,7 +124,7 @@
       </el-col>
     </el-row>
 
-    <el-dialog title="更新版本" :visible.sync="isDialogVisible" center class="update">
+    <el-dialog title="更新版本" :visible.sync="isDialogVisible" center class="update" :before-close="closeDialog">
       <el-form label-position="right" status-icon label-width="100px" :model="form" :rules="rules" ref="updateForm">
         <el-form-item class="form-row" label="选择型号" prop="product_code">
           <el-select v-model="form.product_code" placeholder="请选择固件型号" no-data-text="请先添加设备型号">
@@ -186,7 +196,7 @@
           <span class="pTxt">{{ firmwareTypeCode[formRelease.pub_ver_type] || '未知'}}</span>
         </el-form-item>
         <el-form-item class="form-row" label="选择升级版本">
-          <el-select v-model="formRelease.rom_ver" multiple collapse-tags placeholder="请选择升级版本" no-data-text="无数据" @change="testSelectAll">
+          <el-select v-model="formRelease.rom_ver" multiple collapse-tags placeholder="请选择升级版本" no-data-text="无数据" @change="selectAllRom_ver">
             <el-option label="全选" value="all" v-if="romVersion.length!==0"></el-option>
             <el-option
               v-for="item in romVersion"
@@ -210,20 +220,21 @@
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row" label="升级地区" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
-          <el-select v-model="formRelease.country_id" multiple collapse-tags placeholder="请选择升级地区" no-data-text="无数据">
-            <el-option label="中国" value="CN"></el-option>
-            <el-option label="美国" value="US"></el-option>
-            <el-option label="巴西" value="BR"></el-option>
-            <el-option label="阿联酋" value="AE"></el-option>
-            <el-option label="阿尔及利亚" value="DZ"></el-option>
+          <el-select v-model="formRelease.country_id" multiple collapse-tags placeholder="请选择升级地区" @change="selectAllCountry_id" no-data-text="无数据">
+            <el-option label="全选" value="all"></el-option>
+            <el-option
+              v-for="item in countryIds"
+              :key="item.country_id"
+              :label="item.name"
+              :value="item.country_id"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item class="form-row code-panel" label="经销商" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
-          <el-select v-model="formRelease.dealer" placeholder="请选择经销商" no-data-text="无数据">
-            <el-option label="强制更新" :value="1"></el-option>
+        <!--<el-form-item class="form-row code-panel" label="经销商" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
+          <el-select v-model="formRelease.dealer" placeholder="请选择经销商" no-data-text="无数据" @change="selectAllDealer">
+            <el-option label="全选" value="all"></el-option>
           </el-select>
           <span class="form-tip">*</span>
-        </el-form-item>
+        </el-form-item>-->
         <el-form-item class="form-row" label="上次升级完成数量">
           <span class="pTxt">{{deviceIDForm.update_done_num}}</span>
         </el-form-item>
@@ -370,8 +381,26 @@ export default {
         page: '1',
         pageAll: 1,
         product: [],
-        total: 1
+        total: 1,
+        res: []
       },
+      romVersion: [],
+      countryIds: [{
+        country_id: 'CN',
+        name: '中国'
+      }, {
+        country_id: 'US',
+        name: '美国'
+      }, {
+        country_id: 'BR',
+        name: '巴西'
+      }, {
+        country_id: 'AE',
+        name: '阿联酋'
+      }, {
+        country_id: 'DZ',
+        name: '阿尔及利亚'
+      }],
       rules: {
         product_code: [
           { validator: validateIsEmpty, trigger: 'change' }
@@ -399,8 +428,7 @@ export default {
         if_force_upd: [
           { validator: releaseIsEmpty, trigger: 'change' }
         ]
-      },
-      romVersion: []
+      }
     }
   },
   created () {
@@ -525,7 +553,7 @@ export default {
         this.vmMsgError('网络错误！')
       })
     },
-    testSelectAll (val) {
+    selectAllRom_ver (val) {
       let allValues = []
       if (val.includes('all')) {
         // 保留所有版本值
@@ -534,6 +562,18 @@ export default {
         }
         this.formRelease.rom_ver = allValues
       }
+    },
+    selectAllCountry_id (val) {
+      let allValues = []
+      if (val.includes('all')) {
+        // 保留所有版本值
+        for (let item of this.countryIds) {
+          allValues.push(item.country_id)
+        }
+        this.formRelease.country_id = allValues
+      }
+    },
+    selectAllDealer (val) {
     },
     showDeviceID () {
       this.deviceIdVisible = true
@@ -577,7 +617,11 @@ export default {
           }
         }
       })
-    }, 300)
+    }, 300),
+
+    closeDialog (done) {
+      if (this.isRomploading) { return false } else { done() }
+    }
   }
 }
 </script>

@@ -18,14 +18,8 @@
             icon="el-icon-plus"
             type="primary" circle
             class="btn-circle-add"
-            v-if="vmHasAuth(PermissionsLib.ADD_USER_GROUP, resData.res)"
+            v-if="vmHasAuth(CoopPermissionsLib.ADD_USER_GROUP, resData.res)"
             @click="addAdmin()"></el-button>
-          <el-button
-            icon="el-icon-delete"
-            type="danger" circle
-            class="btn-circle-delete btn-circle-right"
-            v-if="vmHasAuth(PermissionsLib.DEL_USER_GROUP, resData.res)"
-            @click="Delete()"></el-button>
         </el-col>
       </el-row>
       <el-row>
@@ -50,15 +44,16 @@
           </el-table-column>
           <el-table-column
             prop=""
+            v-if="vmHasAuth(CoopPermissionsLib.USER_GROUP_AUTH, resData.res) || vmHasAuth(CoopPermissionsLib.AUTH_USER, resData.res)"
             align="center"
             label="授权">
             <template slot-scope="scope">
               <span class="admin-power"
-                    v-if="vmHasAuth(PermissionsLib.ADD_USER_GROUP_AUTH, resData.res)"
+                    v-if="vmHasAuth(CoopPermissionsLib.USER_GROUP_AUTH, resData.res)"
                     @click="VisitPower(scope.row)">访问授权</span>
               <span class="admin-power"
                     style="margin-left: 1rem;"
-                    v-if="vmHasAuth(PermissionsLib.DEL_USER_GROUP_USER, resData.res)"
+                    v-if="vmHasAuth(CoopPermissionsLib.AUTH_USER, resData.res)"
                     @click="memberPower(scope.row)">成员授权</span>
             </template>
           </el-table-column>
@@ -81,8 +76,14 @@
                          class="btn-circle"
                          size="mini"
                          circle
-                         v-if="vmHasAuth(PermissionsLib.EDIT_USER_GROUP, resData.res)"
+                         v-if="vmHasAuth(CoopPermissionsLib.EDIT_USER_GROUP, resData.res)"
                          @click="editAdmin(scope.row)"></el-button>
+              <el-button icon="iconfont icon-shanchu"
+                         class="btn-circle"
+                         size="mini"
+                         circle
+                         v-if="vmHasAuth(CoopPermissionsLib.DEL_USER_GROUP, resData.res)"
+                         @click="Delete(scope.row)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -107,7 +108,7 @@
           <el-input v-model="formAdd.group_name"></el-input>
         </el-form-item>
         <el-form-item label="" style="margin-top: 4.33rem;">
-          <el-button type="primary" class="btn-submit" @click="EnsureSubmit()">确 定</el-button>
+          <el-button type="primary" class="btn-submit" @click="addUserGroup()">确 定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -128,7 +129,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="" style="margin-top: 4.33rem;">
-          <el-button type="primary" class="btn-submit" @click="EnsureSubmit2()">确 定</el-button>
+          <el-button type="primary" class="btn-submit" @click="setUserGroup()">确 定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -136,10 +137,10 @@
 </template>
 <script>
 import '@/assets/css/content.css'
-import { ADMIN_POWER_QUERY,
-  ADMIN_POWER_ADD,
-  ADMIN_POWER_EDIT,
-  ADMIN_POWER_DEL
+import { GET_COOP_USERGROUP_POST,
+  ADD_COOP_USERGROUP_POST,
+  SET_GROUP_POST,
+  DELETE_USERGROUP_POST
 } from '../../../lib/api.js'
 import _ from 'lodash'
 export default {
@@ -200,10 +201,10 @@ export default {
     keyCodeDown (e) {
       if (e.keyCode === 13) {
         if (this.dialogVisible) {
-          this.EnsureSubmit()
+          this.addUserGroup()
         }
         if (this.dialogVisible2) {
-          this.EnsureSubmit2()
+          this.setUserGroup()
         }
       }
     },
@@ -213,12 +214,8 @@ export default {
         page: parseInt(this.currentPage),
         page_size: parseInt(this.page)
       })
-      this.$http.post(ADMIN_POWER_QUERY, param).then(res => {
+      this.$http.post(GET_COOP_USERGROUP_POST, param).then(res => {
         this.loading = false
-        if (res.data.statu === 0) {
-          this.$router.push('/login')
-          return false
-        }
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
           this.resData = res.data
@@ -230,15 +227,13 @@ export default {
         this.vmMsgError('网络错误！')
       })
     },
-    EnsureSubmit: _.debounce(function () {
+    addUserGroup: _.debounce(function () {
       this.$refs['AddForm'].validate((valid) => {
         if (valid) {
+          let loading = this.vmLoadingFull()
           let param = this.createFormData(this.formAdd)
-          this.$http.post(ADMIN_POWER_ADD, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
+          this.$http.post(ADD_COOP_USERGROUP_POST, param).then(res => {
+            loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('操作成功！')
               this.dialogVisible = false
@@ -246,12 +241,13 @@ export default {
               this.onSubmit()
             }
           }).catch(() => {
+            loading.close()
             this.vmMsgError('网络错误！')
           })
         }
       })
     }, 300),
-    EnsureSubmit2: _.debounce(function () {
+    setUserGroup: _.debounce(function () {
       this.$refs['AddForm'].validate((valid) => {
         if (valid) {
           let param = this.createFormData({
@@ -259,11 +255,9 @@ export default {
             group_name: this.group_name,
             enable: this.formAdd2.enable
           })
-          this.$http.post(ADMIN_POWER_EDIT, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
+          let loading = this.vmLoadingFull()
+          this.$http.post(SET_GROUP_POST, param).then(res => {
+            loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('操作成功！')
               this.dialogVisible2 = false
@@ -271,35 +265,22 @@ export default {
               this.onSubmit()
             }
           }).catch(() => {
+            loading.close()
             this.vmMsgError('网络错误！')
           })
         }
       })
     }, 300),
-    Delete () {
-      if (!this.multipleSelection.length) {
-        this.vmMsgWarning('请选择记录')
-        return
-      }
-      let codeArr = ''
-      let codeArr2 = ''
-      this.multipleSelection.forEach(val => {
-        codeArr = val.group_name
-        codeArr2 = val.group_id
-      })
+    Delete (row) {
       let param = this.createFormData({
-        group_id: codeArr2,
-        group_name: codeArr
+        group_id: row.group_id,
+        group_name: row.group_name
       })
       this.vmConfirm({
         msg: '确定删除该记录？',
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
-          this.$http.post(ADMIN_POWER_DEL, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
+          this.$http.post(DELETE_USERGROUP_POST, param).then(res => {
             loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('删除成功！')

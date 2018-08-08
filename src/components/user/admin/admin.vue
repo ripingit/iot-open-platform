@@ -18,68 +18,68 @@
             icon="el-icon-plus"
             type="primary" circle
             class="btn-circle-add"
-            v-if="vmHasAuth(PermissionsLib.ADD_USER, resData.res)"
+            v-if="vmHasAuth(CoopPermissionsLib.ADD_USER, resData.res)"
             @click="addAdmin()"></el-button>
-          <el-button
-            icon="el-icon-delete"
-            type="danger" circle
-            class="btn-circle-delete btn-circle-right"
-            v-if="vmHasAuth(PermissionsLib.DEL_USER, resData.res)"
-            @click="Delete()"></el-button>
         </el-col>
       </el-row>
-     <el-row>
-       <el-table
-         ref="multipleTable"
-         v-loading="loading"
-         :data="tableData"
-         style="width: 100%;"
-         @selection-change="handleSelectionChange">
-         <el-table-column
-           type="selection">
-         </el-table-column>
-         <el-table-column
-           type="index"
-           width="100"
-           label="编号">
-         </el-table-column>
-         <el-table-column
-           prop="user_name"
-           label="姓名">
-         </el-table-column>
-         <el-table-column
-           prop="groupName"
-           label="角色">
-         </el-table-column>
-         <el-table-column
-           prop="create_time"
-           label="创建时间">
-         </el-table-column>
-         <el-table-column
-           prop="last_time"
-           label="最后一次登录">
-         </el-table-column>
-         <el-table-column
-           prop=""
-           label="操作"
-           width="180">
-           <template slot-scope="scope">
-             <el-button icon="iconfont icon-bianji"
+      <el-row>
+        <el-table
+          ref="multipleTable"
+          v-loading="loading"
+          :data="tableData"
+          style="width: 100%;"
+          @selection-change="handleSelectionChange">
+          <!--<el-table-column
+            type="selection">
+          </el-table-column>-->
+          <el-table-column
+            type="index"
+            width="100"
+            label="编号">
+          </el-table-column>
+          <el-table-column
+            prop="user_name"
+            label="姓名">
+          </el-table-column>
+          <el-table-column
+            prop="groupName"
+            label="角色">
+          </el-table-column>
+          <el-table-column
+            prop="create_time"
+            label="创建时间">
+          </el-table-column>
+          <el-table-column
+            prop="last_time"
+            label="最后一次登录">
+          </el-table-column>
+          <el-table-column
+            prop=""
+            label="操作"
+            width="180">
+            <template slot-scope="scope">
+              <el-button icon="iconfont icon-bianji"
                         class="btn-circle"
                         size="mini"
                         circle
-                        v-if="vmHasAuth(PermissionsLib.ADD_USER_TO_GROUP, resData.res)"
+                        v-if="vmHasAuth(CoopPermissionsLib.ADD_USER_TO_GROUP, resData.res)"
                         @click="editAdmin(scope.row)"></el-button>
-             <el-button icon="iconfont icon-zhongzhi"
+              <el-button icon="iconfont icon-zhongzhi"
                         size="mini"
                         class="btn-circle"
                         circle
-                        v-if="vmHasAuth(PermissionsLib.RESET_USER_PASS, resData.res)"
-                        @click="Resetpwd(scope.row)"></el-button>
-           </template>
-         </el-table-column>
-       </el-table>
-     </el-row>
+                        v-if="vmHasAuth(CoopPermissionsLib.RESET_USER_PASS, resData.res)"
+                        @click="resetPassword(scope.row)"></el-button>
+              <el-button icon="iconfont icon-shanchu"
+                        size="mini"
+                        class="btn-circle"
+                        circle
+                        v-if="vmHasAuth(CoopPermissionsLib.DEL_USER, resData.res)"
+                        @click="deleteUser(scope.row)"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-row>
       <el-row  v-if="total>page" type="flex" justify="center">
         <el-pagination
           @current-change="handleCurrentChange"
@@ -103,7 +103,7 @@
           <el-input v-model="formAdd.password"></el-input>
         </el-form-item>
         <el-form-item label="" style="margin-top: 4.33rem;">
-          <el-button type="primary" class="btn-submit" @click="EnsureSubmit()">确 定</el-button>
+          <el-button type="primary" class="btn-submit" @click="addUser()">确 定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -112,9 +112,9 @@
       :visible.sync="dialogVisible2"
       center
       :before-close="handleClose">
-      <el-form label-width="100px" status-icon :model="formAdd2" ref="AddForm" :rules="rules">
+      <el-form label-width="100px" status-icon :model="groupForm" ref="AddForm" :rules="rules">
         <el-form-item label="用户组" class="form-row" prop="group">
-          <el-select v-model="formAdd2.group" multiple placeholder="请选择">
+          <el-select v-model="groupForm.group" multiple placeholder="请选择">
             <el-option
               v-for="item in options"
               :key="item.group_id"
@@ -125,7 +125,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="" style="margin-top: 4.33rem;">
-          <el-button type="primary" class="btn-submit" @click="EnsureSubmit2()">确 定</el-button>
+          <el-button type="primary" class="btn-submit" @click="setUserGroup()">确 定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -133,11 +133,11 @@
 </template>
 <script>
 import '@/assets/css/content.css'
-import { ADMIN_USER_QUERY,
-  ADMIN_USER_ADD,
-  ADMIN_USER_DEL,
-  ADMIN_USER_POWER_ADD,
-  ADMIN_USER_RESET_PWD
+import { GET_COOP_AUTH_USER_POST,
+  ADD_COOP_AUTH_USER_POST,
+  DELETE_COOP_AUTH_USER_POST,
+  SET_COOP_AUTH_USERGROUP_POST,
+  RESET_PWD_AUTH_POST
 } from '../../../lib/api.js'
 import _ from 'lodash'
 export default {
@@ -174,7 +174,7 @@ export default {
         user_name: '',
         password: ''
       },
-      formAdd2: {
+      groupForm: {
         group: []
       },
       options: [],
@@ -198,10 +198,10 @@ export default {
     keyCodeDown (e) {
       if (e.keyCode === 13) {
         if (this.dialogVisible) {
-          this.EnsureSubmit()
+          this.addUser()
         }
         if (this.dialogVisible2) {
-          this.EnsureSubmit2()
+          this.setUserGroup()
         }
       }
     },
@@ -211,12 +211,8 @@ export default {
         page: parseInt(this.currentPage),
         page_size: parseInt(this.page)
       })
-      this.$http.post(ADMIN_USER_QUERY, param).then(res => {
+      this.$http.post(GET_COOP_AUTH_USER_POST, param).then(res => {
         this.loading = false
-        if (res.data.statu === 0) {
-          this.$router.push('/login')
-          return false
-        }
         if (this.vmResponseHandler(res)) {
           res.data.data.map(val => {
             if (val.groupName) {
@@ -234,15 +230,11 @@ export default {
         this.vmMsgError('网络错误！')
       })
     },
-    EnsureSubmit: _.debounce(function () {
+    addUser: _.debounce(function () {
       this.$refs['AddForm'].validate((valid) => {
         if (valid) {
           let param = this.createFormData(this.formAdd)
-          this.$http.post(ADMIN_USER_ADD, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
+          this.$http.post(ADD_COOP_AUTH_USER_POST, param).then(res => {
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('操作成功！')
               this.dialogVisible = false
@@ -255,18 +247,17 @@ export default {
         }
       })
     }, 300),
-    EnsureSubmit2: _.debounce(function () {
+    setUserGroup: _.debounce(function () {
       this.$refs['AddForm'].validate((valid) => {
+        console.log(valid)
         if (valid) {
           let param = this.createFormData({
             user_id: this.user_id,
-            group: JSON.stringify(this.formAdd2.group)
+            group: JSON.stringify(this.groupForm.group)
           })
-          this.$http.post(ADMIN_USER_POWER_ADD, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
+          let loading = this.vmLoadingFull()
+          this.$http.post(SET_COOP_AUTH_USERGROUP_POST, param).then(res => {
+            loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('操作成功！')
               this.dialogVisible2 = false
@@ -274,32 +265,21 @@ export default {
               this.onSubmit()
             }
           }).catch(() => {
+            loading.close()
             this.vmMsgError('网络错误！')
           })
         }
       })
     }, 300),
-    Delete () {
-      if (!this.multipleSelection.length) {
-        this.vmMsgWarning('请选择记录')
-        return
-      }
-      let codeArr = ''
-      this.multipleSelection.forEach(val => {
-        codeArr = val.user_name
-      })
+    deleteUser (row) {
       let param = this.createFormData({
-        user_name: codeArr
+        user_name: row.user_name
       })
       this.vmConfirm({
         msg: '确定删除该记录？',
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
-          this.$http.post(ADMIN_USER_DEL, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
+          this.$http.post(DELETE_COOP_AUTH_USER_POST, param).then(res => {
             loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('删除成功！')
@@ -312,9 +292,6 @@ export default {
         }
       })
     },
-    SearchData () {
-      console.log('搜索')
-    },
     addAdmin () {
       this.dialogVisible = true
     },
@@ -322,7 +299,7 @@ export default {
       this.dialogVisible2 = true
       this.user_id = row.user_id
     },
-    Resetpwd (row) {
+    resetPassword (row) {
       let param = this.createFormData({
         user_name: row.user_name
       })
@@ -330,7 +307,7 @@ export default {
         msg: '确定重置该用户密码？',
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
-          this.$http.post(ADMIN_USER_RESET_PWD, param).then(res => {
+          this.$http.post(RESET_PWD_AUTH_POST, param).then(res => {
             if (res.data.statu === 0) {
               this.$router.push('/login')
               return false

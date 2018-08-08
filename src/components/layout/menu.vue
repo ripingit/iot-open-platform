@@ -9,11 +9,7 @@
             text-color="rgba(255, 255, 255, 0.5)"
             active-text-color="#ffd04b">
             <el-menu-item-group>
-              <el-menu-item index="0" @click="routeGo('/manage/user/home', $event)" v-if="identity === identityCodes.COOP">
-                <i class="iconfont icon-shouye"></i>
-                <span slot="title">首页</span>
-              </el-menu-item>
-              <el-menu-item index="0" @click="routeGo('/manage/admin/home', $event)"  v-else-if="identity === identityCodes.ADMIN">
+              <el-menu-item index="0" @click="routeGo('/manage/admin/home', $event)"  v-if="identity === identityCodes.ADMIN">
                 <i class="iconfont icon-shouye"></i>
                 <span slot="title">首页</span>
               </el-menu-item>

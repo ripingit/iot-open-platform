@@ -16,7 +16,7 @@
         <el-col :span="2">
           <el-button
             type="primary"
-            v-if="vmHasAuth(PermissionsLib.EDIT_USER_GROUP_AUTH, resData.res)"
+            v-if="vmHasAuth(CoopPermissionsLib.EDIT_USER_GROUP_AUTH, resData.res)"
             @click="confirm()">确 定</el-button>
         </el-col>
         <el-col :span="2">
@@ -30,7 +30,7 @@
 </template>
 <script>
 import '@/assets/css/content.css'
-import { ADMIN_POWERS_QUERY, ADMIN_POWERS_EDIT } from '../../../lib/api.js'
+import { GET_USERGROUP_AUTH_POST, UPDATE_USERGROUP_AUTH_POST } from '../../../lib/api.js'
 export default {
   data () {
     return {
@@ -50,7 +50,7 @@ export default {
       let param = this.createFormData({
         group_id: parseInt(this.group_id)
       })
-      this.$http.post(ADMIN_POWERS_QUERY, param).then(res => {
+      this.$http.post(GET_USERGROUP_AUTH_POST, param).then(res => {
         this.loading = false
         if (res.data.statu === 0) {
           this.$router.push('/login')
@@ -63,7 +63,7 @@ export default {
             res.data.data.forEach(val => {
               let node = {
                 hasChecked: val.status,
-                allChecked: true,
+                allChecked: false,
                 label: val.method,
                 id: val.cmd_id,
                 child: [],
@@ -117,7 +117,7 @@ export default {
         msg: '确定修改此用户授权？',
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
-          this.$http.post(ADMIN_POWERS_EDIT, param).then(res => {
+          this.$http.post(UPDATE_USERGROUP_AUTH_POST, param).then(res => {
             if (res.data.statu === 0) {
               this.$router.push('/login')
               return false
@@ -135,14 +135,14 @@ export default {
       })
     },
     CheckAll (row) {
-      row.allChecked = row.childChecked.length === row.child.length
+      row.allChecked = row.child.length ? (row.childChecked.length === row.child.length) : row.allChecked
       row.childChecked = []
       row.child.forEach(function (val) {
         val.checked = !row.allChecked
         if (val.checked)row.childChecked.push(val)
       })
       let childChecked = row.childChecked.length
-      row.allChecked = childChecked === row.child.length
+      row.allChecked = row.child.length ? (childChecked === row.child.length) : row.allChecked
       row.hasChecked = childChecked > 0 && childChecked < row.child.length
     },
     ChangeGroup (row) {

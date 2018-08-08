@@ -119,7 +119,7 @@ import { validateEmail, validatePhone } from '@/lib/validate.js'
 import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST } from '@/lib/api.js'
 import { AUTH_CHANGE, IDENTITY_UPDATE, AUTH_UPDATE } from '@/store/mutations-type'
 import { createRoutes } from '@/router/routes/index'
-import { coopMenuRouteMap } from '@/lib/route-menu-map'
+import { generateMenus, coopMenuRouteMap } from '@/lib/route-menu-map'
 import _ from 'lodash'
 export default {
   components: { CheckCodeComponent },
@@ -254,8 +254,8 @@ export default {
             if (this.vmResponseHandler(res)) {
               this.$store.commit(AUTH_CHANGE, { authState: res.data.company_status })
               this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id || this.identityCode.COOP })
-              this.$store.commit(AUTH_UPDATE, { menus: coopMenuRouteMap })
-              this.$router.addRoutes(createRoutes())
+              this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, coopMenuRouteMap) })
+              this.$router.addRoutes(createRoutes(res.data.title))
               this.$router.push('/manage')
             }
           }).catch(e => {

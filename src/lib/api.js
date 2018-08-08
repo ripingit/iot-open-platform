@@ -19,6 +19,9 @@ export const ADMIN_CHANGE_PASS_POST = prefix + '/admin.php?m=Admin&c=Login&a=cha
 /** 管理员退出登录 */
 export const ADMIN_SIGN_OUT_POST = prefix + '/admin.php?m=Admin&c=Login&a=logOut'
 
+/** 合作商获取权限数据 */
+export const COOP_AUTH_GET = prefix + '/index.php?m=Home&c=Login&a=getRes'
+
 /** 获取验证码 */
 export const CODE_POST = prefix + '/index.php?m=Home&c=Login&a=vcode'
 
@@ -235,6 +238,9 @@ export const GENERATE_KEY_ID_POST = prefix + '/index.php?m=Home&c=Key&a=oauthBas
 /** 合作商key管理，删除Key */
 export const COOP_DELETE_KEY_POST = prefix + '/index.php?m=Home&c=Key&a=oauthBaseDel'
 
+/** 合作商key管理，设置回调URL */
+export const SET_NOTIFY_URL_POST = prefix + '/index.php?m=Home&c=Key&a=adminClientNotifySet'
+
 /** 获取app下载地址 */
 export const GET_DOWNLOAD_URL_POST = prefix + '/index.php?m=Home&c=AppQrcode&a=appVerList'
 
@@ -258,3 +264,48 @@ export const GET_ADMIN_EQUIPMENT_POST = prefix + '/admin.php?m=Admin&c=Productio
 
 /** admin设备生产，设备返修信息查询 */
 export const GET_ADMIN_EQUIPMENT_REWORK_POST = prefix + '/admin.php?m=Admin&c=Production&a=adminDeviceRepairList'
+
+/** 合作商权限管理，用户信息查询 */
+export const GET_COOP_AUTH_USER_POST = prefix + '/index.php?m=Home&c=Admin&a=userList'
+
+/** 合作商权限管理，删除用户 */
+export const DELETE_COOP_AUTH_USER_POST = prefix + '/index.php?m=Home&c=Admin&a=userDel'
+
+/** 合作商权限管理，添加用户 */
+export const ADD_COOP_AUTH_USER_POST = prefix + '/index.php?m=Home&c=Admin&a=userAdd'
+
+/** 合作商权限管理，为用户设置用户组 */
+export const SET_COOP_AUTH_USERGROUP_POST = prefix + '/index.php?m=Home&c=Admin&a=groupUserSet'
+
+/** 合作商权限管理，重置用户密码 */
+export const RESET_PWD_AUTH_POST = prefix + '/index.php?m=Home&c=Admin&a=changePassOther'
+
+/** 合作商权限管理，用户组查询 */
+export const GET_COOP_USERGROUP_POST = prefix + '/index.php?m=Home&c=AdminGroup&a=groupList'
+
+/** 合作商权限管理，用户组添加 */
+export const ADD_COOP_USERGROUP_POST = prefix + '/index.php?m=Home&c=AdminGroup&a=groupAdd'
+
+/** 合作商权限管理，用户组设置 */
+export const SET_GROUP_POST = prefix + '/index.php?m=Home&c=AdminGroup&a=groupEdit'
+
+/** 合作商权限管理，删除用户组 */
+export const DELETE_USERGROUP_POST = prefix + '/index.php?m=Home&c=AdminGroup&a=groupDel'
+
+/** 合作商权限管理，用户组权限数据查询 */
+export const GET_USERGROUP_AUTH_POST = prefix + '/index.php?m=Home&c=AdminGroup&a=resList'
+
+/** 合作商权限管理，用户组权限设置 */
+export const UPDATE_USERGROUP_AUTH_POST = prefix + '/index.php?m=Home&c=AdminGroup&a=groupPermission'
+
+/** 合作商权限管理，用户组成员查询 */
+export const GET_USERGROUP_LIST_POST = prefix + '/index.php?m=Home&c=AdminGroup&a=groupUserList'
+
+/** 合作商权限管理，用户组授权解除 */
+export const SET_USERGROUP_LIST_POST = prefix + '/index.php?m=Home&c=AdminGroup&a=groupUserSet'
+
+/** 合作商审核固件查询 */
+export const SET_USERFIRMWARE_LIST_POST = prefix + '/index.php?m=Home&c=CheckRom&a=deviceRomList'
+
+/** 合作商审核固件查询 */
+export const SET_USERFIRMWAREREVIEW_LIST_POST = prefix + '/index.php?m=Home&c=CheckRom&a=deviceRomReview'

@@ -34,14 +34,14 @@
            type="primary"
            circle
            class="btn-circle-add"
-           v-if="vmHasAuth(PermissionsLib.ADD_DEVICE_CATE, resData.res)"
+           v-if="vmHasAuth(AdminPermissionsLib.ADD_DEVICE_CATE, resData.res)"
            @click="addDevice()"></el-button>
          <el-button
            icon="el-icon-delete"
            type="danger"
            circle
            class="btn-circle-delete btn-circle-right"
-           v-if="vmHasAuth(PermissionsLib.DEL_DEVICE_CATE, resData.res)"
+           v-if="vmHasAuth(AdminPermissionsLib.DEL_DEVICE_CATE, resData.res)"
            @click="Delete()"></el-button>
        </el-col>
      </el-row>

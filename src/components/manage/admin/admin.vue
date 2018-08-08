@@ -18,13 +18,13 @@
             icon="el-icon-plus"
             type="primary" circle
             class="btn-circle-add"
-            v-if="vmHasAuth(PermissionsLib.ADD_USER, resData.res)"
+            v-if="vmHasAuth(AdminPermissionsLib.ADD_USER, resData.res)"
             @click="addAdmin()"></el-button>
           <el-button
             icon="el-icon-delete"
             type="danger" circle
             class="btn-circle-delete btn-circle-right"
-            v-if="vmHasAuth(PermissionsLib.DEL_USER, resData.res)"
+            v-if="vmHasAuth(AdminPermissionsLib.DEL_USER, resData.res)"
             @click="Delete()"></el-button>
         </el-col>
       </el-row>
@@ -68,13 +68,13 @@
                         class="btn-circle"
                         size="mini"
                         circle
-                        v-if="vmHasAuth(PermissionsLib.ADD_USER_TO_GROUP, resData.res)"
+                        v-if="vmHasAuth(AdminPermissionsLib.ADD_USER_TO_GROUP, resData.res)"
                         @click="editAdmin(scope.row)"></el-button>
              <el-button icon="iconfont icon-zhongzhi"
                         size="mini"
                         class="btn-circle"
                         circle
-                        v-if="vmHasAuth(PermissionsLib.RESET_USER_PASS, resData.res)"
+                        v-if="vmHasAuth(AdminPermissionsLib.RESET_USER_PASS, resData.res)"
                         @click="Resetpwd(scope.row)"></el-button>
            </template>
          </el-table-column>

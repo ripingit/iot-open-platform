@@ -85,7 +85,7 @@
                     {{ scope.row.upload_status.join('') }}
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" v-if="vmHasAuth(PermissionsLib.FIRMWARE_HISTORY, tableData.res)">
+                <el-table-column label="操作" v-if="vmHasAuth(AdminPermissionsLib.FIRMWARE_HISTORY, tableData.res)">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"

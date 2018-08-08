@@ -12,14 +12,24 @@
             v-model="inputVal">
             <i slot="prefix" class="el-input__icon el-icon-search" @click="searchData()"></i>
           </el-input>-->
-          <el-button icon="el-icon-plus" type="primary" circle class="btn-circle-add" @click="operationData('add')"></el-button>
-          <el-button icon="el-icon-delete" type="danger" circle class="btn-circle-delete" @click="operationData('delete')"></el-button>
+          <el-button
+            icon="el-icon-plus"
+            type="primary"
+            circle
+            v-if="vmHasAuth(CoopPermissionsLib.ADD_APP, tableData.res)"
+            class="btn-circle-add" @click="operationData('add')"></el-button>
+          <el-button
+            icon="el-icon-delete"
+            type="danger"
+            circle
+            v-if="vmHasAuth(CoopPermissionsLib.DEL_APP, tableData.res)"
+            class="btn-circle-delete" @click="operationData('delete')"></el-button>
         </el-col>
       </el-row>
       <el-row>
         <el-table
           v-loading="loading"
-          :data="tableData"
+          :data="tableData.data"
           @selection-change="handleSelectionChange"
           style="width: 100%;">
           <el-table-column
@@ -70,6 +80,7 @@
                 size="mini"
                 icon="iconfont icon-shengji"
                 circle
+                v-if="vmHasAuth(CoopPermissionsLib.ADD_APP, tableData.res)"
                 @click="operationData('edit',scope.$index)"></el-button>
               <el-button
                 class="btn-circle"
@@ -92,7 +103,7 @@
       </el-row>
     </el-row>
     <el-dialog
-      title="APP升级"
+      :title="updateStyle==='add' ? 'APP添加' : 'APP升级'"
       center
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
@@ -230,7 +241,10 @@ export default {
       },
       inputVal: '',
       multipleSelection: [],
-      tableData: [],
+      tableData: {
+        data: [],
+        res: []
+      },
       selectParam: {
         page: 1,
         page_size: 20
@@ -274,7 +288,6 @@ export default {
     }
   },
   created () {
-    this.getClientId()
     this.loadData()
     document.body.addEventListener('keydown', this.keyCodeDown, false)
   },
@@ -312,8 +325,9 @@ export default {
     operationData (type, ix) {
       if (type === 'select') {
         this.detailDialogVisible = true
-        this.detailData = JSON.parse(JSON.stringify(this.tableData[ix]))
+        this.detailData = JSON.parse(JSON.stringify(this.tableData.data[ix]))
       } else if (type === 'add') {
+        if (this.clientIds.length === 0) { this.getClientId() }
         this.updateStyle = 'add'
         this.dialogVisible = true
         for (let key in this.ruleForm) {
@@ -328,7 +342,7 @@ export default {
         this.updateStyle = 'update'
         this.dialogVisible = true
         for (let key in this.ruleForm) {
-          let value = this.tableData[ix][key]
+          let value = this.tableData.data[ix][key]
           // 存在老数据app下载地址为字符串的，需要将其转换成现在的数组格式
           if (key === 'change_log') {
             this.ruleForm[key] = this.vmEscapeToHTML(value)
@@ -430,7 +444,7 @@ export default {
       this.loading = true
       this.$http.post(APP_SELECT_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
-          this.tableData = res.data.data
+          this.tableData = res.data
           this.totalAll = res.data.total
         }
         this.loading = false

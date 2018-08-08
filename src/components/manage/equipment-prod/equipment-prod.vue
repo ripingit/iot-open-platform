@@ -78,6 +78,7 @@
                   width="100">
                 </el-table-column>
                 <el-table-column
+                  v-if="vmHasAuth(CoopPermissionsLib.REWORK_EQUIPMENT, tableData.res)"
                   prop="untie_status"
                   label="返修状况">
                   <template slot-scope="scope">
@@ -167,7 +168,8 @@ export default {
         data: [],
         page: '1',
         pageAll: 1,
-        total: 1
+        total: 1,
+        res: []
       }
     }
   },

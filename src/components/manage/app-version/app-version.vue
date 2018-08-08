@@ -16,7 +16,7 @@
         </el-date-picker>
         <el-input v-model="selectParam.query_by_name" placeholder="请输入"></el-input>
         <el-button class="btn-search" type="primary" @click="searchData">查询</el-button>
-        <el-button icon="el-icon-delete" v-if="vmHasAuth(PermissionsLib.DEL_APP, res)" type="danger" circle class="btn-circle-delete btn-circle-right" @click="operationData('delete')"></el-button>
+        <el-button icon="el-icon-delete" v-if="vmHasAuth(AdminPermissionsLib.DEL_APP, res)" type="danger" circle class="btn-circle-delete btn-circle-right" @click="operationData('delete')"></el-button>
       </el-row>
       <el-row>
         <el-table

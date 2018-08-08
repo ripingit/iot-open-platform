@@ -26,7 +26,7 @@
                 </el-option>
               </el-select>
               <el-button class="btn-search" type="primary">查询</el-button>-->
-              <el-button v-if="vmHasAuth(PermissionsLib.DEL_AUDIT_MODEL, tableData.res)"
+              <el-button v-if="vmHasAuth(AdminPermissionsLib.DEL_AUDIT_MODEL, tableData.res)"
                         class="btn-circle-delete btn-circle-right"
                         type="danger"
                         icon="el-icon-delete"
@@ -93,7 +93,7 @@
                   prop="review_time"
                   label="审核时间">
                 </el-table-column>
-                <el-table-column label="操作"  v-if="vmHasAuth(PermissionsLib.REVIEW_AUDIT_MODEL, tableData.res)">
+                <el-table-column label="操作"  v-if="vmHasAuth(AdminPermissionsLib.REVIEW_AUDIT_MODEL, tableData.res)">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"

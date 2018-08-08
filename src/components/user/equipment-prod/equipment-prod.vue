@@ -68,13 +68,16 @@
                 </el-table-column>
                 <el-table-column
                   prop="untie_status"
+                  v-if="vmHasAuth(CoopPermissionsLib.QUERY_REWORK, tableData.res)"
                   label="返修状况">
                   <template slot-scope="scope">
                     <span v-if="scope.row.untie_status === 0">无</span>
                     <span v-else @click="showReworkList(scope.row.device_id)" style="cursor:pointer;color:#38a0f8">查看</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" width="120">
+                <el-table-column label="操作"
+                  width="120"
+                  v-if="vmHasAuth(CoopPermissionsLib.ADD_REWORK, tableData.res)">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"
@@ -227,7 +230,8 @@ export default {
         data: [],
         page: '1',
         pageAll: 1,
-        total: 1
+        total: 1,
+        res: []
       },
       reworkForm: {
         device_id: '',
