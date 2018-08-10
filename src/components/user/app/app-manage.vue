@@ -114,19 +114,18 @@
           <span class="detail_item" v-show="updateStyle==='add'">添加</span>
         </el-form-item>
         <el-form-item label="APP名称" prop="app_name" class="form-row">
-          <el-input v-model="ruleForm.app_name" placeholder="请输入app名称" v-show="updateStyle==='add'"></el-input>
-          <el-input v-model="ruleForm.app_name" readonly v-show="updateStyle==='update'"></el-input>
-          <span class="form-tip">*</span>
-        </el-form-item>
-        <el-form-item label="APP ID" prop="client_id" class="form-row">
-          <el-select v-model="ruleForm.client_id" placeholder="请选择app id" no-data-text="无数据" v-show="updateStyle==='add'">
+          <el-select v-model="ruleForm.app_name" placeholder="请选择app名称" no-data-text="无数据" v-show="updateStyle==='add'">
             <el-option
-              v-for="(item, index) in clientIds"
+              v-for="(item, index) in clientNames"
               :key="index"
               :label="item"
               :value="item"></el-option>
           </el-select>
-          <el-input v-model="ruleForm.client_id" readonly v-show="updateStyle==='update'"></el-input>
+          <el-input v-model="ruleForm.app_name" readonly v-show="updateStyle==='update'"></el-input>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item label="APP ID" prop="client_id" class="form-row" v-if="updateStyle==='update'">
+          <el-input v-model="ruleForm.client_id" readonly></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="版本" prop="ver" class="form-row">
@@ -209,7 +208,7 @@ import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 import ScaleImgComponent from '@/components/_ui/scale-img.vue'
 import { quillEditor } from 'vue-quill-editor'
-import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST, GET_CLIENT_ID_POST } from '@/lib/api.js'
+import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST, GET_CLIENT_NAME_POST } from '@/lib/api.js'
 import { appStore } from '@/lib/const'
 import _ from 'lodash'
 export default {
@@ -284,7 +283,7 @@ export default {
         ]
       },
       detailData: {},
-      clientIds: []
+      clientNames: []
     }
   },
   created () {
@@ -303,9 +302,9 @@ export default {
     },
 
     getClientId () {
-      this.$http.post(GET_CLIENT_ID_POST).then(res => {
+      this.$http.post(GET_CLIENT_NAME_POST).then(res => {
         if (this.vmResponseHandler(res)) {
-          this.clientIds = res.data.data
+          this.clientNames = res.data.data
         }
       }).catch(e => {
         this.vmMsgError('网络错误！')
@@ -327,7 +326,7 @@ export default {
         this.detailDialogVisible = true
         this.detailData = JSON.parse(JSON.stringify(this.tableData.data[ix]))
       } else if (type === 'add') {
-        if (this.clientIds.length === 0) { this.getClientId() }
+        if (this.clientNames.length === 0) { this.getClientId() }
         this.updateStyle = 'add'
         this.dialogVisible = true
         for (let key in this.ruleForm) {

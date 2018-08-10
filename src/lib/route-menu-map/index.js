@@ -1,6 +1,5 @@
 import { adminMenuRouteMap } from '@/lib/route-menu-map/admin'
 import { coopMenuRouteMap } from '@/lib/route-menu-map/coop'
-import { dealerMenuRouteMap } from '@/lib/route-menu-map/dealer'
 
 function generateMenus (authList, menus) {
   let authCode = authList.map(o => o.cmd_id)
@@ -18,6 +17,5 @@ function generateMenus (authList, menus) {
 export {
   adminMenuRouteMap,
   coopMenuRouteMap,
-  dealerMenuRouteMap,
   generateMenus
 }

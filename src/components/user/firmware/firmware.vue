@@ -101,7 +101,7 @@
                       size="mini"
                       icon="iconfont icon-shengji"
                       circle
-                      v-if="vmHasAuth(CoopPermissionsLib.RELEASE_FIREWARE, tableData.res)"
+                      v-if="vmHasAuth(CoopPermissionsLib.RELEASE_FIREWARE, tableData.res)&&scope.row.is_review === 1"
                       @click="showReleaseDialog(scope.row)"></el-button>
                   </template>
                 </el-table-column>
@@ -212,7 +212,7 @@
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row number" :label="formRelease.pub_ver_type === firmwareTypeMap.GRAYSCALE ? '' : '升级数量'" :prop="formRelease.pub_ver_type === firmwareTypeMap.GRAYSCALE ? '' : 'update_percent'">
+        <el-form-item class="form-row number" :label="formRelease.pub_ver_type === firmwareTypeMap.GRAYSCALE ? '' : '升级百分比'">
           <el-input v-model="formRelease.update_percent" auto-complete="off" :style="{width: formRelease.pub_ver_type === firmwareTypeMap.FORMAL ? '25rem' : '18rem'  }" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
             <span slot="suffix">%</span>
           </el-input>

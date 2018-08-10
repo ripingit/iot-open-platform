@@ -170,15 +170,13 @@
         {{ reviewData.upload_status }}
         </el-col>
       </el-row>-->
-      <el-row class="label-sug" :gutter="20">
-        <el-col :span="8">
+      <el-row class="label-sug">
+        <el-col :span="11">
           <el-button class="btn-reject" type="danger" @click="reviewAudit(2)">驳回</el-button>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="2">&nbsp;</el-col>
+        <el-col :span="11">
           <el-button class="btn-pass" type="success" @click="reviewAudit(1)">通过</el-button>
-        </el-col>
-        <el-col :span="8">
-          <el-button class="btn-pass" type="primary" @click="reviewAudit(9)">待审核</el-button>
         </el-col>
       </el-row>
     </el-dialog>
@@ -257,7 +255,7 @@ export default {
         rom_ver: this.reviewData.rom_ver
       })
       this.vmConfirm({
-        msg: review === 1 ? '确认通过该固件的审核？' : review === 2 ? '确认驳回该固件的审核？' : '确认待审核该固件？',
+        msg: review === 1 ? '确认通过该固件的审核？' : '确认驳回该固件的审核？',
         confirmCallback: () => {
           let wait = this.vmLoadingFull()
           this.$http.post(SET_USERFIRMWAREREVIEW_LIST_POST, data).then(res => {

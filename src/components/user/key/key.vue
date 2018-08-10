@@ -13,7 +13,7 @@
           <el-row>
             <el-col :span="5">
               <el-button
-                @click="generateKey"
+                @click="createKey"
                 class="btn-circle-delete"
                 type="primary"
                 v-if="vmHasAuth(CoopPermissionsLib.GENERATE_KEY, tableData.res)"
@@ -84,9 +84,25 @@
         </el-form-item>
         <el-form-item label="回调URL" class="form-row" prop="notify_url">
           <el-input v-model="notifyForm.notify_url" placeholder="请输入支持post请求的URL"></el-input>
+          <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="" style="margin-top: 4.33rem;">
           <el-button type="primary" class="btn-submit" @click="submitNotifyUrl()">确 定</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <el-dialog
+      title="创建KEY"
+      :visible.sync="createKeyDialog"
+      width="50rem"
+      center>
+      <el-form label-width="100px" status-icon label-position="right" :model="keyForm" ref="keyForm" :rules="keyFormRules">
+        <el-form-item label="APP名称" class="form-row" prop="app_name">
+          <el-input v-model="keyForm.app_name"></el-input>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item label="" style="margin-top: 4.33rem;">
+          <el-button type="primary" class="btn-submit" @click="generateKey">确 定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -105,6 +121,8 @@ export default {
           callback(new Error('请输入ID'))
         } else if (rule.field === 'notify_url') {
           callback(new Error('请输入回调URL'))
+        } else if (rule.field === 'app_name') {
+          callback(new Error('请输入APP名称'))
         }
       }
       callback()
@@ -112,6 +130,7 @@ export default {
     return {
       loading: false,
       isToSetNotifyUrl: false,
+      createKeyDialog: false,
       tableData: {
         data: [],
         res: []
@@ -120,12 +139,20 @@ export default {
         client_id: '',
         notify_url: ''
       },
+      keyForm: {
+        app_name: ''
+      },
       rules: {
         client_id: [
           { validator: validateIsEmpty, trigger: 'change' }
         ],
         notify_url: [
-          { validator: validateIsEmpty, trigger: 'change' }
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ]
+      },
+      keyFormRules: {
+        app_name: [
+          { validator: validateIsEmpty, trigger: 'blur' }
         ]
       }
     }
@@ -170,17 +197,26 @@ export default {
         this.vmMsgError('网络错误！')
       })
     }, 300),
-
+    createKey: function () {
+      this.createKeyDialog = true
+    },
     generateKey: _.debounce(function () {
-      let loading = this.vmLoadingFull()
-      this.$http.post(GENERATE_KEY_ID_POST).then(res => {
-        if (this.vmResponseHandler(res)) {
-          this.getKeyLists()
+      this.$refs['keyForm'].validate((valid) => {
+        if (valid) {
+          let param = this.createFormData(this.keyForm)
+          let loading = this.vmLoadingFull()
+          this.$http.post(GENERATE_KEY_ID_POST, param).then(res => {
+            if (this.vmResponseHandler(res)) {
+              this.keyForm.app_name = ''
+              this.createKeyDialog = false
+              this.getKeyLists()
+            }
+            loading.close()
+          }).catch(e => {
+            loading.close()
+            this.vmMsgError('网络错误！')
+          })
         }
-        loading.close()
-      }).catch(e => {
-        loading.close()
-        this.vmMsgError('网络错误！')
       })
     })
   }

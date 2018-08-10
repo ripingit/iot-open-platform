@@ -22,9 +22,13 @@ exports.install = function (Vue, options) {
     // 后台管理员
     ADMIN: 'mkadmin',
     // 合作商
-    COOP: 'coop',
-    // 经销商
-    DEALER: 'dealer'
+    COOP: 'coop'
+  }
+
+  /** 商家类型 */
+  Vue.prototype.merchantCode = {
+    coop: 1,
+    dealer: 2
   }
 
   /** 固件类型码 */

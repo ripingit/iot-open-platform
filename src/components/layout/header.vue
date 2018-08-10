@@ -21,7 +21,7 @@
             <p v-on:click.stop="showSetPanel">{{userAccount}}</p>
             <transition name="slide">
               <ul class="control-panel" v-show="isPanelShow">
-                <li v-if="identity === identityCode.COOP" @click="routeGo('/manage/user/authention')">认证</li>
+                <li v-if="identity === identityCode.COOP" @click="routeGo('/manage/coopApply')">合作</li>
                 <li @click="routeGo(resetPassPath)">修改密码</li>
                 <li @click="signOut">退出</li>
               </ul>
@@ -36,7 +36,7 @@
 <script>
 import { ADMIN_SIGN_OUT_POST, SIGN_OUT_POST } from '../../lib/api.js'
 import { validatePhone, validateEmail } from '../../lib/validate.js'
-import { MENU_UPDATE, IDENTITY_UPDATE } from '@/store/mutations-type'
+import { MENU_UPDATE, IDENTITY_UPDATE, AUTH_UPDATE, AUTH_CHANGE } from '@/store/mutations-type'
 export default {
   data () {
     return {
@@ -91,6 +91,9 @@ export default {
                 this.$router.push('/signin')
               }
               this.$store.commit(IDENTITY_UPDATE, { identity: '-1' })
+              this.$store.commit(AUTH_UPDATE, { menus: [] })
+              this.$store.commit(AUTH_CHANGE, { authState: -1 })
+
               this.vmMsgSuccess('退出成功！')
             }
           }).catch(() => {

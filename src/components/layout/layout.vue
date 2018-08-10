@@ -10,29 +10,17 @@
         <HeaderComponent v-on:menu-toggle="menuToggle"></HeaderComponent>
       </el-col>
     </el-row>
-    <el-row class="content">
-      <el-col :xl="3" :lg="4" class="left">
-        <MenuComponent class="position" :class="isShowMenu ? '' : 'menu'" v-on:menu-toggle="menuToggle"></MenuComponent>
-      </el-col>
-      <el-col :xl="21" :lg="20" class="right">
-        <ContentComponent></ContentComponent>
-      </el-col>
-    </el-row>
+    <transition name="bounce" mode="out-in">
+      <router-view></router-view>
+    </transition>
   </div>
 </template>
 
 <script>
-import MenuComponent from './menu.vue'
 import HeaderComponent from './header.vue'
-import ContentComponent from './content.vue'
 
 export default {
-  data () {
-    return {
-      isShowMenu: false
-    }
-  },
-  components: { MenuComponent, HeaderComponent, ContentComponent },
+  components: { HeaderComponent },
   methods: {
     menuToggle () {
       this.isShowMenu = !this.isShowMenu
@@ -43,16 +31,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-@media (max-width:1200px) {
-  .menu {
-    display: none;
-  }
-  .position {
-    z-index: 99;
-    position: absolute;
-    width: 100%;
-  }
+.container {
+  background: #292c31;
 }
 
 @media (max-width:1366px) { /**小于笔记本屏幕 */
@@ -75,9 +55,6 @@ export default {
     font-size: 1.8rem;
     display: inline-block;
     vertical-align: middle;
-  }
-  .content {
-    top: -0.08rem;
   }
 }
 
@@ -108,17 +85,6 @@ export default {
     font-size: 1.8rem;
     display: inline-block;
     vertical-align: middle;;
-  }
-  .content {
-    display: flex;
-    height: 100%;
-    padding-top: 4.67rem;
-  }
-  .content .left {
-    background: rgb(59, 63, 66);
-  }
-  .content .right {
-    background: #292c31;
   }
 }
 </style>

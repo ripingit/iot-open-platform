@@ -54,15 +54,15 @@
           <el-step title="注册迈科账号" description="请牢记用户名和密码"></el-step>
           <el-step title="申请认证" description="提交相关营业执照申请迈科智能认证"></el-step>
           <el-step :title="authResult" :status="proStatu" :description="description"></el-step>
-          <el-step title="申请KEY" description="认证可查看到独有的KEY请牢记"></el-step>
+          <!--<el-step title="申请KEY" description="认证可查看到独有的KEY请牢记"></el-step>-->
         </el-steps>
         <el-steps class="step-operation">
           <el-step></el-step>
           <el-step v-if="isShowSubmit" class="auth"></el-step>
           <el-step v-else @click.native="showDialog"></el-step>
           <el-step v-if="isShowUpdate || isUpdateState" :class="'review'"></el-step>
-          <el-step v-else @click.native="updateReviewState"></el-step>
-          <el-step class="key"></el-step>
+          <el-step v-else @click.native="updateReviewState(true)"></el-step>
+          <!--<el-step class="key"></el-step>-->
         </el-steps>
       </el-col>
     </el-row>
@@ -132,10 +132,11 @@
 
 <script>
 import '@/assets/css/content.css'
-import { CERT_UPLOAD_POST, PARTNER_AUTH_POST, UPDATE_AUTH_STATE_POST } from '../../lib/api.js'
+import { CERT_UPLOAD_POST, PARTNER_AUTH_POST, UPDATE_AUTH_STATE_POST, COOP_AUTH_GET } from '../../lib/api.js'
 import { validatePhone, validateFixPhone, validateBusinessLicense } from '../../lib/validate.js'
-import { AUTH_CHANGE, USER_ID_UPDATE, USER_KEY_UPDATE } from '@/store/mutations-type'
-
+import { AUTH_CHANGE, USER_ID_UPDATE, USER_KEY_UPDATE, AUTH_UPDATE } from '@/store/mutations-type'
+import { generateMenus, coopMenuRouteMap } from '@/lib/route-menu-map'
+import { createRoutes } from '@/router/routes/index'
 export default {
   data () {
     let validateIsEmpty = (rule, value, callback) => {
@@ -180,6 +181,7 @@ export default {
       picPath: '',
       picTip: '格式为 jpg 且小于2M',
       form: {
+        role: this.merchantCode.coop,
         name: '',
         addr: '',
         agency_code: '',
@@ -238,7 +240,7 @@ export default {
     }
   },
   created () {
-    this.updateReviewState()
+    this.updateReviewState(false)
   },
   methods: {
     showDialog () {
@@ -264,9 +266,9 @@ export default {
         }
       })
     },
-    updateReviewState () {
+    updateReviewState (flag) {
       this.isUpdateState = true
-      this.$http.post(UPDATE_AUTH_STATE_POST).then(res => {
+      this.$http.post(UPDATE_AUTH_STATE_POST, this.createFormData({role: this.merchantCode.coop})).then(res => {
         if (this.vmResponseHandler(res)) {
           this.isUpdateState = false
           this.authStatu = res.data.company_status
@@ -282,6 +284,14 @@ export default {
             this.form.cert = res.data.data.file_ids
             this.picPath = res.data.data.file_ids
             this.isUploading = false
+          }
+          if (flag && res.data.company_status === this.authCode.PASS) {
+            this.$http.post(COOP_AUTH_GET).then(res => {
+              if (res.data.title) {
+                this.$router.addRoutes(createRoutes(res.data.title))
+                this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, coopMenuRouteMap) })
+              }
+            })
           }
         }
       }).catch(() => {

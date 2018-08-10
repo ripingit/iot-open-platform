@@ -96,3 +96,11 @@ export const adminMenuRouteMap = [
     auth: true
   }
 ]
+
+// , {
+//     id: 20001,
+//     path: '/manage/admin/coopAdmin',
+//     icon: 'icon-shebeishengchan',
+//     name: '合作商权限',
+//     auth: true
+//   }

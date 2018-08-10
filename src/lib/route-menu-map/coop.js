@@ -66,9 +66,14 @@ export const coopMenuRouteMap = [
     icon: 'icon-shenheguanli',
     name: '固件审核',
     auth: true
+  }, {
+    id: 19001,
+    path: '/manage/user/deviceManage',
+    icon: 'icon-yonghuguanli',
+    name: '设备管理',
+    auth: true
   }
 ]
-
 // , {
 //     id: 0,
 //     path: '/manage/user/dealer',

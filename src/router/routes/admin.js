@@ -142,5 +142,13 @@ export let adminRoute = [
       component: resolve => require(['@/components/manage/equipment-prod/equipment-prod'], resolve),
       meta: { title: '设备生产', identity: [1] }
     }
+  }, {
+    id: 20001,
+    route: {
+      path: 'coopAdmin/:index',
+      name: 'coopAdmin',
+      component: resolve => require(['@/components/manage/coop-admin/coop-admin'], resolve),
+      meta: { title: '合作商权限', identity: [1] }
+    }
   }
 ]

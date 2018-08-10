@@ -32,7 +32,8 @@ export default {
       DEL_USER_GROUP_USER: { id: 11007, name: '删除用户组成员' },
       REMOVE_USER_FROM: { id: 11008, name: '用户组解除用户' },
       GOODS_ADD: { id: 13002, name: '商品添加' },
-      REWORK_EQUIPMENT: { id: 14002, name: '查看设备返修' }
+      REWORK_EQUIPMENT: { id: 14002, name: '查看设备返修' },
+      PERMISSION_COOP: { id: 4003, name: '查看合作商Key' }
     }
 
     /** 合作商 */
@@ -49,6 +50,8 @@ export default {
       SET_DEVICE_MODEL: { id: 2004, name: '设备型号配置' },
       ADD_REWORK: { id: 14003, name: '设备返修记录添加' },
       QUERY_REWORK: { id: 14002, name: '设备返修记录查询' },
+      QUERY_REWORK_DEALER: { id: 19003, name: '设备管理返修记录查询' },
+      ADD_REWORK_DEALER: { id: 19002, name: '设备管理返修记录添加' },
       DEL_USER: { id: 10002, name: '用户删除' },
       ADD_USER: { id: 10003, name: '用户添加' },
       ADD_USER_TO_GROUP: { id: 10004, name: '用户绑定权限组' },

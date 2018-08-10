@@ -137,5 +137,13 @@ export let userRoute = [
         component: resolve => require(['@/components/user/admin/memberPower'], resolve)
       }]
     }
+  }, {
+    id: 19001,
+    route: {
+      path: 'deviceManage/:index',
+      name: 'deviceManage',
+      component: resolve => require(['@/components/user/dealer/device-manage'], resolve),
+      meta: { title: '设备管理', identity: [1] }
+    }
   }
 ]

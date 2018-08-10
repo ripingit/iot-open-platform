@@ -2,7 +2,7 @@ const params = {
   prod: 'manage',
   dev: 'manageTest'
 }
-const prefix = params.dev
+const prefix = params.prod
 
 /** 管理员获取权限数据 */
 export const ADMIN_AUTH_GET = prefix + '/admin.php?m=Admin&c=Login&a=getRes'
@@ -49,7 +49,7 @@ export const CERT_UPLOAD_POST = '../' + prefix + '/index.php?m=Home&c=Company&a=
 /** 合作商认证 */
 export const PARTNER_AUTH_POST = prefix + '/index.php?m=Home&c=Company&a=companyAdd'
 
-/** 合作商认证状态查询 */
+/** 合作商、经销商认证状态查询 */
 export const UPDATE_AUTH_STATE_POST = prefix + '/index.php?m=Home&c=Home&a=getCompanyStatus'
 
 /** 合作商app查询 */
@@ -87,6 +87,9 @@ export const REVIEW_ADMIN_AUDIT_MODEL_POST = prefix + '/admin.php?m=AdminA&c=Che
 
 /** Admin合作，获取合作商信息 */
 export const GET_COOP_COMPANY_POST = prefix + '/admin.php?m=Admin&c=Company&a=companyList'
+
+/** Admin合作，获取合作商信息 */
+export const GET_COOP_COMPANYKEY_POST = prefix + '/index.php?m=Admin&c=Company&a=baseList'
 
 /** Admin合作，删除合作商 */
 export const DELETE_COOP_COMPANY_POST = prefix + '/admin.php?m=Admin&c=Company&a=companyDel'
@@ -244,8 +247,8 @@ export const SET_NOTIFY_URL_POST = prefix + '/index.php?m=Home&c=Key&a=adminClie
 /** 获取app下载地址 */
 export const GET_DOWNLOAD_URL_POST = prefix + '/index.php?m=Home&c=AppQrcode&a=appVerList'
 
-/** 合作商app管理，查询app ID */
-export const GET_CLIENT_ID_POST = prefix + '/index.php?m=Home&c=App&a=baseList'
+/** 合作商app管理，查询app name */
+export const GET_CLIENT_NAME_POST = prefix + '/index.php?m=Home&c=App&a=baseList'
 
 /** 合作商设备生产，查询设备 */
 export const GET_EQUIPMENT_POST = prefix + '/index.php?m=Home&c=Production&a=adminDeviceRootsList'
@@ -309,3 +312,15 @@ export const SET_USERFIRMWARE_LIST_POST = prefix + '/index.php?m=Home&c=CheckRom
 
 /** 合作商审核固件查询 */
 export const SET_USERFIRMWAREREVIEW_LIST_POST = prefix + '/index.php?m=Home&c=CheckRom&a=deviceRomReview'
+
+/** 合作商设备管理设备信息查询 */
+export const SET_USEREQUIPMENTMANAGEMENT_LIST_POST = prefix + '/index.php?m=Home&c=Device&a=adminDeviceRootsList'
+
+/** 合作商设备管理查看设备返修信息 */
+export const GET_USEREQUIPMENTMANAGEMENT_RECORD_POST = prefix + '/index.php?m=Home&c=Device&a=adminDeviceRepairList'
+
+/** 合作商设备管理添加设备返修信息 */
+export const USEREQUIPMENTMANAGEMENT_ADD_POST = prefix + '/index.php?m=Home&c=Device&a=adminDeviceRepairAdd'
+
+/** 合作商设备管理添加设备图片上传返修信息 */
+export const MANAGEMENTREWORK_UPLOAD_PIC_POST = prefix + '/index.php?m=Home&c=Device&a=putObject'

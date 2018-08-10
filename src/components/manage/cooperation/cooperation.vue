@@ -55,17 +55,26 @@
                   width="180">
                 </el-table-column>
                 <el-table-column
-                  prop="client_id"
-                  label="认证ID">
-                </el-table-column>
-                <el-table-column
-                  prop="client_secret"
-                  label="认证KEY">
+                  prop="addr"
+                  label="地址">
                 </el-table-column>
                 <el-table-column
                   prop="create_time"
                   label="注册时间"
                   width="180">
+                </el-table-column>
+                <el-table-column
+                  label="key"
+                  width="120">
+                  <template slot-scope="scope">
+                    <el-button
+                      class="btn-circle"
+                      size="mini"
+                      icon="iconfont icon-gengduo"
+                      circle
+                      v-if="vmHasAuth(AdminPermissionsLib.PERMISSION_COOP, tableData.res)"
+                      @click="showKeyDialog(scope.row.client_id)"></el-button>
+                  </template>
                 </el-table-column>
               </el-table>
             </el-col>
@@ -85,26 +94,54 @@
         </div>
       </el-col>
     </el-row>
+    <el-dialog title="合作key" :visible.sync="keyVisible" center>
+      <el-table
+        v-loading="loadingKey"
+        :data="keyData"
+        max-height="300"
+        style="width: 100%">
+        <el-table-column
+          prop="client_id"
+          label="ID">
+        </el-table-column>
+        <el-table-column
+          prop="client_secret"
+          label="key">
+        </el-table-column>
+        <el-table-column
+          prop="app_name"
+          label="绑定APP">
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          label="创建时间">
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import '@/assets/css/content.css'
-import { GET_COOP_COMPANY_POST, DELETE_COOP_COMPANY_POST } from '@/lib/api'
+import { GET_COOP_COMPANY_POST, DELETE_COOP_COMPANY_POST, GET_COOP_COMPANYKEY_POST } from '@/lib/api'
 import _ from 'lodash'
 export default {
   data () {
     return {
       loading: false,
+      loadingKey: false,
       searchDate: null,
       searchKeyWord: '',
       tableData: {
         data: [],
+        res: [],
         page: '1',
         pageAll: 1,
         total: 1
       },
-      selectedData: []
+      selectedData: [],
+      keyVisible: false,
+      keyData: []
     }
   },
   created () {
@@ -165,7 +202,32 @@ export default {
           })
         }
       })
-    }
+    },
+    showKeyDialog (id) {
+      this.keyVisible = true
+      this.getKeyLists(id)
+    },
+    getKeyLists: _.debounce(function (id) {
+      let data = this.createFormData({
+        client_id: id
+      })
+      this.loadingKey = true
+      this.keyData = []
+      this.$http.post(GET_COOP_COMPANYKEY_POST, data).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.keyData = res.data.data
+        }
+        this.loadingKey = false
+      }).catch(e => {
+        this.loadingKey = false
+        this.vmMsgError('网络错误！')
+      })
+    })
   }
 }
 </script>
+<style scoped>
+  .el-dialog__wrapper /deep/ .el-dialog{
+    width: 51rem;
+  }
+</style>

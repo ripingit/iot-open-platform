@@ -116,7 +116,7 @@ YUCnRYiiN30nW7KNiuD6XigaiNQ/hTwBPWPykUKXTiC3tzA06iyVcyts+rIFlUJR
 import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
 import JSEncrypt from 'jsencrypt'
 import { validateEmail, validatePhone } from '@/lib/validate.js'
-import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST } from '@/lib/api.js'
+import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST, UPDATE_AUTH_STATE_POST } from '@/lib/api.js'
 import { AUTH_CHANGE, IDENTITY_UPDATE, AUTH_UPDATE } from '@/store/mutations-type'
 import { createRoutes } from '@/router/routes/index'
 import { generateMenus, coopMenuRouteMap } from '@/lib/route-menu-map'
@@ -256,15 +256,40 @@ export default {
               this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id || this.identityCode.COOP })
               this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, coopMenuRouteMap) })
               this.$router.addRoutes(createRoutes(res.data.title))
-              this.$router.push('/manage')
+
+              Promise.all([this.getState(this.merchantCode.coop), this.getState(this.merchantCode.dealer)]).then(response => {
+                // 未提交认证且未注册经销商
+                if ((response[0] && response[0].data.company_status === this.authCode.NO_SUBMIT) && (response[1] && !response[1].data.DealerAndCompanys)) {
+                  this.$router.push('/manage/coopApply')
+                } else {
+                  if (response[0] && response[0].data.company_status !== this.authCode.NO_SUBMIT) {
+                    this.$router.push('/manage'); return
+                  }
+                  this.$router.push('/manage/user/deviceManage/1')
+                }
+              })
             }
           }).catch(e => {
+            console.log(e)
             this.vmMsgError('网络错误！')
             loading.close()
           })
         }
       })
     }, 300),
+
+    getState (code) {
+      return new Promise((resolve, reject) => {
+        let loading = this.vmLoadingFull()
+        this.$http.post(UPDATE_AUTH_STATE_POST, this.createFormData({role: code})).then(res => {
+          loading.close()
+          if (this.vmResponseHandler(res)) {
+            resolve(res)
+          }
+          resolve()
+        })
+      })
+    },
 
     forgotPass () {
       this.isForgotVisible = true
