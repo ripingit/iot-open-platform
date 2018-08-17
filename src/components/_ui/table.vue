@@ -1,10 +1,12 @@
 <template>
   <div>
+    {{options.loading}}
     <el-row>
       <el-col :span="24">
         <el-table
           :data="data"
-          v-loading="loading">
+          v-loading="options.loading"
+          @selection-change="handleSelectionChange">
           <el-table-column
             v-if="options.hasSelection"
             type="selection"
@@ -16,14 +18,31 @@
             label="编号"
             width="80">
           </el-table-column>
-          <template v-for="(column, index) in options.columns">
-            <component v-if="column.component" :is="column.component" :config="column" :key="index"></component>
-            <el-table-column v-else v-bind="column" :key="index"></el-table-column>
+          <template  v-for="(column, index) in options.columns">
+            <el-table-column v-bind="column" :key="index">
+              <template slot-scope="scope">
+                <span v-if="column.render">{{ column.render(scope.row[column.prop]) }}</span>
+                <span v-else-if="column.slotName">
+                  <slot :name="column.slotName" :row="scope.row"></slot>
+                </span>
+                <span v-else>{{ scope.row[column.prop] }}</span>
+              </template>
+            </el-table-column>
           </template>
-          <slot v-if="options.slot.del" :name="options.slot.del"></slot>
-          <slot v-if="options.slot.edit" :name="options.slot.edit"></slot>
-          <slot v-if="options.slot.review" :name="options.slot.review"></slot>
+          <slot name="handler"></slot>
         </el-table>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col>
+        <el-pagination
+          v-if="data.length !== 0"
+          @size-change="handlerEmit"
+          @current-change="handlerEmit"
+          :page-size="options.pageOptions.pageSize"
+          :total="options.pageOptions.total"
+          layout="prev, pager, next, jumper">
+        </el-pagination>
       </el-col>
     </el-row>
   </div>
@@ -35,14 +54,29 @@ export default {
   data () {
     return {
       config: {
-        columns: [], // 通用列数据
+        columns: [{
+          prop: '',
+          width: '',
+          label: '',
+          render: function () {} // 将数据转换成需要的样子，如将1转成成功字样
+        }], // 通用列数据
+        loading: false,
         hasNumber: true, // 是否有序号列
         hasSelection: true, // 是否有选择列
-        slot: { // 操作占位
-          del: 'del',
-          edit: 'edit'
+        pageOptions: {
+          pageSize: 0,
+          total: 0
         }
       }
+    }
+  },
+  methods: {
+    handleSelectionChange (selectedArr) {
+      this.$emit('selection', selectedArr)
+    },
+
+    handlerEmit (page) {
+      this.$emit('page-change', page)
     }
   }
 }

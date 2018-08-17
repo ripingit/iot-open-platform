@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="8">
         <div class="menu">
-          <i class="menu-icon el-icon-menu" @click="$emit('menu-toggle')"></i>
+          <i class="menu-icon el-icon-menu" @click="toggleMenu"></i>
         </div>
       </el-col>
       <el-col :span="8">
@@ -36,7 +36,7 @@
 <script>
 import { ADMIN_SIGN_OUT_POST, SIGN_OUT_POST } from '../../lib/api.js'
 import { validatePhone, validateEmail } from '../../lib/validate.js'
-import { MENU_UPDATE, IDENTITY_UPDATE, AUTH_UPDATE, AUTH_CHANGE } from '@/store/mutations-type'
+import { MENU_UPDATE, IDENTITY_UPDATE, AUTH_UPDATE, AUTH_CHANGE, MENU_TOGGLE_UPDATE } from '@/store/mutations-type'
 export default {
   data () {
     return {
@@ -71,6 +71,11 @@ export default {
     }
   },
   methods: {
+    toggleMenu () {
+      let flag = this.$store.getters.getToggleMenu
+      this.$store.commit(MENU_TOGGLE_UPDATE, { toggleMenu: !flag })
+    },
+
     showSetPanel () {
       this.isPanelShow = !this.isPanelShow
     },
@@ -85,11 +90,7 @@ export default {
           let url = this.identity === this.identityCode.ADMIN ? ADMIN_SIGN_OUT_POST : SIGN_OUT_POST
           this.$http.post(url).then(res => {
             if (this.vmResponseHandler) {
-              if (this.identity === this.identityCode.ADMIN) {
-                this.$router.push('/login')
-              } else {
-                this.$router.push('/signin')
-              }
+              this.$router.push('/signin')
               this.$store.commit(IDENTITY_UPDATE, { identity: '-1' })
               this.$store.commit(AUTH_UPDATE, { menus: [] })
               this.$store.commit(AUTH_CHANGE, { authState: -1 })

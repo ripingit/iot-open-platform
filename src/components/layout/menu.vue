@@ -33,39 +33,12 @@
         </el-col>
       </el-row>
     </div>
-    <el-dialog
-      title="KEY信息"
-      center
-      :visible.sync="dialogVisible"
-      :close-on-click-modal="false"
-      :append-to-body="true"
-      :before-close="handleClose" class="key_dialog">
-      <el-row class="key_dialog_head">
-        <p>* 每个账号独有一个ID和KEY，请保存并牢记，切勿泄露给他人</p>
-      </el-row>
-      <el-form ref="ruleForm" label-width="80px">
-        <el-form-item label="ID" class="form-row">
-          <el-input readonly v-model="ruleForm.id" style="width: 100%"></el-input>
-        </el-form-item>
-        <el-form-item label="KEY" class="form-row">
-          <el-input readonly v-model="ruleForm.key" style="width: 100%"></el-input>
-        </el-form-item>
-        <el-form-item style="margin-top: 4.33rem">
-          <el-button type="primary" style="width: 100%" class="btn-submit" @click="confirm">确定</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import { MENU_UPDATE } from '@/store/mutations-type'
 export default {
-  data () {
-    return {
-      dialogVisible: false
-    }
-  },
   created () {
     this.$store.commit(MENU_UPDATE, { highlightMenu: this.$route.params.index })
   },
@@ -75,12 +48,6 @@ export default {
     },
     activeMenu () {
       return this.$store.getters.getHighlightMenu
-    },
-    ruleForm () {
-      return {
-        id: this.$store.getters.getUserID,
-        key: this.$store.getters.getUserKey
-      }
     },
     menus () {
       return this.$store.getters.getAuthMenu
@@ -92,18 +59,8 @@ export default {
   methods: {
     routeGo (path, $event) {
       this.$store.commit(MENU_UPDATE, { highlightMenu: $event.index })
-      if (path === '/manage/user/sKey') { // 为key的话就弹框
-        this.dialogVisible = true
-      } else {
-        this.$router.push(path + `/${$event.index}`)
-      }
+      this.$router.push(path + `/${$event.index}`)
       this.$emit('menu-toggle')
-    },
-    handleClose (done) {
-      done()
-    },
-    confirm () {
-      this.dialogVisible = false
     }
   }
 }
@@ -170,21 +127,5 @@ export default {
       font-size: 2rem;
       margin-right: 2rem;
   }
-}
-
-.key_dialog /deep/ .el-dialog{
-  width:65.33rem;
-}
-
-.key_dialog_head p{
-  font-size:1rem;
-  color: #e36068;
-  text-align: center;
-}
-.key_dialog .el-form{
-  margin-top:3.33rem;
-}
-.key_dialog /deep/ .el-dialog__body{
-  padding-top:0;
 }
 </style>

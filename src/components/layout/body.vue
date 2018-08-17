@@ -1,7 +1,7 @@
 <template>
   <el-row class="content">
     <el-col :xl="3" :lg="4" class="left">
-      <MenuComponent class="position" :class="isShowMenu ? '' : 'menu'" v-on:menu-toggle="menuToggle"></MenuComponent>
+      <MenuComponent class="position" :class="isShowMenu ? '' : 'menu'"></MenuComponent>
     </el-col>
     <el-col :xl="21" :lg="20" class="right">
       <ContentComponent></ContentComponent>
@@ -16,13 +16,12 @@ import ContentComponent from './content.vue'
 export default {
   data () {
     return {
-      isShowMenu: false
     }
   },
   components: { MenuComponent, ContentComponent },
-  methods: {
-    menuToggle () {
-      this.isShowMenu = !this.isShowMenu
+  computed: {
+    isShowMenu () {
+      return this.$store.getters.getToggleMenu
     }
   }
 }

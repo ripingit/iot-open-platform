@@ -213,10 +213,6 @@ export default {
       })
       this.$http.post(ADMIN_USER_QUERY, param).then(res => {
         this.loading = false
-        if (res.data.statu === 0) {
-          this.$router.push('/login')
-          return false
-        }
         if (this.vmResponseHandler(res)) {
           res.data.data.map(val => {
             if (val.groupName) {
@@ -239,10 +235,6 @@ export default {
         if (valid) {
           let param = this.createFormData(this.formAdd)
           this.$http.post(ADMIN_USER_ADD, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('操作成功！')
               this.dialogVisible = false
@@ -263,10 +255,6 @@ export default {
             group: JSON.stringify(this.formAdd2.group)
           })
           this.$http.post(ADMIN_USER_POWER_ADD, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('操作成功！')
               this.dialogVisible2 = false
@@ -296,10 +284,6 @@ export default {
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
           this.$http.post(ADMIN_USER_DEL, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('删除成功！')
@@ -331,10 +315,6 @@ export default {
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
           this.$http.post(ADMIN_USER_RESET_PWD, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('重置密码成功！')

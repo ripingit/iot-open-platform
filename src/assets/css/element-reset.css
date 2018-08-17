@@ -1,5 +1,17 @@
 /* element-ui 样式覆盖文件 */
 
+/** 公共色 */
+.success {
+  color: #2acba7
+}
+.wait {
+  color: #b3b3b3;
+}
+.fail {
+  color: #ff5d66;
+}
+
+
 /** button */
 .el-button {
   width: 100%;
@@ -331,8 +343,31 @@ color: #b3b3b3;
   color: #b3b3b3;
 }
 
+/** tab标签 */
+.el-tabs__item {
+  color: #b3b3b3
+}
+.el-tabs__item.is-active {
+  color: #ffffff;
+  font-size: 18px;
+}
+.el-tabs__nav-wrap::after, .el-tabs__active-bar {
+  background: none;
+}
+.el-tabs__content {
+  overflow: inherit;
+}
 
+/** radio */
+.el-radio__label {
+  color: #fff
+}
+.el-radio__input.is-disabled.is-checked .el-radio__inner {
+  border-color: #409EFF;
+  background: #409EFF;
+}
 /**表单提示 */
 .el-form-item__error {
   z-index: 10
 }
+

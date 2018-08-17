@@ -8,11 +8,19 @@
     </el-row>
     <div class="panel">
       <el-form :model="formData" status-icon ref="editForm" :rules="rules" label-position="right" label-width="100px">
-        <el-form-item label="新密码" prop="password">
+        <el-form-item label="旧密码" prop="old_password">
+          <el-input
+            type="password"
+            placeholder="请输入旧密码"
+            v-model="formData.old_password"
+            clearable>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="新密码" prop="new_pass">
           <el-input
             type="password"
             placeholder="请输入新密码"
-            v-model="formData.password"
+            v-model="formData.new_pass"
             clearable>
           </el-input>
         </el-form-item>
@@ -41,7 +49,7 @@ export default {
     let validatePass = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码'))
-      } else if (value !== this.formData.password) {
+      } else if (value !== this.formData.new_pass) {
         callback(new Error('两次输入密码不一致!'))
       } else {
         callback()
@@ -49,19 +57,25 @@ export default {
     }
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
-        if (rule.field === 'password' || rule.field === 'confirmNewPass') {
+        if (rule.field === 'new_pass' || rule.field === 'confirmNewPass') {
           callback(new Error('请输入密码'))
+        } else if (rule.field === 'old_password') {
+          callback(new Error('请输入旧密码'))
         }
       }
       callback()
     }
     return {
       formData: {
-        password: '',
-        confirmNewPass: ''
+        new_pass: '',
+        confirmNewPass: '',
+        old_password: ''
       },
       rules: {
-        password: [
+        old_password: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        new_pass: [
           { validator: validateIsEmpty, trigger: 'blur' },
           { min: 8, max: 50, message: '长度在 8 到 50 个字符', trigger: 'blur' }
         ],

@@ -11,3 +11,5 @@ export const USER_ID_UPDATE = 'USER_ID_UPDATE'
 export const MENU_UPDATE = 'MENU_UPDATE'
 
 export const AUTH_UPDATE = 'AUTH_UPDATE'
+
+export const MENU_TOGGLE_UPDATE = 'MENU_TOGGLE_UPDATE'

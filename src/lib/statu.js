@@ -96,4 +96,23 @@ exports.install = function (Vue, options) {
     1: '更换',
     2: '维修'
   }
+
+  /** 短信、邮件设置模板语言类型 */
+  Vue.prototype.langTemplateType = {
+    1: '中文模板',
+    2: '英文模板'
+  }
+
+  /** 短信、邮件设置模板类型 */
+  Vue.prototype.smsTemplateType = {
+    1: '注册',
+    2: '找回密码',
+    3: '更换账号'
+  }
+
+  /** 是否使用邮件TLS */
+  Vue.prototype.tlsCode = {
+    0: '未使用',
+    1: '使用'
+  }
 }

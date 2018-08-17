@@ -275,6 +275,22 @@
                   </el-option>
                 </el-select>
               </el-form-item>
+              <el-form-item label="麦克风" class="form-row" prop="mic">
+                <el-radio v-model="formConfig.mic" label="1">支持</el-radio>
+                <el-radio v-model="formConfig.mic" label="0">不支持</el-radio>
+              </el-form-item>
+              <el-form-item label="喇叭" class="form-row" prop="speaker">
+                <el-radio v-model="formConfig.speaker" label="1">支持</el-radio>
+                <el-radio v-model="formConfig.speaker" label="0">不支持</el-radio>
+              </el-form-item>
+              <el-form-item label="存储卡" class="form-row" prop="sdcard">
+                <el-radio v-model="formConfig.sdcard" label="1">支持</el-radio>
+                <el-radio v-model="formConfig.sdcard" label="0">不支持</el-radio>
+              </el-form-item>
+              <el-form-item label="云存储" class="form-row" prop="yun">
+                <el-radio v-model="formConfig.yun" label="1">支持</el-radio>
+                <el-radio v-model="formConfig.yun" label="0">不支持</el-radio>
+              </el-form-item>
             </div>
               <div v-if="showList2">
                <el-col :span="24" class="device-model-editdialog-title">情景按钮（BHSC）</el-col>
@@ -427,7 +443,11 @@ export default {
         pipc_dv: '',
         audio: '',
         num: '',
-        num2: ''
+        num2: '',
+        mic: '1',
+        speaker: '1',
+        sdcard: '1',
+        yun: '1'
       },
       nbi_code_options: [],
       prodt_code_options: [],
@@ -585,8 +605,8 @@ export default {
       this.showList2 = this.dialogData.prodt_code.indexOf('BHSC') > -1
       this.showList3 = this.dialogData.prodt_code.indexOf('CMSW') > -1
       this.editDialog = true
-      this.formConfig = {}
       if (row.config_status) {
+        this.formConfig = {}
         let rowData = JSON.parse(row.config_status)
         this.formConfig = {
           class0: rowData[0].conf.class,
@@ -595,7 +615,11 @@ export default {
           pipc_dv: rowData[0].conf.pipc_dv,
           audio: rowData[0].conf.audio,
           num: rowData[0].conf.num,
-          num2: rowData[0].conf.num
+          num2: rowData[0].conf.num,
+          mic: (rowData[0].conf.mic === 0 || rowData[0].conf.mic === 1) ? String(rowData[0].conf.mic) : '1',
+          speaker: (rowData[0].conf.speaker === 0 || rowData[0].conf.speaker === 1) ? String(rowData[0].conf.speaker) : '1',
+          sdcard: (rowData[0].conf.sdcard === 0 || rowData[0].conf.sdcard === 1) ? String(rowData[0].conf.sdcard) : '1',
+          yun: (rowData[0].conf.yun === 0 || rowData[0].conf.yun === 1) ? String(rowData[0].conf.yun) : '1'
         }
       }
     },
@@ -613,7 +637,11 @@ export default {
                   chans: parseInt(this.formConfig.chans),
                   dec: parseInt(this.formConfig.dec),
                   pipc_dv: parseInt(this.formConfig.pipc_dv),
-                  audio: parseInt(this.formConfig.audio)
+                  audio: parseInt(this.formConfig.audio),
+                  mic: parseInt(this.formConfig.mic),
+                  speaker: parseInt(this.formConfig.speaker),
+                  sdcard: parseInt(this.formConfig.sdcard),
+                  yun: parseInt(this.formConfig.yun)
                 }
               }])
             })

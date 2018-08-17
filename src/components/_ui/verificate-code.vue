@@ -20,7 +20,7 @@ export default {
   },
   watch: {
     isReset (args) {
-      if (args) { this.reset() }
+      this.reset()
     }
   },
   methods: {

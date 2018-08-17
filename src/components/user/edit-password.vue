@@ -8,6 +8,14 @@
     </el-row>
     <div class="panel">
       <el-form :model="formData" status-icon ref="editForm" :rules="rules" label-position="right" label-width="100px">
+        <el-form-item label="旧密码" prop="old_password">
+          <el-input
+            type="password"
+            placeholder="请输入旧密码"
+            v-model="formData.old_password"
+            clearable>
+          </el-input>
+        </el-form-item>
         <el-form-item label="新密码" prop="new_pass">
           <el-input
             type="password"
@@ -24,7 +32,7 @@
             clearable>
           </el-input>
         </el-form-item>
-        <el-form-item label="验证码" prop="vcode">
+        <!-- <el-form-item label="验证码" prop="vcode">
           <el-input
             placeholder="请输入验证码"
             v-model="formData.vcode"
@@ -32,7 +40,7 @@
             style="width: 59%">
           </el-input>
           <CheckCodeComponent style="width: 39.7%;height: 3.33rem;" :isReset="toResetBtnCode" v-on:emit-statu="getCheckCode"></CheckCodeComponent>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item class="form-row" style="margin-top: 2rem">
           <el-button type="primary" class="btn-submit" @click="changePass">确定</el-button>
         </el-form-item>
@@ -59,10 +67,10 @@ export default {
     }
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
-        if (rule.field === 'vcode') {
-          callback(new Error('请输入验证码'))
-        } else if (rule.field === 'new_pass' || rule.field === 'confirmNewPass') {
+        if (rule.field === 'new_pass' || rule.field === 'confirmNewPass') {
           callback(new Error('请输入密码'))
+        } else if (rule.field === 'old_password') {
+          callback(new Error('请输入旧密码'))
         }
       }
       callback()
@@ -71,7 +79,7 @@ export default {
       formData: {
         new_pass: '',
         confirmNewPass: '',
-        vcode: ''
+        old_password: ''
       },
       toResetBtnCode: false,
       rules: {
@@ -82,7 +90,7 @@ export default {
         confirmNewPass: [
           { validator: validatePass, trigger: 'blur' }
         ],
-        vcode: [
+        old_password: [
           { validator: validateIsEmpty, trigger: 'blur' }
         ]
       }

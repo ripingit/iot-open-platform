@@ -9,11 +9,6 @@ const router = new Router({
       path: '/',
       redirect: '/signin'
     }, {
-      path: '/login',
-      name: 'login',
-      component: resolve => require(['@/components/manage/sign-in'], resolve),
-      meta: { title: '登录' }
-    }, {
       path: '/signin',
       component: resolve => require(['@/components/user/sign-in'], resolve),
       meta: { title: '登录' }
@@ -30,7 +25,7 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  let filter = ['/signin', '/signup', '/login', '/qrcode']
+  let filter = ['/signin', '/signup', '/qrcode']
 
   if (filter.includes(to.fullPath) || to.fullPath.indexOf('/qrcode') !== -1) {
     next(); return

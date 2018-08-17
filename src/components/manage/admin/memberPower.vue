@@ -68,10 +68,6 @@ export default{
       })
       this.$http.post(ADMIN_USERS_QUERY, param).then(res => {
         this.loading = false
-        if (res.data.statu === 0) {
-          this.$router.push('/login')
-          return false
-        }
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
           this.resData = res.data
@@ -92,10 +88,6 @@ export default{
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
           this.$http.post(ADMIN_USERS_REMOVE, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('解除成功！')

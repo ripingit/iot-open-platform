@@ -37,8 +37,11 @@
 </template>
 
 <script>
-import { UPDATE_AUTH_STATE_POST } from '@/lib/api.js'
+import { getState } from '@/lib/mixins'
 export default {
+  mixins: [{
+    methods: { getState }
+  }],
   data () {
     return {
       coop: 'coop',
@@ -61,19 +64,6 @@ export default {
       } else {
         this.$router.push(this.applyUrl[identity])
       }
-    },
-
-    getState (code) {
-      return new Promise((resolve, reject) => {
-        let loading = this.vmLoadingFull()
-        this.$http.post(UPDATE_AUTH_STATE_POST, this.createFormData({role: code})).then(res => {
-          loading.close()
-          if (this.vmResponseHandler(res)) {
-            resolve(res)
-          }
-          resolve()
-        })
-      })
     }
   }
 }

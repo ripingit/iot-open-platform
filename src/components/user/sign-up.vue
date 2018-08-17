@@ -153,7 +153,7 @@ export default {
     /** 获取验证码 */
     getVerificationCode: _.debounce(function () {
       if (!this.formData.user_name) {
-        this.toResetBtnCode = true
+        this.toResetBtnCode = !this.toResetBtnCode
         this.vmMsgWarning('请填写手机号或邮箱'); return
       }
       let data = this.createFormData({
@@ -164,11 +164,11 @@ export default {
         if (this.vmResponseHandler(res)) {
           this.vmMsgSuccess('验证码已发送！')
         } else {
-          this.toResetBtnCode = true
+          this.toResetBtnCode = !this.toResetBtnCode
         }
       }).catch((e) => {
         this.vmMsgError('网络错误！')
-        this.toResetBtnCode = true
+        this.toResetBtnCode = !this.toResetBtnCode
       })
     }, 300),
     signUp: _.debounce(function () {

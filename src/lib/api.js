@@ -2,7 +2,7 @@ const params = {
   prod: 'manage',
   dev: 'manageTest'
 }
-const prefix = params.prod
+const prefix = params.dev
 
 /** 管理员获取权限数据 */
 export const ADMIN_AUTH_GET = prefix + '/admin.php?m=Admin&c=Login&a=getRes'
@@ -324,3 +324,21 @@ export const USEREQUIPMENTMANAGEMENT_ADD_POST = prefix + '/index.php?m=Home&c=De
 
 /** 合作商设备管理添加设备图片上传返修信息 */
 export const MANAGEMENTREWORK_UPLOAD_PIC_POST = prefix + '/index.php?m=Home&c=Device&a=putObject'
+
+/** 合作商key管理，短信设置查询 */
+export const COOP_SMS_QUERY_POST = prefix + '/index.php?m=Home&c=Key&a=adminSMSVcodeTempList'
+
+/** 合作商key管理，短信设置添加 */
+export const COOP_SMS_ADD_POST = prefix + '/index.php?m=Home&c=Key&a=adminSMSVcodeTempAdd'
+
+/** 合作商key管理，短信设置更新 */
+export const COOP_SMS_UPDATE_POST = prefix + '/index.php?m=Home&c=Key&a=adminSMSVcodeTempUpdate'
+
+/** 合作商key管理，邮件设置查询 */
+export const COOP_EMAIL_QUERY_POST = prefix + '/index.php?m=Home&c=Key&a=adminMailVcodeTempList'
+
+/** 合作商key管理，邮件设置添加 */
+export const COOP_EMAIL_ADD_POST = prefix + '/index.php?m=Home&c=Key&a=adminMailVcodeTempAdd'
+
+/** 合作商key管理，邮件设置更新 */
+export const COOP_EMAIL_UPDATE_POST = prefix + '/index.php?m=Home&c=Key&a=adminMailVcodeTempUpdate'

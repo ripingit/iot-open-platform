@@ -150,10 +150,11 @@
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="升级描述" prop="change_log" class="form-row">
-          <quill-editor ref="myTextEditor"
+          <el-input type="textarea" :rows="2" placeholder="请输入升级描述" v-model="ruleForm.change_log"></el-input>
+          <!-- <quill-editor ref="myTextEditor"
                         v-model="ruleForm.change_log"
                         :options="editorOption">
-          </quill-editor>
+          </quill-editor> -->
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row">

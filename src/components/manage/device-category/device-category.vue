@@ -179,10 +179,6 @@ export default {
       })
       this.$http.post(EQUIPMENT_CATEGORY_QUERY, param).then(res => {
         this.loading = false
-        if (res.data.statu === 0) {
-          this.$router.push('/login')
-          return false
-        }
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
           this.resData = res.data
@@ -201,10 +197,6 @@ export default {
         if (valid) {
           let param = this.createFormData(this.formAdd)
           this.$http.post(EQUIPMENT_CATEGORY_ADD, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('操作成功！')
               this.dialogVisible = false
@@ -234,10 +226,6 @@ export default {
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
           this.$http.post(EQUIPMENT_CATEGORY_DELETE, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('删除成功！')

@@ -1,6 +1,12 @@
 
 /** 常量定义库 */
 
+/** app版本号 */
+export const Version = 'V 1.2.1'
+
+/** 分页每页数据条数 */
+export const pageSize = 20
+
 /** 国家 */
 export const country = [
   {
@@ -79,5 +85,33 @@ export const appStore = [
     id: 12,
     name: '锤子',
     url: ''
+  }
+]
+
+/** 短信设置模板语言 */
+export const langTemplate = [
+  {
+    id: 1,
+    name: '中文模板'
+  },
+  {
+    id: 2,
+    name: '英文模板'
+  }
+]
+
+/** 短信设置模板类型 */
+export const typeTemplate = [
+  {
+    id: 1,
+    name: '注册'
+  },
+  {
+    id: 2,
+    name: '找回密码'
+  },
+  {
+    id: 3,
+    name: '更换账号'
   }
 ]

@@ -52,7 +52,7 @@
         </el-row>
       </div>
     </div>
-
+    <VersionComponent></VersionComponent>
     <textarea id="rsakey">-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDRxqikncjALzDx3qvj7NwGO+wd
 od+Q4DuWZr/ZS5P5ze5ahCAjh8MMm2Nx8n8SqhKuB/cY79LEiWG3EGCV2AxU1hEV
@@ -109,6 +109,7 @@ YUCnRYiiN30nW7KNiuD6XigaiNQ/hTwBPWPykUKXTiC3tzA06iyVcyts+rIFlUJR
 
 <script>
 import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
+import VersionComponent from '@/components/_ui/version.vue'
 import JSEncrypt from 'jsencrypt'
 import { validateEmail, validatePhone } from '@/lib/validate.js'
 import { ADMIN_TOKEN_POST, ADMIN_SIGNIN_POST } from '@/lib/api.js'
@@ -117,7 +118,7 @@ import { createRoutes } from '@/router/routes/index'
 import { generateMenus, adminMenuRouteMap } from '@/lib/route-menu-map'
 import _ from 'lodash'
 export default {
-  components: { CheckCodeComponent },
+  components: { CheckCodeComponent, VersionComponent },
   data () {
     let validatePass = (rule, value, callback) => {
       if (value === '') {
@@ -303,6 +304,15 @@ export default {
     margin-top: -20rem;
   }
 }
+
+  .version {
+    position: absolute;
+    bottom: 3rem;
+    color: #fff;
+    text-align: center;
+    width: 100%;
+    font-size: 14px;
+  }
 
 /* @media (min-width: 720px) { */
   .container {

@@ -308,10 +308,6 @@ export default {
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
           this.$http.post(RESET_PWD_AUTH_POST, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('重置密码成功！')

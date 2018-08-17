@@ -38,84 +38,25 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-table
-          v-loading="loading"
-          :data="tableData"
-          style="width: 100%;"
-          @selection-change="handleSelectionChange">
-          <el-table-column
-            type="selection">
-          </el-table-column>
-          <el-table-column
-            type="index"
-            width="100"
-            label="编号">
-          </el-table-column>
-          <el-table-column
-            prop="product_name"
-            label="型号名称">
-          </el-table-column>
-          <el-table-column
-            prop="product_code"
-            label="型号代码"
-            width="150">
+        <el-col :span="24">
+          <TableComponent :options="tableOptions" :data="tableData" v-on:page-change="onSubmit" v-on:selection="handleSelectionChange">
+            <el-table-column prop="" label="操作" slot="handler">
+              <template slot-scope="scope">
+                <el-button class="btn-circle"
+                            icon="iconfont icon-bianji"
+                            size="mini"
+                            circle
+                            @click="editDevice(scope.row)"></el-button>
+              </template>
             </el-table-column>
-          <el-table-column
-            prop="nbi_code"
-            label="连接方式">
-          </el-table-column>
-          <el-table-column
-            prop=" pic1_fileid"
-            label="图1">
-            <template slot-scope="scope">
-              <div>
-                <ScaleImgComponent :path="scope.row.pic1_fileid" style="width:5rem;height:5rem" alt="图1"></ScaleImgComponent>
-              </div>
+            <template slot-scope="scope" slot="pic1_fileid">
+              <ScaleImgComponent :path="scope.row.pic1_fileid" style="width:5rem;height:5rem" alt="图1"></ScaleImgComponent>
             </template>
-          </el-table-column>
-          <el-table-column
-            prop=" pic2_fileid"
-            label="图2">
-            <template slot-scope="scope">
-              <div>
-                <ScaleImgComponent :path="scope.row.pic2_fileid" style="width:5rem;height:5rem" alt="图2"></ScaleImgComponent>
-              </div>
+            <template slot-scope="scope" slot="pic2_fileid">
+              <ScaleImgComponent :path="scope.row.pic2_fileid" style="width:5rem;height:5rem" alt="图2"></ScaleImgComponent>
             </template>
-          </el-table-column>
-          <el-table-column
-            prop="rom_ver"
-            label="固件版本">
-          </el-table-column>
-          <el-table-column
-            prop="upgrade_time"
-            label="添加时间">
-          </el-table-column>
-          <el-table-column
-            prop="company_name"
-            label="所属公司"
-            width="200">
-          </el-table-column>
-          <el-table-column
-            prop=""
-            label="操作">
-            <template slot-scope="scope">
-              <el-button class="btn-circle"
-                          icon="iconfont icon-bianji"
-                          size="mini"
-                          circle
-                          @click="editDevice(scope.row)"></el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-row>
-      <el-row v-if="total>page" type="flex" justify="center">
-        <el-pagination
-          @current-change="handleCurrentChange"
-          :current-page.sync="currentPage"
-          :page-size="page"
-          layout="prev, pager, next, jumper"
-          :total="total">
-        </el-pagination>
+          </TableComponent>
+        </el-col>
       </el-row>
     </el-row>
 
@@ -177,22 +118,6 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="麦克风" class="form-row" prop="mic">
-                <el-radio v-model="formConfig.mic" label="1" disabled>支持</el-radio>
-                <el-radio v-model="formConfig.mic" label="0" disabled>不支持</el-radio>
-              </el-form-item>
-              <el-form-item label="喇叭" class="form-row" prop="speaker">
-                <el-radio v-model="formConfig.speaker" label="1" disabled>支持</el-radio>
-                <el-radio v-model="formConfig.speaker" label="0" disabled>不支持</el-radio>
-              </el-form-item>
-              <el-form-item label="存储卡" class="form-row" prop="sdcard">
-                <el-radio v-model="formConfig.sdcard" label="1" disabled>支持</el-radio>
-                <el-radio v-model="formConfig.sdcard" label="0" disabled>不支持</el-radio>
-              </el-form-item>
-              <el-form-item label="云存储" class="form-row" prop="yun">
-                <el-radio v-model="formConfig.yun" label="1" disabled>支持</el-radio>
-                <el-radio v-model="formConfig.yun" label="0" disabled>不支持</el-radio>
-              </el-form-item>
             </div>
               <div v-if="showList2">
                <el-col :span="24" class="device-model-editdialog-title">情景按钮（BHSC）</el-col>
@@ -216,9 +141,10 @@
 import '@/assets/css/content.css'
 import _ from 'lodash'
 import ScaleImgComponent from '@/components/_ui/scale-img.vue'
+import TableComponent from '@/components/_ui/table.vue'
 import { EQUIPMENT_MODEL_QUERY, EQUIPMENT_MODEL_DELETE, USER_EQUIPMENT_MODEL_CONFIG } from '../../../lib/api.js'
 export default {
-  components: { ScaleImgComponent },
+  components: { ScaleImgComponent, TableComponent },
   data () {
     return {
       dialogVisible: false,
@@ -282,7 +208,46 @@ export default {
           value: 2,
           label: '全双工'
         }
-      ]
+      ],
+      tableOptions: {
+        loading: true,
+        hasSelection: true,
+        hasNumber: true,
+        pageOptions: {
+          pageSize: 20,
+          total: 0
+        },
+        columns: [
+          {
+            label: '型号名称',
+            prop: 'product_name'
+          }, {
+            prop: 'product_code',
+            label: '型号代码'
+          }, {
+            prop: 'nbi_code',
+            label: '连接方式'
+          }, {
+            prop: 'pic1_fileid',
+            label: '图1',
+            slotName: 'pic1_fileid'
+          }, {
+            prop: 'pic2_fileid',
+            label: '图2',
+            slotName: 'pic2_fileid'
+          }, {
+            prop: 'rom_ver',
+            label: '固件版本'
+          }, {
+            prop: 'upgrade_time',
+            label: '添加时间'
+          }, {
+            prop: 'company_name',
+            label: '所属公司',
+            width: 200
+          }
+        ]
+      }
     }
   },
   created () {
@@ -299,7 +264,6 @@ export default {
       }
     },
     onSubmit: _.debounce(function () {
-      this.loading = true
       let param = this.createFormData({
         page: parseInt(this.currentPage),
         page_size: parseInt(this.page),
@@ -307,7 +271,9 @@ export default {
         start_time: this.formInline.ChoiceTime ? this.formInline.ChoiceTime[0] : '',
         end_time: this.formInline.ChoiceTime ? this.formInline.ChoiceTime[1] : ''
       })
+      this.tableOptions.loading = true
       this.$http.post(EQUIPMENT_MODEL_QUERY, param).then(res => {
+        this.tableOptions.loading = false
         if (this.vmResponseHandler(res)) {
           let codeObj = {}
           res.data.Nbi.forEach(val => {
@@ -322,12 +288,11 @@ export default {
             return val
           })
           this.resData = res.data
-          this.total = res.data.total
-          this.loading = false
+          this.tableOptions.pageOptions.total = res.data.total
         }
       }
       ).catch(() => {
-        this.loading = false
+        this.tableOptions.loading = false
         this.vmMsgError('网络错误！')
       })
     }, 300),
@@ -380,11 +345,7 @@ export default {
           pipc_dv: rowData[0].conf.pipc_dv,
           audio: rowData[0].conf.audio,
           num: rowData[0].conf.num,
-          num2: rowData[0].conf.num,
-          mic: (rowData[0].conf.mic === 0 || rowData[0].conf.mic === 1) ? String(rowData[0].conf.mic) : '1',
-          speaker: (rowData[0].conf.speaker === 0 || rowData[0].conf.speaker === 1) ? String(rowData[0].conf.speaker) : '1',
-          sdcard: (rowData[0].conf.sdcard === 0 || rowData[0].conf.sdcard === 1) ? String(rowData[0].conf.sdcard) : '1',
-          yun: (rowData[0].conf.yun === 0 || rowData[0].conf.yun === 1) ? String(rowData[0].conf.yun) : '1'
+          num2: rowData[0].conf.num
         }
       }
     },

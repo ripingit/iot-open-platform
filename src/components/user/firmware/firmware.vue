@@ -171,10 +171,11 @@
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row" label="升级描述" prop="change_log">
-          <quill-editor ref="myTextEditor"
+          <el-input type="textarea" :rows="2" placeholder="请输入升级描述" wrap="hard" v-model="form.change_log"></el-input>
+          <!-- <quill-editor ref="myTextEditor"
                         v-model="form.change_log"
                         :options="editorOption">
-          </quill-editor>
+          </quill-editor> -->
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row">
@@ -504,13 +505,6 @@ export default {
       this.form.rom = ''
       this.vmMsgError(err)
     },
-    // codeChange (args) {
-    //   let temp = this.productCodes.find(o => o.product_code === args)
-    //   if (temp) {
-    //     if (temp.prodt_code.includes('YHUB')) { this.isShow = true } else { this.isShow = false }
-    //     this.form.rom_ver = temp.rom_ver
-    //   }
-    // },
     submitFirmware: _.debounce(function () {
       this.$refs['updateForm'].validate((valid) => {
         if (valid) {
@@ -539,7 +533,7 @@ export default {
       this.formRelease.product_code = code
       this.formRelease.target_rom_ver = ver
       this.formRelease.pub_ver_type = type
-      this.$http.post(GET_ROM_VER_POST, this.createFormData({product_code: code, rom_ver: ver})).then(res => {
+      this.$http.post(GET_ROM_VER_POST, this.createFormData({product_code: code, rom_ver: ver, rom_type: type})).then(res => {
         if (this.vmResponseHandler(res)) {
           this.romVersion = res.data.romver
           this.formRelease.rom_ver = res.data.data.rom_ver
@@ -554,7 +548,7 @@ export default {
       })
     },
     selectAllRom_ver (val) {
-      let allValues = []
+      let allValues = ['all']
       if (val.includes('all')) {
         // 保留所有版本值
         for (let item of this.romVersion) {
@@ -600,7 +594,9 @@ export default {
         if (valid) {
           let wait = this.vmLoadingFull()
           if (this.formRelease.country_id.length !== 0 || this.formRelease.device_id !== '') {
-            this.$http.post(FIRMWARE_RELEASE_POST, this.createFormData(this.formRelease)).then(res => {
+            let data = Object.assign({}, this.formRelease)
+            if (data.rom_ver.includes('all')) { data.rom_ver = ['all'] }
+            this.$http.post(FIRMWARE_RELEASE_POST, this.createFormData(data)).then(res => {
               if (this.vmResponseHandler(res)) {
                 this.vmMsgSuccess('提交成功！')
                 this.isDialogVisibleRelease = false

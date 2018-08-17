@@ -55,13 +55,17 @@
 </template>
 
 <script>
-import { PARTNER_AUTH_POST, UPDATE_AUTH_STATE_POST, COOP_AUTH_GET } from '@/lib/api.js'
+import { PARTNER_AUTH_POST, COOP_AUTH_GET } from '@/lib/api.js'
 import { validatePhone, validateFixPhone } from '@/lib/validate.js'
 import { AUTH_UPDATE } from '@/store/mutations-type'
 import { generateMenus, coopMenuRouteMap } from '@/lib/route-menu-map'
 import { createRoutes } from '@/router/routes/index'
+import { getState } from '@/lib/mixins'
 import _ from 'lodash'
 export default {
+  mixins: [{
+    methods: { getState }
+  }],
   data () {
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
@@ -162,20 +166,7 @@ export default {
           })
         }
       })
-    }, 300),
-
-    getState (code) {
-      return new Promise((resolve, reject) => {
-        let loading = this.vmLoadingFull()
-        this.$http.post(UPDATE_AUTH_STATE_POST, this.createFormData({role: code})).then(res => {
-          loading.close()
-          if (this.vmResponseHandler(res)) {
-            resolve(res)
-          }
-          resolve()
-        })
-      })
-    }
+    }, 300)
   }
 }
 </script>

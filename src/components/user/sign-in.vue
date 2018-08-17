@@ -58,6 +58,8 @@
       </div>
     </div>
 
+    <VersionComponent></VersionComponent>
+
     <textarea id="rsakey">-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDRxqikncjALzDx3qvj7NwGO+wd
 od+Q4DuWZr/ZS5P5ze5ahCAjh8MMm2Nx8n8SqhKuB/cY79LEiWG3EGCV2AxU1hEV
@@ -71,6 +73,7 @@ YUCnRYiiN30nW7KNiuD6XigaiNQ/hTwBPWPykUKXTiC3tzA06iyVcyts+rIFlUJR
       :visible.sync="isForgotVisible"
       width="50rem"
       center>
+      <p class="note">* 管理员分配的账号请找管理员重置</p>
       <el-form :model="formDataCheck" status-icon ref="checkForm" :rules="rulesCheck" label-position="right" label-width="100px">
         <el-form-item label="账号" prop="user_name" class="form-row">
           <el-input
@@ -114,15 +117,21 @@ YUCnRYiiN30nW7KNiuD6XigaiNQ/hTwBPWPykUKXTiC3tzA06iyVcyts+rIFlUJR
 
 <script>
 import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
+import VersionComponent from '@/components/_ui/version.vue'
 import JSEncrypt from 'jsencrypt'
 import { validateEmail, validatePhone } from '@/lib/validate.js'
-import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST, UPDATE_AUTH_STATE_POST } from '@/lib/api.js'
+import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST } from '@/lib/api.js'
 import { AUTH_CHANGE, IDENTITY_UPDATE, AUTH_UPDATE } from '@/store/mutations-type'
 import { createRoutes } from '@/router/routes/index'
-import { generateMenus, coopMenuRouteMap } from '@/lib/route-menu-map'
+import { generateMenus, coopMenuRouteMap, adminMenuRouteMap } from '@/lib/route-menu-map'
+import { getState } from '@/lib/mixins'
+
 import _ from 'lodash'
 export default {
-  components: { CheckCodeComponent },
+  mixins: [{
+    methods: { getState }
+  }],
+  components: { CheckCodeComponent, VersionComponent },
   data () {
     let validatePass = (rule, value, callback) => {
       if (value === '') {
@@ -252,25 +261,30 @@ export default {
           this.$http.post(SIGNIN_POST, data).then(res => {
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.$store.commit(AUTH_CHANGE, { authState: res.data.company_status })
-              this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id || this.identityCode.COOP })
-              this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, coopMenuRouteMap) })
-              this.$router.addRoutes(createRoutes(res.data.title))
-
-              Promise.all([this.getState(this.merchantCode.coop), this.getState(this.merchantCode.dealer)]).then(response => {
-                // 未提交认证且未注册经销商
-                if ((response[0] && response[0].data.company_status === this.authCode.NO_SUBMIT) && (response[1] && !response[1].data.DealerAndCompanys)) {
-                  this.$router.push('/manage/coopApply')
-                } else {
-                  if (response[0] && response[0].data.company_status !== this.authCode.NO_SUBMIT) {
-                    this.$router.push('/manage'); return
+              if (res.data.client_id === this.identityCode.ADMIN) {
+                this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id })
+                this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, adminMenuRouteMap) })
+                this.$router.addRoutes(createRoutes(res.data.title))
+                this.$router.push('/manage/admin/home/0')
+              } else {
+                this.$store.commit(AUTH_CHANGE, { authState: res.data.company_status })
+                this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id || this.identityCode.COOP })
+                this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, coopMenuRouteMap) })
+                this.$router.addRoutes(createRoutes(res.data.title))
+                Promise.all([this.getState(this.merchantCode.coop), this.getState(this.merchantCode.dealer)]).then(response => {
+                  // 未提交认证且未注册经销商
+                  if ((response[0] && response[0].data.company_status === this.authCode.NO_SUBMIT) && (response[1] && !response[1].data.DealerAndCompanys)) {
+                    this.$router.push('/manage/coopApply')
+                  } else {
+                    if (response[0] && response[0].data.company_status !== this.authCode.NO_SUBMIT) {
+                      this.$router.push('/manage'); return
+                    }
+                    this.$router.push('/manage/user/deviceManage/1')
                   }
-                  this.$router.push('/manage/user/deviceManage/1')
-                }
-              })
+                })
+              }
             }
           }).catch(e => {
-            console.log(e)
             this.vmMsgError('网络错误！')
             loading.close()
           })
@@ -278,25 +292,12 @@ export default {
       })
     }, 300),
 
-    getState (code) {
-      return new Promise((resolve, reject) => {
-        let loading = this.vmLoadingFull()
-        this.$http.post(UPDATE_AUTH_STATE_POST, this.createFormData({role: code})).then(res => {
-          loading.close()
-          if (this.vmResponseHandler(res)) {
-            resolve(res)
-          }
-          resolve()
-        })
-      })
-    },
-
     forgotPass () {
       this.isForgotVisible = true
     },
     getCheckCode: _.debounce(function () {
       if (!this.formDataCheck.user_name) {
-        this.toResetBtnCode = true
+        this.toResetBtnCode = !this.toResetBtnCode
         this.vmMsgWarning('请填写手机号或邮箱'); return
       }
       let data = this.createFormData({
@@ -307,11 +308,11 @@ export default {
         if (this.vmResponseHandler(res)) {
           this.vmMsgSuccess('验证码已发送！')
         } else {
-          this.toResetBtnCode = true
+          this.toResetBtnCode = this.toResetBtnCode = !this.toResetBtnCode
         }
       }).catch((e) => {
         this.vmMsgError('网络错误！')
-        this.toResetBtnCode = true
+        this.toResetBtnCode = this.toResetBtnCode = !this.toResetBtnCode
       })
     }, 300),
     changePassword: _.debounce(function () {
@@ -419,5 +420,15 @@ export default {
   }
   #rsakey {
     display: none;
+  }
+
+  .el-dialog .note {
+    position: absolute;
+    top: 5rem;
+    width: 100%;
+    left: 0;
+    text-align: center;
+    color: #e36068;
+    font-size: 1rem;
   }
 </style>

@@ -52,10 +52,6 @@ export default {
       })
       this.$http.post(ADMIN_POWERS_QUERY, param).then(res => {
         this.loading = false
-        if (res.data.statu === 0) {
-          this.$router.push('/login')
-          return false
-        }
         if (this.vmResponseHandler(res)) {
           this.resData = res.data
           let treeData = []
@@ -118,10 +114,6 @@ export default {
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
           this.$http.post(ADMIN_POWERS_EDIT, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('操作成功！')

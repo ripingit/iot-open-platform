@@ -215,10 +215,6 @@ export default {
       })
       this.$http.post(ADMIN_POWER_QUERY, param).then(res => {
         this.loading = false
-        if (res.data.statu === 0) {
-          this.$router.push('/login')
-          return false
-        }
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
           this.resData = res.data
@@ -235,10 +231,6 @@ export default {
         if (valid) {
           let param = this.createFormData(this.formAdd)
           this.$http.post(ADMIN_POWER_ADD, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('操作成功！')
               this.dialogVisible = false
@@ -260,10 +252,6 @@ export default {
             enable: this.formAdd2.enable
           })
           this.$http.post(ADMIN_POWER_EDIT, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('操作成功！')
               this.dialogVisible2 = false
@@ -296,10 +284,6 @@ export default {
         confirmCallback: () => {
           let loading = this.vmLoadingFull()
           this.$http.post(ADMIN_POWER_DEL, param).then(res => {
-            if (res.data.statu === 0) {
-              this.$router.push('/login')
-              return false
-            }
             loading.close()
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('删除成功！')

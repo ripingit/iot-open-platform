@@ -21,13 +21,8 @@ import PermissionLib from './lib/auth'
 // 拦截接口响应
 axios.interceptors.response.use((res) => {
   if (res.data.statu === 0) {
-    let identity = store.getters.getUserIdentity
     res.data.msg = '请重新登录！'
-    if (identity === Vue.prototype.identityCode.ADMIN) {
-      router.push('/login')
-    } else {
-      router.push('/signin')
-    }
+    router.push('/signin')
   }
   return res
 })
