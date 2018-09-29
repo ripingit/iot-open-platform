@@ -1,8 +1,14 @@
 import store from '@/store/index'
+import router from '@/router/index'
 import Vue from 'vue'
 
 let RoutingInterception = (to, from, next) => {
   let authState = store.getters.getAuthState
+  let identity = store.getters.getUserIdentity
+  if (identity !== Vue.prototype.identityCode.COOP) {
+    Vue.prototype.vmMsgError('无访问权限')
+    router.back(); return
+  }
   if (authState !== Vue.prototype.authCode.PASS) {
     Vue.prototype.vmMsgWarning('未通过认证，无法使用！'); return
   }
@@ -114,7 +120,7 @@ export let userRoute = [
       path: 'admins/:index',
       name: 'admins',
       component: resolve => require(['@/components/user/admin/admin'], resolve),
-      meta: { title: '用户信息', identity: [1] }
+      meta: { title: '平台用户', identity: [1] }
     }
   }, {
     id: 11001,
@@ -122,7 +128,7 @@ export let userRoute = [
       path: 'powerHome/:index',
       name: 'powerHome',
       component: resolve => require(['@/components/user/admin/powerHome'], resolve),
-      meta: { title: '权限管理', identity: 1 },
+      meta: { title: '权限设置', identity: 1 },
       children: [{
         path: '/',
         name: 'power',

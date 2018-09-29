@@ -14,11 +14,11 @@ module.exports = {
       '/': {
         target: 'http://192.168.9.155',
         changeOrigin: true,
-        secure: false,
+        secure: true,
         pathRewrite: {"^/api" : ""}
       }
     },
-    
+
 
     // Various Dev Server settings
     host: '192.168.8.229', // can be overwritten by process.env.HOST

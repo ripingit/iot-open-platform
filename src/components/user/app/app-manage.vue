@@ -73,7 +73,7 @@
           <el-table-column
             prop=""
             label="操作"
-            min-width="120">
+            min-width="80">
             <template slot-scope="scope">
               <el-button
                 class="btn-circle"
@@ -143,6 +143,15 @@
           <el-button @click="loadDownloadDialog" size="medium" type="primary">更多</el-button>
           <div class="split-line"></div>
           <el-input v-model="storeUrl" placeholder="请输入app下载地址" @change="downloadUrlSet"></el-input>
+          <UploadComponent
+            v-if="vmHasAuth(CoopPermissionsLib.UPLOAD_APP, tableData.res)"
+            class="uploader"
+            ref="uploaderApp"
+            :path="uploadPath"
+            :accept="['.apk']"
+            :size="200"
+            model="btn"
+            condition="请上传小于200M的apk文件" @response="getUploadResult"></UploadComponent>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="MD5值" prop="md5" class="form-row">
@@ -150,11 +159,7 @@
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="升级描述" prop="change_log" class="form-row">
-          <el-input type="textarea" :rows="2" placeholder="请输入升级描述" v-model="ruleForm.change_log"></el-input>
-          <!-- <quill-editor ref="myTextEditor"
-                        v-model="ruleForm.change_log"
-                        :options="editorOption">
-          </quill-editor> -->
+          <el-input type="textarea" :rows="6" placeholder="请输入升级描述" v-model="ruleForm.change_log"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row">
@@ -179,7 +184,7 @@
           <span class="detail_item">{{detailData.md5}}</span>
         </el-form-item>
         <el-form-item label="升级描述">
-          <span class="detail_item" v-html="vmEscapeToHTML(detailData.change_log)"></span>
+          <span class="detail_item log-pre" v-html="vmEscapeToHTML(detailData.change_log)"></span>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -204,16 +209,13 @@
 </template>
 <script>
 import '@/assets/css/content.css'
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
 import ScaleImgComponent from '@/components/_ui/scale-img.vue'
-import { quillEditor } from 'vue-quill-editor'
-import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST, GET_CLIENT_NAME_POST } from '@/lib/api.js'
+import UploadComponent from '@/components/_ui/upload.vue'
+import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST, GET_CLIENT_NAME_POST, COOP_APP_UPLOAD_POST } from '@/lib/api.js'
 import { appStore } from '@/lib/const'
 import _ from 'lodash'
 export default {
-  components: { quillEditor, ScaleImgComponent },
+  components: { ScaleImgComponent, UploadComponent },
   data () {
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
@@ -233,12 +235,6 @@ export default {
     }
     return {
       appStore: appStore,
-      editorOption: {
-        modules: {
-          toolbar: ''
-        },
-        placeholder: '请输入升级描述'
-      },
       inputVal: '',
       multipleSelection: [],
       tableData: {
@@ -249,6 +245,7 @@ export default {
         page: 1,
         page_size: 20
       },
+      uploadPath: COOP_APP_UPLOAD_POST,
       storeName: '',
       storeUrl: '',
       totalAll: 0,
@@ -299,6 +296,15 @@ export default {
       if (e.keyCode === 13) {
         if (this.updateStyle !== 'add') { return }
         this.submitForm()
+      }
+    },
+    getUploadResult (res) {
+      if (res) {
+        this.ruleForm.md5 = res.md5
+        this.ruleForm.url[0].url = res.cn_url
+        this.ruleForm.url[1].url = res.hk_url
+        parseInt(this.storeName) === 0 && (this.storeUrl = res.cn_url)
+        parseInt(this.storeName) === 1 && (this.storeUrl = res.hk_url)
       }
     },
 
@@ -530,5 +536,23 @@ export default {
     background: #1f7ecf;
     border: none;
     padding: 0.56rem 0.83rem;
+  }
+  .code-panel .uploader {
+    position: absolute;
+    width: 5rem;
+    height: 2.17rem;
+    right: 12.5rem;
+    top: 4rem;
+    font-size: 1rem;
+    border: none;
+  }
+  .uploader /deep/ .el-upload .only-btn {
+    height: 2.17rem;
+    width: 5rem;
+    padding: 0.56rem 0.83rem;
+    right: 0.3rem;
+  }
+  .uploader /deep/ .btn-progress {
+    left: 0;
   }
 </style>

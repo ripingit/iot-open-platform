@@ -78,7 +78,7 @@
                     <a :href="scope.row.file_id" target="_blank" class="download">下载</a>
                   </template>
                 </el-table-column>
-                <el-table-column
+                <!-- <el-table-column
                   prop="upload_status"
                   label="分发状态">
                   <template slot-scope="scope">
@@ -86,7 +86,7 @@
                        {{ scope.row.upload_status.join('') === '' ? '分发中' : scope.row.upload_status.join('') === 'success' ? '成功' : '失败' }}
                     </span>
                   </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column label="操作" v-if="vmHasAuth(AdminPermissionsLib.FIRMWARE_HISTORY, tableData.res)">
                   <template slot-scope="scope">
                     <el-button

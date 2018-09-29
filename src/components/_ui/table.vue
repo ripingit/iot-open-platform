@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{options.loading}}
     <el-row>
       <el-col :span="24">
         <el-table
@@ -36,7 +35,7 @@
     <el-row>
       <el-col>
         <el-pagination
-          v-if="data.length !== 0"
+          v-if="options.pageOptions && options.pageOptions.total !== 0"
           @size-change="handlerEmit"
           @current-change="handlerEmit"
           :page-size="options.pageOptions.pageSize"
@@ -53,21 +52,22 @@ export default {
   props: ['options', 'data'],
   data () {
     return {
-      config: {
-        columns: [{
-          prop: '',
-          width: '',
-          label: '',
-          render: function () {} // 将数据转换成需要的样子，如将1转成成功字样
-        }], // 通用列数据
-        loading: false,
-        hasNumber: true, // 是否有序号列
-        hasSelection: true, // 是否有选择列
-        pageOptions: {
-          pageSize: 0,
-          total: 0
-        }
-      }
+      // config: {
+      //   columns: [{
+      //     prop: '',
+      //     width: '',
+      //     label: '',
+      //     render: function () {} // 将数据转换成需要的样子，如将1转成成功字样
+      //   }], // 通用列数据
+      //   loading: false,
+      //   hasNumber: true, // 是否有序号列
+      //   hasSelection: true, // 是否有选择列
+      //   pageOptions: {
+      //     currentPage: 1,
+      //     pageSize: 0,
+      //     total: 0
+      //   }
+      // }
     }
   },
   methods: {
@@ -76,7 +76,8 @@ export default {
     },
 
     handlerEmit (page) {
-      this.$emit('page-change', page)
+      this.options.pageOptions.currentPage = page
+      this.$emit('page-change')
     }
   }
 }

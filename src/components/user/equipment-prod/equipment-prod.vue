@@ -18,6 +18,16 @@
                 clearable>
               </el-input>
               <el-button class="btn-search" type="primary" @click="getEquipmentLists(1)">查询</el-button>
+              <el-button class="btn-search" type="primary" @click="getTemplate()" v-if="vmHasAuth(CoopPermissionsLib.DEVICE_IMPORT, tableData.res)">下载模板</el-button>
+              <UploadComponent
+                v-if="vmHasAuth(CoopPermissionsLib.DEVICE_IMPORT, tableData.res)"
+                class="uploader-import"
+                ref="uploaderImport"
+                :path="importPath"
+                :accept="['.xls', '.xlsx']"
+                :size="2"
+                model="btn"
+                @response="getUploadResult"></UploadComponent>
               <!--<el-button class="btn-circle-delete el-button--primary is-circle" type="primary" icon="el-icon-plus" circle @click="addEquipment"></el-button>-->
             </el-col>
           </el-row>
@@ -127,10 +137,10 @@
           <template slot-scope="scope">{{ repairWayCode[scope.row.results_of_repair] }}</template>
         </el-table-column>
         <el-table-column
-          prop="prc"
+          prop="pic"
           label="返修图片">
           <template slot-scope="scope">
-            <ScaleImgComponent :path="scope.row.prc" style="width:5rem;height:5rem" alt="返修图片"></ScaleImgComponent>
+            <ScaleImgComponent :path="scope.row.pic" style="width:5rem;height:5rem" alt="返修图片"></ScaleImgComponent>
           </template>
         </el-table-column>
         <el-table-column
@@ -168,7 +178,7 @@
               <el-upload
                 :action="uploadPath"
                 name="photo"
-                accept=".jpg"
+                accept=".jpg,.jpeg,.png"
                 :before-upload="onBeforeUpload"
                 :on-success="onUploadSuccess"
                 :on-progress="onUploadProgress"
@@ -195,11 +205,12 @@
 <script>
 import '@/assets/css/content.css'
 import ScaleImgComponent from '@/components/_ui/scale-img.vue'
-import { GET_EQUIPMENT_POST, GET_EQUIPMENT_REWORK_POST, REWORK_UPLOAD_PIC_POST, REWORK_ADD_POST } from '@/lib/api'
+import UploadComponent from '@/components/_ui/upload.vue'
+import { GET_EQUIPMENT_POST, GET_EQUIPMENT_REWORK_POST, REWORK_UPLOAD_PIC_POST, REWORK_ADD_POST, COOP_PROD_TEMPLATE_POST, COOP_PROD_IMPORT_POST } from '@/lib/api'
 import _ from 'lodash'
 
 export default {
-  components: { ScaleImgComponent },
+  components: { ScaleImgComponent, UploadComponent },
   data () {
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
@@ -222,6 +233,7 @@ export default {
       isDialogVisibleList: false,
       isDialogVisibleAdd: false,
       uploadPath: REWORK_UPLOAD_PIC_POST,
+      importPath: COOP_PROD_IMPORT_POST,
       isUploading: true,
       uploadProgress: '',
       picTip: '格式为 jpg 且小于2M',
@@ -269,6 +281,16 @@ export default {
         this.getEquipmentLists(1)
       }
     },
+    getUploadResult (res) {
+      if (res.status) {
+        this.getEquipmentLists(1)
+      }
+    },
+    getTemplate: _.debounce(function () {
+      let aAchor = document.createElement('a')
+      aAchor.href = COOP_PROD_TEMPLATE_POST
+      aAchor.click()
+    }),
     reworkEquip (index, row) {
       this.reworkForm.device_id = row.device_id
       this.isUploading = true
@@ -318,8 +340,9 @@ export default {
     },
     onBeforeUpload (file) {
       let sizeM = file.size / 1024 / 1024
-      if (sizeM > 20) {
-        this.vmMsgError('图片大小不能超过 20 M！')
+      let imgArr = ['image/png', 'image/jpeg', 'image/jpg']
+      if (!imgArr.includes(file.type) || sizeM > 2) {
+        this.vmMsgError('请上传后缀为.jpg或.png或.jpeg且小于2M的图片')
         return false
       }
     },
@@ -394,5 +417,18 @@ export default {
   font-size: 1.2rem;
   background: #1f7ecf;
   border: none;
+}
+.uploader-import {
+  display: inline-block !important;
+}
+.uploader-import /deep/ .el-upload .only-btn {
+  border-radius: 3px;
+  margin-left: 1.5rem;
+  width: auto;
+  height: auto;
+  padding: 12px 20px;
+}
+.uploader-import /deep/ .btn-progress {
+  left: 0;
 }
 </style>

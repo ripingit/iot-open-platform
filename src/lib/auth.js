@@ -9,6 +9,7 @@ export default {
       ADD_DEVICE_CATE: { id: 1002, name: '设备类别添加' },
       DEL_DEVICE_CATE: { id: 1003, name: '设备类别删除' },
       DEL_DEVICE_MODEL: { id: 2003, name: '设备型号删除' },
+      UPDATE_DEVICE_MODEL: { id: 2006, name: '设备型号编辑' },
       FIRMWARE_HISTORY: { id: 3002, name: '固件升级记录' },
       DEL_COOP: { id: 4002, name: '合作商删除' },
       DEL_AUDIT_COMPANY: { id: 5002, name: '公司删除' },
@@ -33,13 +34,15 @@ export default {
       REMOVE_USER_FROM: { id: 11008, name: '用户组解除用户' },
       GOODS_ADD: { id: 13002, name: '商品添加' },
       REWORK_EQUIPMENT: { id: 14002, name: '查看设备返修' },
-      PERMISSION_COOP: { id: 4003, name: '查看合作商Key' }
+      PERMISSION_COOP: { id: 4003, name: '查看合作商Key' },
+      COOP_AUTH_SELECT: { id: 20002, name: '编辑合作商权限列表' }
     }
 
     /** 合作商 */
     Vue.prototype.CoopPermissionsLib = {
       DEL_APP: { id: 9002, name: 'APP删除' },
       ADD_APP: { id: 9003, name: '添加APP' },
+      UPLOAD_APP: { id: 9004, name: '上传APP' },
       GENERATE_KEY: { id: 17002, name: '生成Key' },
       ADD_NOTIFY_URL: { id: 17003, name: '添加回调地址' },
       ADD_FIREWARE: { id: 3003, name: '添加固件' },
@@ -48,7 +51,9 @@ export default {
       ADD_DEVICE_MODEL: { id: 2002, name: '设备型号添加' },
       DEL_DEVICE_MODEL: { id: 2003, name: '设备型号删除' },
       SET_DEVICE_MODEL: { id: 2004, name: '设备型号配置' },
+      GENERATE_DEVICE_ID: { id: 2005, name: '设备型号ID生成' },
       ADD_REWORK: { id: 14003, name: '设备返修记录添加' },
+      DEVICE_IMPORT: { id: 14005, name: '设备生产导入' },
       QUERY_REWORK: { id: 14002, name: '设备返修记录查询' },
       QUERY_REWORK_DEALER: { id: 19003, name: '设备管理返修记录查询' },
       ADD_REWORK_DEALER: { id: 19002, name: '设备管理返修记录添加' },

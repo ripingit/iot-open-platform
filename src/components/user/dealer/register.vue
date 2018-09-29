@@ -24,25 +24,28 @@
                   <el-input
                     placeholder="请输入公司或者商铺名称"
                     v-model="formData.name"
+                    :disabled="isUpdateForm"
                     clearable>
                   </el-input>
                 </el-form-item>
                 <el-form-item label="联系电话" prop="tel" class="row">
                   <el-input
                     placeholder="请输入联系电话"
-                    v-model="formData.tel">
+                    v-model="formData.tel"
+                    :disabled="isUpdateForm">
                   </el-input>
                 </el-form-item>
                 <el-form-item label="通讯地址" prop="addr" class="row">
                   <el-input
                     placeholder="请输入通讯地址"
-                    v-model="formData.addr">
+                    v-model="formData.addr"
+                    :disabled="isUpdateForm">
                   </el-input>
                 </el-form-item>
-                <el-form-item class="forgot" prop="protocolChecked">
+                <el-form-item class="forgot" prop="protocolChecked" v-if='isShowBtn'>
                   <el-checkbox v-model="formData.protocolChecked">同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a></el-checkbox>
                 </el-form-item>
-                <el-form-item>
+                <el-form-item v-if='isShowBtn'>
                   <el-button class="btn-signup" type="primary" @click="signUp">注册</el-button>
                 </el-form-item>
               </el-form>
@@ -98,6 +101,10 @@ export default {
     }
 
     return {
+      // 判断是否显示提交按钮，是经销商就不显示
+      isShowBtn: false,
+      // 判断是否禁止编辑表单
+      isUpdateForm: false,
       formData: {
         role: this.merchantCode.dealer,
         name: '',
@@ -123,6 +130,7 @@ export default {
   },
   created () {
     document.body.addEventListener('keydown', this.keyCodeDown, false)
+    this.queryState()
   },
   beforeDestroy () {
     document.body.removeEventListener('keydown', this.keyCodeDown, false)
@@ -166,7 +174,30 @@ export default {
           })
         }
       })
-    }, 300)
+    }, 300),
+
+    queryState () {
+      Promise.all([this.getState(this.merchantCode.coop), this.getState(this.merchantCode.dealer)]).then(res => {
+        if (res[0].data.company_status === this.authCode.PASS) {
+          // 为合作商，显示合作商信息，禁止修改
+          this.formData.name = res[0].data.data.name
+          this.formData.addr = res[0].data.data.addr
+          this.formData.tel = res[0].data.data.tel
+          this.isUpdateForm = true
+          return false
+        }
+        if (!res[1].data.DealerAndCompanys) {
+          // 不是合作商且未注册为经销商，可以进行经销商注册
+          this.isShowBtn = true
+        } else {
+          // 是经销商，显示经销商信息，禁止修改
+          this.formData.name = res[1].data.data.name
+          this.formData.addr = res[1].data.data.addr
+          this.formData.tel = res[1].data.data.tel
+          this.isUpdateForm = true
+        }
+      })
+    }
   }
 }
 </script>

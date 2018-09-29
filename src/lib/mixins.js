@@ -17,3 +17,50 @@ export function getState (code) {
     })
   })
 }
+
+/** 设备分类 */
+export const deviceCategory = [
+  {
+    value: 1,
+    label: 'IPC'
+  }, {
+    value: 2,
+    label: 'NVR'
+  }, {
+    value: 3,
+    label: 'DVR'
+  }, {
+    value: 4,
+    label: 'PIPC'
+  }
+]
+
+/** 解码方式 */
+export const decodeFormat = [
+  {
+    value: 0,
+    label: '多通道'
+  }, {
+    value: 1,
+    label: '多路合成'
+  }
+]
+
+/** 校正解码 */
+export const pipcDvDecode = [
+  {
+    value: 1,
+    label: '中科龙智'
+  }
+]
+
+/** 音频模式 */
+export const audioMode = [
+  {
+    value: 1,
+    label: '半双工'
+  }, {
+    value: 2,
+    label: '全双工'
+  }
+]

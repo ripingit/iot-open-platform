@@ -73,12 +73,17 @@ export const adminMenuRouteMap = [
         id: 10001,
         path: '/manage/admin/admins',
         icon: '',
-        name: '用户信息'
+        name: '平台用户'
       }, {
         id: 11001,
         path: '/manage/admin/powerHome',
         icon: '',
-        name: '权限管理'
+        name: '权限设置'
+      }, {
+        id: 20001,
+        path: '/manage/admin/coopAuth',
+        icon: '',
+        name: '合作权限'
       }
     ],
     auth: true

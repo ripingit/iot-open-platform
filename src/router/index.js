@@ -20,12 +20,16 @@ const router = new Router({
       path: '/qrcode/:appName/:company',
       component: resolve => require(['@/components/qrcode'], resolve),
       meta: { title: '二维码' }
+    }, {
+      path: '/test',
+      component: resolve => require(['@/components/_ui/test.vue'], resolve),
+      meta: { title: '测试页面' }
     }
   ]
 })
 
 router.beforeEach((to, from, next) => {
-  let filter = ['/signin', '/signup', '/qrcode']
+  let filter = ['/signin', '/signup', '/qrcode', '/test']
 
   if (filter.includes(to.fullPath) || to.fullPath.indexOf('/qrcode') !== -1) {
     next(); return

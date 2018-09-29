@@ -104,7 +104,7 @@
           <span class="detail_item">{{detailData.md5}}</span>
         </el-form-item>
         <el-form-item label="升级描述">
-          <span class="detail_item">{{detailData.change_log}}</span>
+          <span class="detail_item log-pre">{{detailData.change_log}}</span>
         </el-form-item>
       </el-form>
     </el-dialog>

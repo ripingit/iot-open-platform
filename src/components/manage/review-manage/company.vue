@@ -51,6 +51,11 @@
                   width="180">
                 </el-table-column>
                 <el-table-column
+                  prop="en_name"
+                  label="公司英文名称"
+                  width="180">
+                </el-table-column>
+                <el-table-column
                   prop="create_time"
                   label="提交时间">
                 </el-table-column>

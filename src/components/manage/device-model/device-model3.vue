@@ -38,130 +38,183 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="24">
-          <TableComponent :options="tableOptions" :data="tableData" v-on:page-change="onSubmit" v-on:selection="handleSelectionChange">
-            <el-table-column prop="" label="操作" slot="handler">
-              <template slot-scope="scope">
-                <el-button class="btn-circle"
-                            icon="iconfont icon-setting"
-                            size="mini"
-                            circle
-                            @click="editDevice(scope.row)"></el-button>
-                <el-button class="btn-circle"
-                            v-if="vmHasAuth(AdminPermissionsLib.UPDATE_DEVICE_MODEL, resData.res)"
-                            icon="iconfont icon-bianji"
-                            size="mini"
-                            circle
-                            @click="updateDevice(scope.row)"></el-button>
-              </template>
+        <el-table
+          v-loading="loading"
+          :data="tableData"
+          style="width: 100%;"
+          @selection-change="handleSelectionChange">
+          <el-table-column
+            type="selection">
+          </el-table-column>
+          <el-table-column
+            type="index"
+            width="100"
+            label="编号">
+          </el-table-column>
+          <el-table-column
+            prop="product_name"
+            label="型号名称">
+          </el-table-column>
+          <el-table-column
+            prop="product_code"
+            label="型号代码"
+            width="150">
             </el-table-column>
-            <template slot-scope="scope" slot="pic1_fileid">
-              <ScaleImgComponent :path="scope.row.pic1_fileid" style="width:5rem;height:5rem" alt="图1"></ScaleImgComponent>
+          <el-table-column
+            prop="nbi_code"
+            label="连接方式">
+          </el-table-column>
+          <el-table-column
+            prop=" pic1_fileid"
+            label="图1">
+            <template slot-scope="scope">
+              <div>
+                <ScaleImgComponent :path="scope.row.pic1_fileid" style="width:5rem;height:5rem" alt="图1"></ScaleImgComponent>
+              </div>
             </template>
-            <template slot-scope="scope" slot="pic2_fileid">
-              <ScaleImgComponent :path="scope.row.pic2_fileid" style="width:5rem;height:5rem" alt="图2"></ScaleImgComponent>
+          </el-table-column>
+          <el-table-column
+            prop=" pic2_fileid"
+            label="图2">
+            <template slot-scope="scope">
+              <div>
+                <ScaleImgComponent :path="scope.row.pic2_fileid" style="width:5rem;height:5rem" alt="图2"></ScaleImgComponent>
+              </div>
             </template>
-          </TableComponent>
-        </el-col>
+          </el-table-column>
+          <el-table-column
+            prop="rom_ver"
+            label="固件版本">
+          </el-table-column>
+          <el-table-column
+            prop="upgrade_time"
+            label="添加时间">
+          </el-table-column>
+          <el-table-column
+            prop="company_name"
+            label="所属公司"
+            width="200">
+          </el-table-column>
+          <el-table-column
+            prop=""
+            label="操作">
+            <template slot-scope="scope">
+              <el-button class="btn-circle"
+                          icon="iconfont icon-setting"
+                          size="mini"
+                          circle
+                          @click="editDevice(scope.row)"></el-button>
+              <el-button class="btn-circle"
+                          icon="iconfont icon-bianji"
+                          size="mini"
+                          circle
+                          @click="updateDevice(scope.row)"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-row>
+      <el-row v-if="total>page" type="flex" justify="center">
+        <el-pagination
+          @current-change="handleCurrentChange"
+          :current-page.sync="currentPage"
+          :page-size="page"
+          layout="prev, pager, next, jumper"
+          :total="total">
+        </el-pagination>
       </el-row>
     </el-row>
 
     <el-dialog
       title="型号配置"
-      :visible.sync="isConfigModalShow"
+      :visible.sync="editDialog"
       center
-      style="margin-top: -6vh;">
+      style="margin-top: -6vh;"
+      :before-close="handleClose">
       <el-row class="device-model-editdialog">
         <el-col :span="24" style="padding:0 0 1rem 2.5rem;">
           <div>型号名称：{{dialogData.product_name}}</div>
-          <div style="padding-top: 1rem">连接方式：{{dialogData.nbi_code}}</div>
+          <div>连接方式：{{dialogData.nbi_code}}</div>
         </el-col>
         <el-col :span="24">
           <el-form label-width="100px" :model="formConfig" status-icon ref="ConfigForm">
-            <template v-if="isIPCC">
-              <el-col :span="24" class="device-model-editdialog-title">IPC分类（IPCC）</el-col>
-              <el-form-item label="设备分类" class="form-row" prop="class0">
-                <el-select v-model="formConfig.class0" placeholder="请选择" disabled>
-                  <el-option
-                    v-for="item in class_options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="解码方式" class="form-row" prop="dec">
-                <el-select v-model="formConfig.dec" placeholder="请选择" disabled>
-                  <el-option
-                    v-for="item in dec_options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="设备通道数" class="form-row" prop="chans">
-                <el-input v-model="formConfig.chans" disabled></el-input>
-              </el-form-item>
-              <el-form-item label="校正解码" class="form-row" prop="pipc_dv">
-                <el-select v-model="formConfig.pipc_dv" placeholder="请选择" disabled>
-                  <el-option
-                    v-for="item in pipc_dv_options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="音频模式" class="form-row" prop="audio">
-                <el-select v-model="formConfig.audio" placeholder="请选择" disabled>
-                  <el-option
-                    v-for="item in audio_options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="麦克风" class="form-row" prop="mic">
-                <el-radio v-model="formConfig.mic" label="1" disabled>支持</el-radio>
-                <el-radio v-model="formConfig.mic" label="0" disabled>不支持</el-radio>
-              </el-form-item>
-              <el-form-item label="喇叭" class="form-row" prop="speaker">
-                <el-radio v-model="formConfig.speaker" label="1" disabled>支持</el-radio>
-                <el-radio v-model="formConfig.speaker" label="0" disabled>不支持</el-radio>
-              </el-form-item>
-              <el-form-item label="存储卡" class="form-row" prop="sdcard">
-                <el-radio v-model="formConfig.sdcard" label="1" disabled>支持</el-radio>
-                <el-radio v-model="formConfig.sdcard" label="0" disabled>不支持</el-radio>
-              </el-form-item>
-              <el-form-item label="云存储" class="form-row" prop="yun">
-                <el-radio v-model="formConfig.yun" label="1" disabled>支持</el-radio>
-                <el-radio v-model="formConfig.yun" label="0" disabled>不支持</el-radio>
-              </el-form-item>
-              <el-form-item label="云台控制" class="form-row" prop="ptzctrl">
-                <el-radio v-model="formConfig.ptzctrl" label="1" disabled>水平</el-radio>
-                <el-radio v-model="formConfig.ptzctrl" label="2" disabled>垂直</el-radio>
-                <el-radio v-model="formConfig.ptzctrl" label="3" disabled>水平+垂直</el-radio>
-                <el-radio v-model="formConfig.ptzctrl" label="0" disabled>不支持</el-radio>
-              </el-form-item>
-              <el-form-item label="指示灯" class="form-row" prop="status_light">
-                <el-radio v-model="formConfig.status_light" label="1" disabled>有</el-radio>
-                <el-radio v-model="formConfig.status_light" label="0" disabled>没有</el-radio>
-              </el-form-item>
-            </template>
-            <template v-if="isBHCC">
+          <div v-if="showList1">
+            <el-col :span="24" class="device-model-editdialog-title">IPC分类（IPCC）</el-col>
+            <el-form-item label="设备分类" class="form-row" prop="class0">
+              <el-select v-model="formConfig.class0" placeholder="请选择" disabled>
+                <el-option
+                  v-for="item in class_options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="解码方式" class="form-row" prop="dec">
+              <el-select v-model="formConfig.dec" placeholder="请选择" disabled>
+                <el-option
+                  v-for="item in dec_options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="设备通道数" class="form-row" prop="chans">
+              <el-input v-model="formConfig.chans" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="校正解码" class="form-row" prop="pipc_dv">
+              <el-select v-model="formConfig.pipc_dv" placeholder="请选择" disabled>
+                <el-option
+                  v-for="item in pipc_dv_options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="音频模式" class="form-row" prop="audio">
+              <el-select v-model="formConfig.audio" placeholder="请选择" disabled>
+                <el-option
+                  v-for="item in audio_options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="麦克风" class="form-row" prop="mic">
+              <el-radio v-model="formConfig.mic" label="1" disabled>支持</el-radio>
+              <el-radio v-model="formConfig.mic" label="0" disabled>不支持</el-radio>
+            </el-form-item>
+            <el-form-item label="喇叭" class="form-row" prop="speaker">
+              <el-radio v-model="formConfig.speaker" label="1" disabled>支持</el-radio>
+              <el-radio v-model="formConfig.speaker" label="0" disabled>不支持</el-radio>
+            </el-form-item>
+            <el-form-item label="存储卡" class="form-row" prop="sdcard">
+              <el-radio v-model="formConfig.sdcard" label="1" disabled>支持</el-radio>
+              <el-radio v-model="formConfig.sdcard" label="0" disabled>不支持</el-radio>
+            </el-form-item>
+            <el-form-item label="云存储" class="form-row" prop="yun">
+              <el-radio v-model="formConfig.yun" label="1" disabled>支持</el-radio>
+              <el-radio v-model="formConfig.yun" label="0" disabled>不支持</el-radio>
+            </el-form-item>
+            <el-form-item label="云台控制" class="form-row" prop="ptzctrl">
+              <el-radio v-model="formConfig.ptzctrl" label="1">支持</el-radio>
+              <el-radio v-model="formConfig.ptzctrl" label="0">不支持</el-radio>
+            </el-form-item>
+          </div>
+            <div v-if="showList2">
               <el-col :span="24" class="device-model-editdialog-title">情景按钮（BHSC）</el-col>
               <el-form-item label="按钮数量" class="form-row" prop="num">
                 <el-input v-model="formConfig.num" disabled></el-input>
               </el-form-item>
-            </template>
-            <template v-if="isCMSW">
+            </div>
+            <div v-if="showList3">
               <el-col :span="24" class="device-model-editdialog-title">组合开关（CMSW）</el-col>
               <el-form-item label="开关数量" class="form-row" prop="num2">
                 <el-input v-model="formConfig.num2" disabled></el-input>
               </el-form-item>
-            </template>
+            </div>
           </el-form>
         </el-col>
       </el-row>
@@ -170,18 +223,19 @@
     <el-dialog
       title="型号编辑"
       :visible.sync="dialogVisible"
-      center>
-      <el-form label-width="100px" status-icon :model="formUpdate" ref="AddForm" :rules="rules">
+      center
+      :before-close="handleClose">
+      <el-form label-width="100px" status-icon :model="formAdd" ref="AddForm" :rules="rules">
         <el-form-item label="型号名称" class="form-row" prop="product_name">
-          <el-input v-model="formUpdate.product_name" disabled></el-input>
+          <el-input v-model="formAdd.product_name"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="型号代码" class="form-row" prop="product_code">
-          <el-input v-model="formUpdate.product_code" maxlength="6" disabled></el-input>
+          <el-input v-model="formAdd.product_code" maxlength="6"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="连接方式" class="form-row" prop="nbi_code">
-          <el-select v-model="formUpdate.nbi_code" multiple placeholder="请选择连接方式">
+          <el-select v-model="formAdd.nbi_code" multiple placeholder="请选择连接方式">
             <el-option
               v-for="item in nbi_code_options"
               :key="item.nbi_code"
@@ -192,7 +246,7 @@
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="设备类别" class="form-row" prop="prodt_code">
-          <el-select v-model="formUpdate.prodt_code" multiple disabled placeholder="请选择设备类别">
+          <el-select v-model="formAdd.prodt_code" multiple placeholder="请选择设备类别">
             <el-option
               v-for="item in prodt_code_options"
               :key="item.prodt_code"
@@ -202,19 +256,19 @@
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="在线图片" class="form-row" prop="pic1_fileid">
+        <el-form-item label="效果图1" class="form-row" prop="pic1">
           <el-col :span="24" style="line-height:1.2">
-            <span class="device-model-uploadImg" v-if="isPiconeUploading">{{piconeUploadProgress}}</span>
+            <span class="device-model-uploadImg" v-if="isUploading">{{uploadProgress}}</span>
             <div v-else class="device-model-uploadImg" style="position: relative;display: inline-block">
-              <img class="device-model-uploadImg" :src="piconePath"/>
-              <i class="el-icon-zoom-in showBig" @click="piconeDialogVisible=true"></i>
+              <img class="device-model-uploadImg" :src="picPath"/>
+              <i class="el-icon-zoom-in showBig" @click="dialogVisibleImg=true"></i>
             </div>
             <div style="display: inline-block;">
               <el-upload
                 :action="uploadPath"
                 :data="{pic:1}"
                 name="photo"
-                accept=".jpg,.jpeg,.png"
+                accept=".jpg"
                 :before-upload="onBeforeUpload"
                 :on-success="onUploadSuccess"
                 :on-progress="onUploadProgress"
@@ -223,29 +277,29 @@
                 <el-button class="btn-upload" size="small" type="primary">上传</el-button>
               </el-upload>
             </div>
-            <el-dialog :modal="false" :visible.sync="piconeDialogVisible">
-              <img width="100%" :src="piconePath"/>
+            <el-dialog :modal="false" :visible.sync="dialogVisibleImg">
+              <img width="100%" :src="picPath"/>
             </el-dialog>
             <div class="device-model-div">
               <p>底色：白色</p>
-              <p>尺寸：608*470</p>
+              <p>尺寸：210*180</p>
               <p>图片大小不超过2M</p>
             </div>
           </el-col>
         </el-form-item>
-        <el-form-item label="离线图片" class="form-row" prop="pic2_fileid">
+        <el-form-item label="效果图2" class="form-row" prop="pic2">
           <el-col :span="24" style="line-height:1.2">
-            <span class="device-model-uploadImg" v-if="isPictwoUploading">{{pictwoUploadProgress}}</span>
-            <div v-if="!isPictwoUploading" class="device-model-uploadImg" style="position: relative;display: inline-block">
-              <img class="device-model-uploadImg" :src="pictwoPath"/>
-              <i class="el-icon-zoom-in showBig" @click="pictwoDialogVisible=true"></i>
+            <span class="device-model-uploadImg" v-if="isUploading2">{{uploadProgress2}}</span>
+            <div v-if="!isUploading2" class="device-model-uploadImg" style="position: relative;display: inline-block">
+              <img class="device-model-uploadImg" :src="picPath2"/>
+              <i class="el-icon-zoom-in showBig" @click="dialogVisibleImg2=true"></i>
             </div>
             <div style="display: inline-block;">
               <el-upload
                 :action="uploadPath"
                 :data="{pic:2}"
                 name="photo"
-                accept=".jpg,.jpeg,.png"
+                accept=".jpg"
                 :before-upload="onBeforeUpload2"
                 :on-success="onUploadSuccess2"
                 :on-progress="onUploadProgress2"
@@ -254,12 +308,12 @@
                 <el-button class="btn-upload" size="small" type="primary">上传</el-button>
               </el-upload>
             </div>
-            <el-dialog :modal="false" :visible.sync="pictwoDialogVisible">
-              <img width="100%" :src="pictwoPath"/>
+            <el-dialog :modal="false" :visible.sync="dialogVisibleImg2">
+              <img width="100%" :src="picPath2"/>
             </el-dialog>
             <div class="device-model-div">
               <p>底色：白色</p>
-              <p>尺寸：608*470</p>
+              <p>尺寸：388*250</p>
               <p>图片大小不超过2M</p>
             </div>
           </el-col>
@@ -274,23 +328,11 @@
 <script>
 import '@/assets/css/content.css'
 import _ from 'lodash'
-import { deviceCategory, decodeFormat, pipcDvDecode, audioMode } from '@/lib/mixins'
-import { validateProductCode } from '@/lib/validate.js'
+import { validateProductCode } from '../../../lib/validate.js'
 import ScaleImgComponent from '@/components/_ui/scale-img.vue'
-import TableComponent from '@/components/_ui/table.vue'
-import { EQUIPMENT_MODEL_QUERY, EQUIPMENT_MODEL_DELETE, ADMIN_EQUIPMENT_MODEL_UPLOADIMG, ADMIN_EQUIPMENT_MODEL_UPDATE } from '../../../lib/api.js'
+import { EQUIPMENT_MODEL_QUERY, EQUIPMENT_MODEL_DELETE, USER_EQUIPMENT_MODEL_CONFIG, USER_EQUIPMENT_MODEL_UPLOADIMG } from '../../../lib/api.js'
 export default {
-  components: { ScaleImgComponent, TableComponent },
-  mixins: [{
-    data () {
-      return {
-        class_options: deviceCategory,
-        dec_options: decodeFormat,
-        pipc_dv_options: pipcDvDecode,
-        audio_options: audioMode
-      }
-    }
-  }],
+  components: { ScaleImgComponent },
   data () {
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
@@ -302,9 +344,9 @@ export default {
           callback(new Error('请选择连接方式'))
         } else if (rule.field === 'prodt_code') {
           callback(new Error('请选择设备类别'))
-        } else if (rule.field === 'pic1_fileid') {
+        } else if (rule.field === 'pic1') {
           callback(new Error('请上传图1'))
-        } else if (rule.field === 'pic2_fileid') {
+        } else if (rule.field === 'pic2') {
           callback(new Error('请上传图2'))
         } else if (rule.field === 'class0') {
           callback(new Error('请选择设备分类'))
@@ -331,11 +373,103 @@ export default {
       callback()
     }
     return {
+      dialogVisible: false,
+      formInline: {
+        ChoiceTime: '',
+        query_by_name: ''
+      },
+      tableData: [],
+      dialogData: [],
+      editDialog: false,
+      showList1: false,
+      showList2: false,
+      showList3: false,
+      formConfig: {},
+      resData: [],
+      loading: false,
+      isUploading: false,
+      isUploading2: false,
+      uploadPath: USER_EQUIPMENT_MODEL_UPLOADIMG,
+      picPath: '',
+      dialogVisibleImg: false,
+      uploadProgress: '',
+      picPath2: '',
+      dialogVisibleImg2: false,
+      multipleSelection: [],
+      currentPage: 1,
+      total: 0,
+      page: 20,
+      formAdd: {
+        product_name: '',
+        product_code: '',
+        nbi_code: [],
+        prodt_code: [],
+        pic1: '',
+        pic2: ''
+      },
+      nbi_code_options: [],
+      prodt_code_options: [],
+      class_options: [
+        {
+          value: 1,
+          label: 'IPC'
+        },
+        {
+          value: 2,
+          label: 'NVR'
+        },
+        {
+          value: 3,
+          label: 'DVR'
+        },
+        {
+          value: 4,
+          label: 'PIPC'
+        }
+      ],
+      dec_options: [
+        {
+          value: 0,
+          label: '多通道'
+        },
+        {
+          value: 1,
+          label: '多路合成'
+        }
+      ],
+      pipc_dv_options: [
+        {
+          value: 1,
+          label: '中科龙智'
+        }
+      ],
+      audio_options: [
+        {
+          value: 1,
+          label: '半双工'
+        },
+        {
+          value: 2,
+          label: '全双工'
+        }
+      ],
       rules: {
-        pic1_fileid: [
+        product_name: [
           { validator: validateIsEmpty, trigger: 'blur' }
         ],
-        pic2_fileid: [
+        product_code: [
+          { validator: validateIsEmpty, trigger: 'change' }
+        ],
+        nbi_code: [
+          { validator: validateIsEmpty, trigger: 'change' }
+        ],
+        prodt_code: [
+          { validator: validateIsEmpty, trigger: 'change' }
+        ],
+        pic1: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        pic2: [
           { validator: validateIsEmpty, trigger: 'blur' }
         ],
         class0: [
@@ -359,83 +493,6 @@ export default {
         num2: [
           { validator: validateIsEmpty, trigger: 'blur' }
         ]
-      },
-      dialogVisible: false,
-      formInline: {
-        ChoiceTime: '',
-        query_by_name: ''
-      },
-      formUpdate: {
-        product_name: '',
-        product_code: '',
-        nbi_code: [],
-        prodt_code: [],
-        pic1_fileid: '',
-        pic2_fileid: '',
-        url_old1: '',
-        url_old2: ''
-      },
-      uploadPath: ADMIN_EQUIPMENT_MODEL_UPLOADIMG,
-      piconePath: '',
-      piconeDialogVisible: false,
-      isPiconeUploading: false,
-      piconeUploadProgress: '',
-      pictwoPath: '',
-      pictwoDialogVisible: false,
-      isPictwoUploading: false,
-      pictwoUploadProgress: '',
-      tableData: [],
-      tableDataCache: [],
-      dialogData: [],
-      isConfigModalShow: false,
-      isIPCC: false,
-      isBHCC: false,
-      isCMSW: false,
-      formConfig: {},
-      resData: [],
-      loading: false,
-      multipleSelection: [],
-      nbi_code_options: [],
-      prodt_code_options: [],
-      tableOptions: {
-        loading: true,
-        hasSelection: true,
-        hasNumber: true,
-        pageOptions: {
-          pageSize: 20,
-          total: 0,
-          currentPage: 1
-        },
-        columns: [
-          {
-            label: '型号名称',
-            prop: 'product_name'
-          }, {
-            prop: 'product_code',
-            label: '型号代码'
-          }, {
-            prop: 'nbi_code',
-            label: '连接方式'
-          }, {
-            prop: 'pic1_fileid',
-            label: '图1',
-            slotName: 'pic1_fileid'
-          }, {
-            prop: 'pic2_fileid',
-            label: '图2',
-            slotName: 'pic2_fileid'
-          }, {
-            prop: 'rom_ver',
-            label: '固件版本'
-          }, {
-            prop: 'upgrade_time',
-            label: '添加时间'
-          }, {
-            prop: 'company_name',
-            label: '所属公司',
-            width: 200
-          }
-        ]
       }
     }
   },
@@ -453,28 +510,22 @@ export default {
       }
     },
     onSubmit: _.debounce(function () {
+      this.loading = true
       let param = this.createFormData({
-        page: parseInt(this.tableOptions.pageOptions.currentPage),
-        page_size: parseInt(this.tableOptions.pageOptions.pageSize),
+        page: parseInt(this.currentPage),
+        page_size: parseInt(this.page),
         query_by_name: this.formInline.query_by_name,
         start_time: this.formInline.ChoiceTime ? this.formInline.ChoiceTime[0] : '',
         end_time: this.formInline.ChoiceTime ? this.formInline.ChoiceTime[1] : ''
       })
-      this.tableOptions.loading = true
       this.$http.post(EQUIPMENT_MODEL_QUERY, param).then(res => {
-        this.tableOptions.loading = false
         if (this.vmResponseHandler(res)) {
           let codeObj = {}
           res.data.Nbi.forEach(val => {
-            this.nbi_code_options = val
             val.forEach(subval => {
               codeObj[subval.nbi_code] = subval.nbi_code_name
             })
           })
-          res.data.prodtList.forEach(val => {
-            this.prodt_code_options = val
-          })
-          this.tableDataCache = JSON.parse(JSON.stringify(res.data.data))
           this.tableData = res.data.data.map(val => {
             if (Array.isArray(val.nbi_code)) {
               val.nbi_code = val.nbi_code.map(subval => codeObj[subval]).join('、')
@@ -482,11 +533,12 @@ export default {
             return val
           })
           this.resData = res.data
-          this.tableOptions.pageOptions.total = res.data.total
+          this.total = res.data.total
+          this.loading = false
         }
       }
       ).catch(() => {
-        this.tableOptions.loading = false
+        this.loading = false
         this.vmMsgError('网络错误！')
       })
     }, 300),
@@ -525,10 +577,10 @@ export default {
         return
       }
       this.dialogData = row
-      this.isIPCC = this.dialogData.prodt_code.indexOf('IPCC') > -1
-      this.isBHCC = this.dialogData.prodt_code.indexOf('BHSC') > -1
-      this.isCMSW = this.dialogData.prodt_code.indexOf('CMSW') > -1
-      this.isConfigModalShow = true
+      this.showList1 = this.dialogData.prodt_code.indexOf('IPCC') > -1
+      this.showList2 = this.dialogData.prodt_code.indexOf('BHSC') > -1
+      this.showList3 = this.dialogData.prodt_code.indexOf('CMSW') > -1
+      this.editDialog = true
       this.formConfig = {}
       if (row.config_status) {
         let rowData = JSON.parse(row.config_status)
@@ -544,13 +596,74 @@ export default {
           speaker: (rowData[0].conf.speaker === 0 || rowData[0].conf.speaker === 1) ? String(rowData[0].conf.speaker) : '0',
           sdcard: (rowData[0].conf.sdcard === 0 || rowData[0].conf.sdcard === 1) ? String(rowData[0].conf.sdcard) : '0',
           yun: (rowData[0].conf.yun === 0 || rowData[0].conf.yun === 1) ? String(rowData[0].conf.yun) : '0',
-          ptzctrl: (rowData[0].conf.ptzctrl === 0 || rowData[0].conf.ptzctrl === 1 || rowData[0].conf.ptzctrl === 2 || rowData[0].conf.ptzctrl === 3) ? String(rowData[0].conf.ptzctrl) : '0',
-          status_light: (rowData[0].conf.status_light === 0 || rowData[0].conf.status_light === 1) ? String(rowData[0].conf.status_light) : '0'
+          ptzctrl: (rowData[0].conf.ptzctrl === 0 || rowData[0].conf.ptzctrl === 1) ? String(rowData[0].conf.ptzctrl) : '0'
         }
       }
     },
+    ConfigSubmit () {
+      this.$refs['ConfigForm'].validate((valid) => {
+        if (valid) {
+          let param = null
+          if (this.showList1) {
+            param = this.createFormData({
+              product_code: this.dialogData.product_code,
+              config: JSON.stringify([{
+                prodt_code: 'IPCC',
+                conf: {
+                  class: parseInt(this.formConfig.class0),
+                  chans: parseInt(this.formConfig.chans),
+                  dec: parseInt(this.formConfig.dec),
+                  pipc_dv: parseInt(this.formConfig.pipc_dv),
+                  audio: parseInt(this.formConfig.audio)
+                }
+              }])
+            })
+          }
+          if (this.showList2) {
+            param = this.createFormData({
+              product_code: this.dialogData.product_code,
+              config: JSON.stringify([{
+                prodt_code: 'BHSC',
+                conf: {
+                  num: parseInt(this.formConfig.num)
+                }
+              }])
+            })
+          }
+          if (this.showList3) {
+            param = this.createFormData({
+              product_code: this.dialogData.product_code,
+              config: JSON.stringify([{
+                prodt_code: 'CMSW',
+                conf: {
+                  num: parseInt(this.formConfig.num2)
+                }
+              }])
+            })
+          }
+          this.$http.post(USER_EQUIPMENT_MODEL_CONFIG, param).then(res => {
+            if (res.data.statu === 0) {
+              this.$router.push('/signin')
+              return false
+            }
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('操作成功！')
+              this.editDialog = false
+              this.$refs['ConfigForm'].resetFields()
+              this.onSubmit()
+            }
+          }).catch(() => {
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
+    },
     handleSelectionChange (val) {
       this.multipleSelection = val
+    },
+    handleCurrentChange (val) {
+      this.currentPage = val
+      this.onSubmit(val)
     },
     handleClose (done) {
       done()
@@ -564,20 +677,21 @@ export default {
       }
     },
     onUploadSuccess (response, file, fileList) {
-      this.piconeUploadProgress = ''
+      this.uploadProgress = ''
+      // 上传
       if (response.statu === 0) {
         this.$router.push('/signin'); return
       }
       if (!response.status) {
         this.vmMsgError(response.msg); return
       }
-      this.isPiconeUploading = false
-      this.piconePath = file.url
-      this.formUpdate.pic1_fileid = response.pic1_fileid
+      this.isUploading = false
+      this.picPath = file.url
+      this.formAdd.pic1 = file.url
     },
     onUploadProgress (event, file, fileList) {
-      this.isPiconeUploading = true
-      this.piconeUploadProgress = '已上传' + event.percent + '%'
+      this.isUploading = true
+      this.uploadProgress = '已上传' + event.percent + '%'
     },
     onUploadError (err, file, fileList) {
       this.vmMsgError(err)
@@ -591,7 +705,7 @@ export default {
       }
     },
     onUploadSuccess2 (response, file, fileList) {
-      this.pictwoUploadProgress = ''
+      this.uploadProgress2 = ''
       // 上传
       if (response.statu === 0) {
         this.$router.push('/signin'); return
@@ -599,52 +713,27 @@ export default {
       if (!response.status) {
         this.vmMsgError(response.msg); return
       }
-      this.isPictwoUploading = false
-      this.pictwoPath = file.url
-      this.formUpdate.pic2_fileid = response.pic2_fileid
+      this.isUploading2 = false
+      this.picPath2 = file.url
+      this.formAdd.pic2 = file.url
     },
     onUploadProgress2 (event, file, fileList) {
-      this.isPictwoUploading = true
-      this.pictwoUploadProgress = '已上传' + event.percent + '%'
+      this.isUploading2 = true
+      this.uploadProgress2 = '已上传' + event.percent + '%'
     },
     onUploadError2 (err, file, fileList) {
       this.vmMsgError(err)
     },
     updateDevice (row) {
-      let tempRow = this.tableDataCache.find(o => o.product_code === row.product_code)
       this.dialogVisible = true
-      this.isPiconeUploading = false
-      this.isPictwoUploading = false
-      this.formUpdate.product_name = tempRow.product_name
-      this.formUpdate.product_code = tempRow.product_code
-      this.formUpdate.nbi_code = tempRow.nbi_code
-      this.formUpdate.prodt_code = tempRow.prodt_code
-      this.formUpdate.url_old1 = tempRow.pic1_fileid
-      this.formUpdate.url_old2 = tempRow.pic2_fileid
-      this.piconePath = this.formUpdate.pic1_fileid = tempRow.pic1_fileid
-      this.pictwoPath = this.formUpdate.pic2_fileid = tempRow.pic2_fileid
-    },
-    EnsureSubmit: _.debounce(function () {
-      this.$refs['AddForm'].validate((valid) => {
-        if (valid) {
-          let param = this.createFormData(this.formUpdate)
-          this.$http.post(ADMIN_EQUIPMENT_MODEL_UPDATE, param).then(res => {
-            if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess('操作成功！')
-              this.dialogVisible = false
-              this.isPiconeUploading = true
-              this.piconeUploadProgress = ''
-              this.isPictwoUploading = true
-              this.pictwoUploadProgress = ''
-              this.$refs['AddForm'].resetFields()
-              this.onSubmit()
-            }
-          }).catch(() => {
-            this.vmMsgError('网络错误！')
-          })
-        }
-      })
-    }, 300)
+      this.formAdd.product_name = row.product_name
+      this.formAdd.product_code = row.product_code
+      this.formAdd.nbi_code = row.nbi_code
+      this.formAdd.prodt_code = row.prodt_code
+      this.formAdd.pic1 = row.pic1_fileid
+      this.formAdd.pic2 = row.pic2_fileid
+      console.log(row)
+    }
   }
 }
 </script>
@@ -674,9 +763,6 @@ export default {
     background: #636363;
     border-color: #636363;
     vertical-align: middle;
-    color: #fff;
-    text-align: center;
-    line-height: 6rem;
   }
   .device-model-uploadImg:hover>.showBig{
     display: block;

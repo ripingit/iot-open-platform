@@ -50,9 +50,22 @@
                   width="180">
                 </el-table-column>
                 <el-table-column
+                  prop="en_name"
+                  label="公司英文名称"
+                  width="180">
+                </el-table-column>
+                <el-table-column
                   prop="tel"
                   label="联系方式"
                   width="180">
+                </el-table-column>
+                <el-table-column
+                  prop="file_ids"
+                  label="营业执照"
+                  width="100">
+                  <template slot-scope="scope">
+                    <ScaleImgComponent :path="scope.row.file_ids" style="width:5rem;height:5rem" alt="营业执照"></ScaleImgComponent>
+                  </template>
                 </el-table-column>
                 <el-table-column
                   prop="addr"
@@ -124,8 +137,10 @@
 <script>
 import '@/assets/css/content.css'
 import { GET_COOP_COMPANY_POST, DELETE_COOP_COMPANY_POST, GET_COOP_COMPANYKEY_POST } from '@/lib/api'
+import ScaleImgComponent from '@/components/_ui/scale-img.vue'
 import _ from 'lodash'
 export default {
+  components: { ScaleImgComponent },
   data () {
     return {
       loading: false,

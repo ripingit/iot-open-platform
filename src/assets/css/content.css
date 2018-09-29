@@ -74,6 +74,12 @@
   margin-top: 4.33rem;
 }
 
+/** 换行显示 */
+.log-pre {
+  white-space: pre;
+  line-height: 1.4;
+}
+
 /** 过渡动画 */
 .bounce-enter-active {
   animation: bounce-in .3s;

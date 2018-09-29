@@ -53,8 +53,8 @@
                   prop="notify_url"
                   label="回调地址">
                   <template slot-scope="scope">
-                    <a class="wait" href="javascript:void" v-if="scope.row.notify_url" @click="setNotifyUrl(scope.row)"> {{ scope.row.notify_url }} </a>
-                    <a class="success" href="javascript:void" v-else @click="setNotifyUrl(scope.row)">设置回调</a>
+                    <a class="wait" href="javascript:void(0)" v-if="scope.row.notify_url" @click="setNotifyUrl(scope.row)"> {{ scope.row.notify_url }} </a>
+                    <a class="success" href="javascript:void(0)" v-else @click="setNotifyUrl(scope.row)">设置回调</a>
                   </template>
                 </el-table-column>
                 <el-table-column label="操作" width="100" v-if="vmHasAuth(CoopPermissionsLib.ADD_NOTIFY_URL, tableData.res)">
@@ -198,10 +198,7 @@
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="邮件模板内容" class="form-row" prop="mail_temp">
-          <quill-editor ref="myTextEditor"
-                        v-model="emailForm.mail_temp"
-                        :options="editorOption">
-          </quill-editor>
+          <el-input type="textarea" :rows="6" placeholder="请输入邮件模板内容" v-model="emailForm.mail_temp"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="" prop="smtp_tls">
@@ -212,10 +209,50 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+    <el-dialog
+      title="协议设置"
+      :visible.sync="isShowProtocolSetting"
+      width="50rem"
+      center>
+      <el-form label-width="120px" status-icon label-position="right" :model="protocolForm" ref="protocolForm" :rules="protocolFormRules">
+        <el-form-item label="协议类型" class="form-row" prop="type">
+          <el-select v-model="protocolForm.type" placeholder="请选择协议语言" no-data-text="无数据">
+            <el-option
+              v-for="item in protocolTemplate"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"></el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item label="协议语言" class="form-row" prop="proto_lang">
+          <el-select v-model="protocolForm.proto_lang" placeholder="请选择协议语言" no-data-text="无数据">
+            <el-option
+              v-for="item in protocolLangTemplate"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"></el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item label="文件上传" class="form-row">
+          <div class="form-btn-upload">
+            <el-button type="primary">上传</el-button>
+            <input type="file" accept=".html" ref="protocolFile" class="file_input" @change="sendFile" />
+          </div>
+          <span class="form-tip">*</span>
+          <p class="picName">{{picName}}</p>
+        </el-form-item>
+        <el-form-item label="" style="margin-top: 4.33rem;">
+          <el-button type="primary" class="btn-submit" @click="createProtocolSeting">确 定</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
 
     <el-dialog
       :visible.sync="isShowmoreSetting"
-      width="100rem">
+      width="100rem"
+      :before-close="beforeClose">
       <el-tabs v-model="tabName" @tab-click="tabChange">
         <el-tab-pane label="短信设置" name="first">
           <el-button
@@ -224,43 +261,9 @@
                 type="primary"
                 style="top: -6rem"
                 icon="iconfont icon-tianjia" circle></el-button>
-          <el-table
-            v-loading="smsLoading"
-            :data="smsTableData.data"
-            style="width: 100%">
-            <el-table-column
-              type="index"
-              label="编号"
-              width="80">
-            </el-table-column>
-            <el-table-column
-              prop="app_id"
-              label="阿里云APP-ID">
-            </el-table-column>
-            <el-table-column
-              prop="app_seckey"
-              width="280"
-              label="阿里云APP-Seckey">
-            </el-table-column>
-            <el-table-column
-              prop="sms_sign"
-              label="阿里云签名">
-            </el-table-column>
-            <el-table-column
-              prop="sms_temp"
-              label="模版编号">
-            </el-table-column>
-            <el-table-column
-              prop="temp_type"
-              label="语言">
-              <template slot-scope="scope">{{ langTemplateType[scope.row.temp_type] }}</template>
-            </el-table-column>
-            <el-table-column
-              prop="class"
-              label="类型">
-              <template slot-scope="scope">{{ smsTemplateType[scope.row.class] }}</template>
-            </el-table-column>
-            <el-table-column label="操作" width="80">
+          <TableComponent :options="smsTableOptions" :data="smsTableData" v-on:page-change="getSmsLists">
+            <!-- 操作按钮的注入 -->
+            <el-table-column label="操作" width="80" slot="handler">
               <template slot-scope="scope">
                 <el-button
                   class="btn-circle"
@@ -270,15 +273,7 @@
                   @click="updateSmsSetting(scope.row)"></el-button>
               </template>
             </el-table-column>
-          </el-table>
-          <!-- <el-pagination
-            v-if="smsTableData.data.length !== 0"
-            @size-change="getSmsLists"
-            @current-change="getSmsLists"
-            :page-size="20"
-            layout="prev, pager, next, jumper"
-            :total="smsTableData.total">
-          </el-pagination> -->
+          </TableComponent>
         </el-tab-pane>
         <el-tab-pane label="邮件设置" name="second">
           <el-button
@@ -287,51 +282,8 @@
                 type="primary"
                 style="top: -6rem"
                 icon="iconfont icon-tianjia" circle></el-button>
-          <el-table
-            v-loading="smsLoading"
-            :data="smsTableData.data"
-            style="width: 100%">
-            <el-table-column
-              type="index"
-              label="编号"
-              width="80">
-            </el-table-column>
-            <el-table-column
-              prop="smtp_server"
-              label="服务器">
-            </el-table-column>
-            <el-table-column
-              prop="smtp_port"
-              label="端口">
-            </el-table-column>
-            <el-table-column
-              prop="smtp_tls"
-              label="TLS">
-              <template slot-scope="scope">{{ tlsCode[scope.row.smtp_tls] }}</template>
-            </el-table-column>
-            <el-table-column
-              prop="smtp_account"
-              label="发送账号">
-            </el-table-column>
-            <el-table-column
-              prop="smtp_password"
-              label="发送密码">
-            </el-table-column>
-            <el-table-column
-              prop="temp_type"
-              label="模板语言">
-              <template slot-scope="scope">{{ langTemplateType[scope.row.temp_type] }}</template>
-            </el-table-column>
-            <el-table-column
-              prop="class"
-              label="模版类型">
-              <template slot-scope="scope">{{ smsTemplateType[scope.row.temp_type] }}</template>
-            </el-table-column>
-            <el-table-column
-              prop="mail_temp"
-              label="模板内容">
-            </el-table-column>
-            <el-table-column label="操作" width="80">
+          <TableComponent :options="emailTableOptions" :data="smsTableData" v-on:page-change="getEmialLists">
+            <el-table-column label="操作" width="80" slot="handler">
               <template slot-scope="scope">
                 <el-button
                   class="btn-circle"
@@ -341,9 +293,34 @@
                   @click="updateEmailSetting(scope.row)"></el-button>
               </template>
             </el-table-column>
-          </el-table>
+          </TableComponent>
         </el-tab-pane>
-        <!-- <el-tab-pane label="支付设置" name="third">角色管理</el-tab-pane> -->
+        <el-tab-pane label="协议设置" name="third">
+          <el-button
+            @click="protocolSetting"
+            class="btn-circle-delete"
+            type="primary"
+            style="top: -6rem"
+            icon="iconfont icon-tianjia" circle></el-button>
+          <TableComponent :options="protocolTableOptions" :data="smsTableData" v-on:page-change="getProtocolLists">
+            <el-table-column label="操作" width="150" slot="handler">
+              <template slot-scope="scope">
+                <el-button
+                  class="btn-circle"
+                  size="mini"
+                  icon="iconfont icon-bianji"
+                  circle
+                  @click="updateProtocolSetting(scope.row)"></el-button>
+                <el-button
+                  class="btn-circle"
+                  size="mini"
+                  icon="iconfont icon-gengduo"
+                  circle
+                  @click="jumpProtocolSetting(scope.row)"></el-button>
+              </template>
+            </el-table-column>
+          </TableComponent>
+        </el-tab-pane>
       </el-tabs>
     </el-dialog>
 
@@ -351,17 +328,14 @@
 </template>
 <script>
 import '@/assets/css/content.css'
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
-import { quillEditor } from 'vue-quill-editor'
+import TableComponent from '@/components/_ui/table.vue'
 import { GET_KEY_ID_POST, GENERATE_KEY_ID_POST, SET_NOTIFY_URL_POST, COOP_SMS_QUERY_POST, COOP_SMS_ADD_POST, COOP_SMS_UPDATE_POST,
-  COOP_EMAIL_QUERY_POST, COOP_EMAIL_ADD_POST, COOP_EMAIL_UPDATE_POST} from '@/lib/api'
-import { langTemplate, typeTemplate } from '@/lib/const'
+  COOP_EMAIL_QUERY_POST, COOP_EMAIL_ADD_POST, COOP_EMAIL_UPDATE_POST, COOP_PROTOCOL_QUERY_POST, COOP_PROTOCOL_ADD_POST } from '@/lib/api'
+import { langTemplate, typeTemplate, protocolLangTemplate, protocolTemplate } from '@/lib/const'
 import _ from 'lodash'
 
 export default {
-  components: { quillEditor },
+  components: { TableComponent },
   data () {
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
@@ -413,52 +387,144 @@ export default {
       }
       callback()
     }
+    let validateProtocolIsEmpty = (rule, value, callback) => {
+      if (value === '') {
+        if (rule.field === 'proto_lang') {
+          callback(new Error('请选择协议语言'))
+        } else if (rule.field === 'type') {
+          callback(new Error('请选择协议类型'))
+        }
+      }
+      callback()
+    }
     return {
+      smsTableOptions: {
+        loading: true,
+        hasSelection: false,
+        hasNumber: true,
+        pageOptions: {
+          pageSize: 20,
+          total: 0
+        },
+        columns: [
+          {
+            label: '阿里云APP-ID',
+            prop: 'app_id'
+          }, {
+            prop: 'app_seckey',
+            label: '阿里云APP-Seckey',
+            width: 280
+          }, {
+            prop: 'sms_sign',
+            label: '阿里云签名'
+          }, {
+            prop: 'sms_temp',
+            label: '模版编号'
+          }, {
+            prop: 'temp_type',
+            label: '语言',
+            render: value => this.langTemplateType[value]
+          }, {
+            prop: 'class',
+            label: '类型',
+            render: value => this.smsTemplateType[value]
+          }
+        ]
+      },
+      emailTableOptions: {
+        loading: true,
+        hasSelection: false,
+        hasNumber: true,
+        pageOptions: {
+          pageSize: 20,
+          total: 0
+        },
+        columns: [
+          {
+            label: '服务器',
+            prop: 'smtp_server',
+            width: 120
+          }, {
+            prop: 'smtp_port',
+            label: '端口',
+            width: 50
+          }, {
+            prop: 'sms_sign',
+            label: '阿里云签名'
+          }, {
+            prop: 'smtp_tls',
+            label: 'TLS',
+            render: value => this.tlsCode[value]
+          }, {
+            prop: 'smtp_account',
+            label: '发送账号'
+          }, {
+            prop: 'smtp_password',
+            label: '发送密码'
+          }, {
+            prop: 'temp_type',
+            label: '模板语言',
+            render: value => this.langTemplateType[value]
+          }, {
+            prop: 'class',
+            label: '模版类型',
+            render: value => this.smsTemplateType[value]
+          }, {
+            prop: 'smtp_password',
+            label: '发送密码'
+          }, {
+            prop: 'mail_temp',
+            label: '模板内容',
+            width: 150
+          }
+        ]
+      },
+      protocolTableOptions: {
+        loading: true,
+        hasSelection: false,
+        hasNumber: true,
+        pageOptions: {
+          pageSize: 20,
+          total: 0
+        },
+        columns: [
+          {
+            prop: 'proto_lang',
+            label: '协议语言',
+            render: value => this.protocolLangTemplateType[value]
+          }, {
+            prop: 'type',
+            label: '协议类型',
+            render: value => this.protocolTemplateType[value]
+          }
+        ]
+      },
+
       clientId: '',
       tabName: 'first',
-      editorOption: {
-        modules: {
-          toolbar: '',
-          clipboard: {
-            matchers: [
-              // 去除quill编辑器粘贴剪切板信息时的格式，仅保留纯文本
-              [Node.ELEMENT_NODE, (node, delta) => {
-                let ops = []
-                delta.ops.forEach(op => {
-                  if (op.insert && typeof op.insert === 'string') {
-                    ops.push({
-                      insert: op.insert
-                    })
-                  }
-                })
-                delta.ops = ops
-                return delta
-              }]
-            ]
-          }
-        },
-        placeholder: '请输入邮件模板内容'
-      },
       loading: false,
-      smsLoading: false,
       isToSetNotifyUrl: false,
       isShowmoreSetting: false,
       isShowSmsSetting: false,
       isShowEmailSetting: false,
+      isShowProtocolSetting: false,
+      addOrEditProtocol: 0,
       createKeyDialog: false,
       langTemplate: langTemplate,
       typeTemplate: typeTemplate,
+      protocolTemplate: protocolTemplate,
+      protocolLangTemplate: protocolLangTemplate,
       smsUpdateUrl: COOP_SMS_UPDATE_POST,
       emailUpdateUrl: COOP_EMAIL_UPDATE_POST,
       smsUrl: '',
       emailUrl: '',
+      protocolUrl: '',
+      picName: '',
       tableData: {
         data: [],
         res: []
       },
-      smsTableData: {
-        data: []
-      },
+      smsTableData: [],
       notifyForm: {
         client_id: '',
         notify_url: ''
@@ -486,6 +552,13 @@ export default {
         temp_type: '',
         mail_temp: '',
         class: ''
+      },
+      protocolForm: {
+        client_id: '',
+        proto_lang: '',
+        type: '',
+        photo: '',
+        url_old: ''
       },
       rules: {
         client_id: [
@@ -545,6 +618,14 @@ export default {
         class: [
           { validator: validateEmailIsEmpty, trigger: 'change' }
         ]
+      },
+      protocolFormRules: {
+        proto_lang: [
+          { validator: validateProtocolIsEmpty, trigger: 'change' }
+        ],
+        type: [
+          { validator: validateProtocolIsEmpty, trigger: 'change' }
+        ]
       }
     }
   },
@@ -555,12 +636,13 @@ export default {
     settingMore (row) {
       this.isShowmoreSetting = true
       this.clientId = row.client_id
-      this.getSmsLists(row.client_id)
+      this.getSmsLists(1)
     },
     tabChange (tab, event) {
-      this.smsTableData.data = []
-      if (tab.name === 'first') { this.getSmsLists(this.clientId) }
-      if (tab.name === 'second') { this.getEmialLists(this.clientId) }
+      this.smsTableData = []
+      if (tab.name === 'first') { this.getSmsLists() }
+      if (tab.name === 'second') { this.getEmialLists() }
+      if (tab.name === 'third') { this.getProtocolLists() }
     },
 
     smsSetting () {
@@ -568,20 +650,26 @@ export default {
       this.smsUrl = COOP_SMS_ADD_POST
       this.smsForm.client_id = this.clientId
       setTimeout(() => this.$refs['smsForm'].resetFields())
-      for (const key in this.smsForm) {
-        if (key !== 'client_id') { this.smsForm[key] = '' }
-      }
+      // for (const key in this.smsForm) {
+      //   if (key !== 'client_id') { this.smsForm[key] = '' }
+      // }
     },
     emialSetting () {
       this.isShowEmailSetting = true
       this.emailUrl = COOP_EMAIL_ADD_POST
       this.emailForm.client_id = this.clientId
       setTimeout(() => this.$refs['emailForm'].resetFields())
-      for (const key in this.emailForm) {
-        if (key !== 'client_id') { this.emailForm[key] = '' }
-      }
+      // for (const key in this.emailForm) {
+      //   if (key !== 'client_id') { this.emailForm[key] = '' }
+      // }
     },
-
+    protocolSetting () {
+      this.isShowProtocolSetting = true
+      this.addOrEditProtocol = 1
+      this.protocolUrl = COOP_PROTOCOL_ADD_POST
+      this.protocolForm.client_id = this.clientId
+      setTimeout(() => this.$refs['protocolForm'].resetFields())
+    },
     setNotifyUrl (row) {
       this.notifyForm.client_id = row.client_id
       this.isToSetNotifyUrl = true
@@ -601,6 +689,26 @@ export default {
       delete temp.id
       this.emailForm = temp
     },
+    updateProtocolSetting (row) {
+      this.isShowProtocolSetting = true
+      this.addOrEditProtocol = 0
+      this.protocolUrl = COOP_PROTOCOL_ADD_POST
+      this.protocolForm.client_id = row.client_id
+      this.protocolForm.proto_lang = row.proto_lang
+      this.protocolForm.type = row.type
+      this.protocolForm.url_old = row.url
+    },
+    jumpProtocolSetting (row) {
+      window.open(row.url)
+    },
+    beforeClose (done) {
+      this.tabName = 'first'
+      if (this.smsTableData) {
+        this.smsTableData.data = []
+      }
+      done.apply(this, null)
+    },
+
     createEmailSeting: _.debounce(function () {
       this.$refs['emailForm'].validate((valid) => {
         if (valid) {
@@ -612,7 +720,7 @@ export default {
               this.vmMsgSuccess('设置成功')
               this.$refs['emailForm'].resetFields()
               this.isShowEmailSetting = false
-              this.getEmialLists(this.clientId)
+              this.getEmialLists()
             }
             loading.close()
           }).catch(e => {
@@ -632,7 +740,40 @@ export default {
               this.vmMsgSuccess('设置成功')
               this.$refs['smsForm'].resetFields()
               this.isShowSmsSetting = false
-              this.getSmsLists(this.clientId)
+              this.getSmsLists()
+            }
+            loading.close()
+          }).catch(e => {
+            loading.close()
+            this.vmMsgError('网络错误！')
+          })
+        }
+      })
+    }, 300),
+    createProtocolSeting: _.debounce(function () {
+      this.$refs['protocolForm'].validate((valid) => {
+        if (valid) {
+          let loading = this.vmLoadingFull()
+          if (!this.protocolForm.photo) {
+            this.vmMsgWarning('请选择上传文件！')
+            loading.close()
+            return false
+          }
+          if (this.addOrEditProtocol === 1) { // 添加协议
+            this.protocolForm.url_old = ''
+            for (let obj of this.smsTableData) {
+              if (obj.proto_lang === this.protocolForm.proto_lang && obj.type === this.protocolForm.type) {
+                this.protocolForm.url_old = obj.url
+              }
+            }
+          }
+          let param = this.createFormData(this.protocolForm)
+          this.$http.post(this.protocolUrl, param).then(res => {
+            if (this.vmResponseHandler(res)) {
+              this.vmMsgSuccess('设置成功')
+              this.$refs['protocolForm'].resetFields()
+              this.isShowProtocolSetting = false
+              this.getProtocolLists()
             }
             loading.close()
           }).catch(e => {
@@ -698,35 +839,105 @@ export default {
       })
     }, 300),
 
-    getSmsLists: _.debounce(function () {
-      this.smsLoading = true
-      this.$http.post(COOP_SMS_QUERY_POST, this.createFormData({ client_id: this.clientId })).then(res => {
+    getSmsLists: _.debounce(function (page) {
+      this.smsTableOptions.loading = true
+      let data = this.createFormData({
+        client_id: this.clientId,
+        page: page,
+        page_size: this.smsTableOptions.pageOptions.pageSize
+      })
+      this.$http.post(COOP_SMS_QUERY_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
-          this.smsTableData = res.data
+          this.smsTableData = res.data.data
+          this.smsTableOptions.pageOptions.total = res.data.total
         }
-        this.smsLoading = false
+        this.smsTableOptions.loading = false
       }).catch(e => {
-        this.smsLoading = false
+        this.smsTableOptions.loading = false
         this.vmMsgError('网络错误！')
       })
     }, 300),
 
-    getEmialLists: _.debounce(function () {
-      this.smsLoading = true
-      this.$http.post(COOP_EMAIL_QUERY_POST, this.createFormData({ client_id: this.clientId })).then(res => {
+    getEmialLists: _.debounce(function (page) {
+      this.emailTableOptions.loading = true
+      let data = this.createFormData({
+        client_id: this.clientId,
+        page: page,
+        page_size: this.emailTableOptions.pageOptions.pageSize
+      })
+      this.$http.post(COOP_EMAIL_QUERY_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
-          this.smsTableData = res.data
+          this.smsTableData = res.data.data
+          this.emailTableOptions.pageOptions.total = res.data.total
         }
-        this.smsLoading = false
+        this.emailTableOptions.loading = false
       }).catch(e => {
-        this.smsLoading = false
+        this.emailTableOptions.loading = false
         this.vmMsgError('网络错误！')
       })
-    })
+    }),
+    getProtocolLists: _.debounce(function (page) {
+      this.protocolTableOptions.loading = true
+      let data = this.createFormData({
+        client_id: this.clientId,
+        page: page,
+        page_size: this.protocolTableOptions.pageOptions.pageSize
+      })
+      this.$http.post(COOP_PROTOCOL_QUERY_POST, data).then(res => {
+        if (this.vmResponseHandler(res)) {
+          this.smsTableData = res.data.data
+          this.protocolTableOptions.pageOptions.total = res.data.total
+        }
+        this.protocolTableOptions.loading = false
+      }).catch(e => {
+        this.protocolTableOptions.loading = false
+        this.vmMsgError('网络错误！')
+      })
+    }),
+    //  文件上传
+    sendFile () {
+      let file = this.$refs['protocolFile'].files[0]
+      let suffixAry
+      let suffix
+      if (!file) return false
+      suffixAry = file.name.split('.')
+      suffix = suffixAry[suffixAry.length - 1]
+      if (suffix !== 'html') {
+        this.vmMsgError('只能上传html文件！')
+        return false
+      }
+      this.protocolForm.photo = file
+      this.picName = file.name
+    }
   }
 }
 </script>
-
+<style scoped>
+  .picName{
+    color: #ffffff;
+    word-break: break-all;
+  }
+  .form-btn-upload{
+    position: relative;
+    display: inline-block;
+    width:8rem;
+  }
+  .form-btn-upload .file_input {
+    width: 100%;
+    height: 36px;
+    border-radius: 1.125rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1;
+    -moz-opacity: 0;
+    -ms-opacity: 0;
+    -webkit-opacity: 0;
+    opacity: 0; /*css属性——opcity不透明度，取值0-1*/
+    filter: alpha(opacity=0); /*兼容IE8及以下--filter属性是IE特有的，它还有很多其它滤镜效果，而filter: alpha(opacity=0); 兼容IE8及以下的IE浏览器(如果你的电脑IE是8以下的版本，使用某些效果是可能会有一个允许ActiveX的提示,注意点一下就ok啦)*/
+    cursor: pointer;
+  }
+</style>
 <style>
 .el-tabs {
   padding: 0 18px;

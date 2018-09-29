@@ -156,7 +156,7 @@
       </el-row>
       <el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">更新说明</el-col>
-        <el-col :span="22" :sm="21" class="label-value" v-html="vmEscapeToHTML(reviewData.change_log)">
+        <el-col :span="22" :sm="21" class="label-value log-pre" v-html="vmEscapeToHTML(reviewData.change_log)">
         </el-col>
       </el-row>
       <el-row class="label-sug">

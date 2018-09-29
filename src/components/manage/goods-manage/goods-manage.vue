@@ -26,12 +26,8 @@
                 <el-option label="已下架" :value="2"></el-option>
               </el-select>
               <el-select v-model="country">
-                <el-option label="请选择" value=""></el-option>
-                <el-option label="中国香港" :value="1"></el-option>
-                <el-option label="中国大陆" :value="2"></el-option>
-                <el-option label="美国" :value="3"></el-option>
-                <el-option label="迪拜" :value="4"></el-option>
-                <el-option label="美东" :value="5"></el-option>
+                <el-option v-for="(item, index) in countryWithCode"
+                          :key="index" :label="item.name" :value="item.code"></el-option>
               </el-select>
               <el-input
                 placeholder="请输入商品ID"
@@ -149,11 +145,13 @@
         </el-form-item>
         <el-form-item class="form-row" label="销售区域" prop="country">
           <el-select v-model="goodForm.country" placeholder="请选择销售区域" no-data-text="无数据">
-            <el-option :key="1" label="中国香港" value="1"></el-option>
+            <el-option v-for="(item, index) in countryWithCode"
+                          :key="index" :label="item.name" :value="item.code"></el-option>
+            <!-- <el-option :key="1" label="中国香港" value="1"></el-option>
             <el-option :key="2" label="中国大陆" value="2"></el-option>
             <el-option :key="3" label="美国" value="3"></el-option>
             <el-option :key="4" label="迪拜" value="4"></el-option>
-            <el-option :key="5" label="美东" value="5"></el-option>
+            <el-option :key="5" label="美东" value="5"></el-option> -->
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
@@ -167,8 +165,8 @@
         </el-form-item>
         <el-form-item class="form-row" label="币种" prop="unit">
           <el-select v-model="goodForm.unit" placeholder="请选择币种" no-data-text="无数据">
-            <el-option :key="1" label="人民币" value="CNY"></el-option>
-            <el-option :key="2" label="美元" value="USD"></el-option>
+            <el-option v-for="(item, index) in currencyWithCode" :key="index" :label="item.currency" :value="item.code"></el-option>
+            <!-- <el-option :key="2" label="美元" value="USD"></el-option> -->
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
@@ -176,7 +174,7 @@
           <el-input v-model="goodForm.goods_lasteddate" auto-complete="off" placeholder="请输入商品规格"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="状态" prop="is_onsale">
+        <el-form-item class="form-row" label="状态" prop="is_onsale" v-if="goodForm.is_onsale">
           <el-select v-model="goodForm.is_onsale" placeholder="请选择商品状态" no-data-text="无数据">
             <el-option :key="1" label="上架" :value="1"></el-option>
             <el-option :key="2" label="下架" :value="2"></el-option>
@@ -185,23 +183,14 @@
         </el-form-item>
         <el-form-item class="form-row" label="商品图片" prop="goods_picture">
           <div class="form-btn-upload">
-            <span class="form-img-cert" v-if="isUploading">
-              {{uploadProgress || picTip}}
-            </span>
-            <img v-else class="form-img-cert" :src="picPath"/>
-            <div class="form-btn-upload">
-              <el-upload
-                :action="uploadPath"
-                name="photo"
-                accept=".jpg"
-                :before-upload="onBeforeUpload"
-                :on-success="onUploadSuccess"
-                :on-progress="onUploadProgress"
-                :on-error="onUploadError"
-                :show-file-list="false">
-                <el-button class="btn-upload" size="small" type="primary">上传</el-button>
-              </el-upload>
-            </div>
+            <UploadComponent
+                ref="uploaderGoodPic"
+                :path="uploadPath"
+                :previewPath="goodForm.goods_picture"
+                :accept="['.jpg', '.jpeg', '.png']"
+                :size="2"
+                model="preview"
+                condition="格式为 jpg\jpeg\png 且小于2M" @response="getUploadResult"></UploadComponent>
           </div>
           <span class="form-tip">*</span>
         </el-form-item>
@@ -218,10 +207,13 @@
 </template>
 <script>
 import '@/assets/css/content.css'
+import { countrys, currencyCode } from '@/lib/const'
+import UploadComponent from '@/components/_ui/upload.vue'
 import { GET_GOODS_POST, GOOD_PIC_UPLOAD_POST, ADD_GOOD_POST, UPDATE_GOOD_POST, DELETE_GOOD_POST } from '@/lib/api'
 import _ from 'lodash'
 
 export default {
+  components: { UploadComponent },
   data () {
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
@@ -252,40 +244,13 @@ export default {
       title: '',
       isDialogVisibleList: false,
       isDialogVisibleAdd: false,
-      isGetHistory: false,
-      historyRecord: [],
       isOnSale: '',
       country: '',
+      countryWithCode: countrys,
+      currencyWithCode: currencyCode,
       goodId: '',
       classId: '',
       uploadPath: GOOD_PIC_UPLOAD_POST,
-      isUploading: true,
-      uploadProgress: '',
-      picTip: '格式为 jpg 且小于2M',
-      picPath: '',
-      editorOption: {
-        modules: {
-          toolbar: '',
-          clipboard: {
-            matchers: [
-              // 去除quill编辑器粘贴剪切板信息时的格式，仅保留纯文本
-              [Node.ELEMENT_NODE, (node, delta) => {
-                let ops = []
-                delta.ops.forEach(op => {
-                  if (op.insert && typeof op.insert === 'string') {
-                    ops.push({
-                      insert: op.insert
-                    })
-                  }
-                })
-                delta.ops = ops
-                return delta
-              }]
-            ]
-          }
-        },
-        placeholder: '请输入商品描述'
-      },
       tableData: {
         class: [],
         data: [],
@@ -305,7 +270,8 @@ export default {
         goods_lasteddate: '',
         goods_desc: '',
         goods_picture: '',
-        is_onsale: ''
+        is_onsale: '',
+        url_old: ''
       },
       rules: {
         goods_name: [
@@ -357,7 +323,6 @@ export default {
     updateGood (index, row) {
       let classType = this.tableData.class.find(o => o.class_name === row.class_name)
       this.title = '更新商品'
-      this.isUploading = false
       this.goodForm.goods_id = row.goods_id
       this.goodForm.goods_name = row.goods_name
       this.goodForm.goods_class_id = classType ? classType.class_id : ''
@@ -366,9 +331,9 @@ export default {
       this.goodForm.country = row.country
       this.goodForm.goods_lasteddate = row.goods_lasteddate
       this.goodForm.goods_desc = row.goods_desc
-      this.picPath = row.picture
       this.goodForm.goods_picture = row.goods_picture
       this.goodForm.is_onsale = row.is_onsale
+      this.goodForm.url_old = row.goods_picture
       this.isDialogVisibleAdd = true
     },
     getGoodLists: _.debounce(function (currentPage) {
@@ -391,40 +356,14 @@ export default {
         this.vmMsgError('网络错误！')
       })
     }, 300),
-    onBeforeUpload (file) {
-      let sizeM = file.size / 1024 / 1024
-      if (sizeM > 20) {
-        this.vmMsgError('图片大小不能超过 20 M！')
-        return false
-      }
-    },
-    onUploadSuccess (response, file, fileList) {
-      this.isUploading = false
-      // 上传
-      if (response.statu === 0) {
-        this.$router.push('/signin'); return
-      }
 
-      if (!response.status) {
-        this.form.rom = ''
-        this.vmMsgError(response.msg); return
+    getUploadResult (res) {
+      if (res) {
+        this.goodForm.goods_picture = res.goods_picture
       }
-      this.picPath = file.url
-      this.goodForm.goods_picture = response.goods_picture
-    },
-    onUploadProgress (event, file, fileList) {
-      this.isUploading = true
-      this.goodForm.goods_picture = Math.ceil(event.percent) + '%'
-    },
-    onUploadError (err, file, fileList) {
-      this.isUploading = false
-      this.goodForm.goods_picture = ''
-      this.vmMsgError(err)
     },
     addGoods () {
       this.title = '添加商品'
-      this.picPath = ''
-      this.isUploading = true
       Object.keys(this.goodForm).forEach(o => {
         this.goodForm[o] = ''
       })
@@ -435,6 +374,7 @@ export default {
         if (valid) {
           let wait = this.vmLoadingFull()
           let url = this.title === '添加商品' ? ADD_GOOD_POST : UPDATE_GOOD_POST
+          this.goodForm.url_old = this.title === '添加商品' ? '' : this.goodForm.url_old
           this.$http.post(url, this.createFormData(this.goodForm)).then(res => {
             if (this.vmResponseHandler(res)) {
               this.vmMsgSuccess('提交成功！')
@@ -447,6 +387,7 @@ export default {
             wait.close()
             this.vmMsgError('网络错误！')
           })
+          this.$refs['uploaderGoodPic'].reset()
         }
       })
     }, 300),
@@ -455,7 +396,8 @@ export default {
         msg: '确定删除该记录？',
         confirmCallback: () => {
           let data = this.createFormData({
-            goods_id: row.goods_id
+            goods_id: row.goods_id,
+            url_old: row.goods_picture
           })
           let wait = this.vmLoadingFull()
           this.$http.post(DELETE_GOOD_POST, data).then(res => {

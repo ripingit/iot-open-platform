@@ -23,7 +23,7 @@
           <el-col :span="18">
             <p class="log">版本：{{item.rom_ver}}</p>
             <p class="log">MD5值：{{item.rom_md5}}</p>
-            <p class="log mt20" v-html="vmEscapeToHTML(item.change_log)"></p>
+            <p class="log log-pre mt20" v-html="vmEscapeToHTML(item.change_log)"></p>
 
             <p class="log mt20 mb3"><a :href="item.file_id" target="_blank" class="download">下载测试</a></p>
           </el-col>
@@ -115,5 +115,9 @@ export default {
     text-align: center;
     font-size: 2rem;
     color: #fff;
+  }
+  .timeline-container .log-pre {
+    white-space: pre;
+    line-height: 1.4;
   }
 </style>

@@ -51,12 +51,12 @@ export const coopMenuRouteMap = [
         id: 10001,
         path: '/manage/user/admins',
         icon: '',
-        name: '用户信息'
+        name: '平台用户'
       }, {
         id: 11001,
         path: '/manage/user/powerHome',
         icon: '',
-        name: '权限管理'
+        name: '权限设置'
       }
     ],
     auth: true

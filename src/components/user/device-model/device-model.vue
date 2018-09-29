@@ -100,6 +100,12 @@
                            size="mini"
                            v-if="vmHasAuth(CoopPermissionsLib.DEL_DEVICE_MODEL, res)"
                            @click="Delete(scope.row)"></el-button>
+                <el-button class="btn-circle"
+                           icon="iconfont icon-xiangxia4"
+                           circle
+                           size="mini"
+                           v-if="vmHasAuth(CoopPermissionsLib.GENERATE_DEVICE_ID, res)"
+                           @click="generateDeviceID(scope.row)"></el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -150,7 +156,7 @@
             </el-select>
             <span class="form-tip">*</span>
           </el-form-item>
-          <el-form-item label="效果图1" class="form-row" prop="pic1">
+          <el-form-item label="在线图片" class="form-row" prop="pic1">
             <el-col :span="24" style="line-height:1.2">
               <span class="device-model-uploadImg" v-if="isUploading">{{uploadProgress}}</span>
               <div v-else class="device-model-uploadImg" style="position: relative;display: inline-block">
@@ -162,7 +168,7 @@
                   :action="uploadPath"
                   :data="{pic:1}"
                   name="photo"
-                  accept=".jpg"
+                  accept=".jpg,.jpeg,.png"
                   :before-upload="onBeforeUpload"
                   :on-success="onUploadSuccess"
                   :on-progress="onUploadProgress"
@@ -176,12 +182,12 @@
               </el-dialog>
               <div class="device-model-div">
                 <p>底色：白色</p>
-                <p>尺寸：210*180</p>
+                <p>尺寸：608*470</p>
                 <p>图片大小不超过2M</p>
               </div>
             </el-col>
           </el-form-item>
-          <el-form-item label="效果图2" class="form-row" prop="pic2">
+          <el-form-item label="离线图片" class="form-row" prop="pic2">
             <el-col :span="24" style="line-height:1.2">
               <span class="device-model-uploadImg" v-if="isUploading2">{{uploadProgress2}}</span>
               <div v-if="!isUploading2" class="device-model-uploadImg" style="position: relative;display: inline-block">
@@ -193,7 +199,7 @@
                   :action="uploadPath"
                   :data="{pic:2}"
                   name="photo"
-                  accept=".jpg"
+                  accept=".jpg,.jpeg,.png"
                   :before-upload="onBeforeUpload2"
                   :on-success="onUploadSuccess2"
                   :on-progress="onUploadProgress2"
@@ -207,7 +213,7 @@
               </el-dialog>
               <div class="device-model-div">
                 <p>底色：白色</p>
-                <p>尺寸：388*250</p>
+                <p>尺寸：608*470</p>
                 <p>图片大小不超过2M</p>
               </div>
             </el-col>
@@ -291,6 +297,16 @@
                 <el-radio v-model="formConfig.yun" label="1">支持</el-radio>
                 <el-radio v-model="formConfig.yun" label="0">不支持</el-radio>
               </el-form-item>
+              <el-form-item label="云台控制" class="form-row" prop="ptzctrl">
+                <el-radio v-model="formConfig.ptzctrl" label="1">水平</el-radio>
+                <el-radio v-model="formConfig.ptzctrl" label="2">垂直</el-radio>
+                <el-radio v-model="formConfig.ptzctrl" label="3">水平+垂直</el-radio>
+                <el-radio v-model="formConfig.ptzctrl" label="0">不支持</el-radio>
+              </el-form-item>
+              <el-form-item label="指示灯" class="form-row" prop="status_light">
+                <el-radio v-model="formConfig.status_light" label="1">有</el-radio>
+                <el-radio v-model="formConfig.status_light" label="0">没有</el-radio>
+              </el-form-item>
             </div>
               <div v-if="showList2">
                <el-col :span="24" class="device-model-editdialog-title">情景按钮（BHSC）</el-col>
@@ -326,7 +342,8 @@ import {USER_EQUIPMENT_MODEL_QUERY,
   USER_EQUIPMENT_MODEL_UPLOADIMG,
   USER_EQUIPMENT_MODEL_ADD,
   USER_EQUIPMENT_MODEL_DEL,
-  USER_EQUIPMENT_MODEL_CONFIG } from '../../../lib/api.js'
+  USER_EQUIPMENT_MODEL_CONFIG,
+  COOP_GENERATE_DEVICE_ID_POST } from '../../../lib/api.js'
 import _ from 'lodash'
 export default {
   components: { ScaleImgComponent },
@@ -444,10 +461,12 @@ export default {
         audio: '',
         num: '',
         num2: '',
-        mic: '1',
-        speaker: '1',
-        sdcard: '1',
-        yun: '1'
+        mic: '0',
+        speaker: '0',
+        sdcard: '0',
+        yun: '0',
+        ptzctrl: '0',
+        status_light: '0'
       },
       nbi_code_options: [],
       prodt_code_options: [],
@@ -529,10 +548,6 @@ export default {
       })
       this.$http.post(USER_EQUIPMENT_MODEL_QUERY, param).then(res => {
         this.loading = false
-        if (res.data.statu === 0) {
-          this.$router.push('/signin')
-          return false
-        }
         if (this.vmResponseHandler(res)) {
           let prodtObj = {}
           res.data.prodtList.forEach(val => {
@@ -616,10 +631,12 @@ export default {
           audio: rowData[0].conf.audio,
           num: rowData[0].conf.num,
           num2: rowData[0].conf.num,
-          mic: (rowData[0].conf.mic === 0 || rowData[0].conf.mic === 1) ? String(rowData[0].conf.mic) : '1',
-          speaker: (rowData[0].conf.speaker === 0 || rowData[0].conf.speaker === 1) ? String(rowData[0].conf.speaker) : '1',
-          sdcard: (rowData[0].conf.sdcard === 0 || rowData[0].conf.sdcard === 1) ? String(rowData[0].conf.sdcard) : '1',
-          yun: (rowData[0].conf.yun === 0 || rowData[0].conf.yun === 1) ? String(rowData[0].conf.yun) : '1'
+          mic: (rowData[0].conf.mic === 0 || rowData[0].conf.mic === 1) ? String(rowData[0].conf.mic) : '0',
+          speaker: (rowData[0].conf.speaker === 0 || rowData[0].conf.speaker === 1) ? String(rowData[0].conf.speaker) : '0',
+          sdcard: (rowData[0].conf.sdcard === 0 || rowData[0].conf.sdcard === 1) ? String(rowData[0].conf.sdcard) : '0',
+          yun: (rowData[0].conf.yun === 0 || rowData[0].conf.yun === 1) ? String(rowData[0].conf.yun) : '0',
+          ptzctrl: (rowData[0].conf.ptzctrl === 0 || rowData[0].conf.ptzctrl === 1 || rowData[0].conf.ptzctrl === 2 || rowData[0].conf.ptzctrl === 3) ? String(rowData[0].conf.ptzctrl) : '0',
+          status_light: (rowData[0].conf.status_light === 0 || rowData[0].conf.status_light === 1) ? String(rowData[0].conf.status_light) : '0'
         }
       }
     },
@@ -641,7 +658,9 @@ export default {
                   mic: parseInt(this.formConfig.mic),
                   speaker: parseInt(this.formConfig.speaker),
                   sdcard: parseInt(this.formConfig.sdcard),
-                  yun: parseInt(this.formConfig.yun)
+                  yun: parseInt(this.formConfig.yun),
+                  ptzctrl: parseInt(this.formConfig.ptzctrl),
+                  status_light: parseInt(this.formConfig.status_light)
                 }
               }])
             })
@@ -715,6 +734,20 @@ export default {
         }
       })
     },
+
+    generateDeviceID: _.debounce(function (row) {
+      let loading = this.vmLoadingFull()
+      let data = this.createFormData({product_code: row.product_code})
+      this.$http.post(COOP_GENERATE_DEVICE_ID_POST, data).then(res => {
+        loading.close()
+        if (this.vmResponseHandler(res)) {
+          let a = document.createElement('a')
+          a.href = res.data.url
+          a.click()
+        }
+      })
+    }, 300),
+
     handleCurrentChange (val) {
       this.currentPage = val
       this.onSubmit(val)
@@ -724,8 +757,9 @@ export default {
     },
     onBeforeUpload (file) {
       let sizeM = file.size / 1024 / 1024
-      if (file.type !== 'image/jpeg' || sizeM > 2) {
-        this.vmMsgError('请上传后缀为.jpg且小于2M的图片')
+      let imgArr = ['image/png', 'image/jpeg', 'image/jpg']
+      if (!imgArr.includes(file.type) || sizeM > 2) {
+        this.vmMsgError('请上传后缀为.jpg或.png或.jpeg且小于2M的图片')
         return false
       }
     },
@@ -751,8 +785,9 @@ export default {
     },
     onBeforeUpload2 (file) {
       let sizeM = file.size / 1024 / 1024
-      if (file.type !== 'image/jpeg' || sizeM > 2) {
-        this.vmMsgError('请上传后缀为.jpg且小于2M的图片')
+      let imgArr = ['image/png', 'image/jpeg', 'image/jpg']
+      if (!imgArr.includes(file.type) || sizeM > 2) {
+        this.vmMsgError('请上传后缀为.jpg或.png或.jpeg且小于2M的图片')
         return false
       }
     },

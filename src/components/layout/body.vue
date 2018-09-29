@@ -1,9 +1,9 @@
 <template>
   <el-row class="content">
-    <el-col :xl="3" :lg="4" class="left">
+    <el-col :xl="3" :lg="3" class="left">
       <MenuComponent class="position" :class="isShowMenu ? '' : 'menu'"></MenuComponent>
     </el-col>
-    <el-col :xl="21" :lg="20" class="right">
+    <el-col :xl="21" :lg="21" class="right">
       <ContentComponent></ContentComponent>
     </el-col>
   </el-row>

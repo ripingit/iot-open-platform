@@ -29,7 +29,7 @@
                 <el-table-column
                   type="index"
                   label="编号"
-                  width="80">
+                  width="50">
                 </el-table-column>
                 <el-table-column
                   prop="device_id"
@@ -126,10 +126,10 @@
           <template slot-scope="scope">{{ repairWayCode[scope.row.results_of_repair] }}</template>
         </el-table-column>
         <el-table-column
-          prop="prc"
+          prop="pic"
           label="返修图片">
           <template slot-scope="scope">
-            <ScaleImgComponent :path="scope.row.prc" style="width:5rem;height:5rem" alt="返修图片"></ScaleImgComponent>
+            <ScaleImgComponent :path="scope.row.pic" style="width:5rem;height:5rem" alt="返修图片"></ScaleImgComponent>
           </template>
         </el-table-column>
         <el-table-column

@@ -119,10 +119,10 @@
           <template slot-scope="scope">{{ repairWayCode[scope.row.results_of_repair] }}</template>
         </el-table-column>
         <el-table-column
-          prop="prc"
+          prop="pic"
           label="返修图片">
           <template slot-scope="scope">
-            <ScaleImgComponent :path="scope.row.prc" style="width:5rem;height:5rem" alt="返修图片"></ScaleImgComponent>
+            <ScaleImgComponent :path="scope.row.pic" style="width:5rem;height:5rem" alt="返修图片"></ScaleImgComponent>
           </template>
         </el-table-column>
         <el-table-column
@@ -160,7 +160,7 @@
               <el-upload
                 :action="uploadPath"
                 name="photo"
-                accept=".jpg"
+                accept=".jpg,.jpeg,.png"
                 :before-upload="onBeforeUpload"
                 :on-success="onUploadSuccess"
                 :on-progress="onUploadProgress"
@@ -312,8 +312,9 @@ export default {
     },
     onBeforeUpload (file) {
       let sizeM = file.size / 1024 / 1024
-      if (sizeM > 20) {
-        this.vmMsgError('图片大小不能超过 20 M！')
+      let imgArr = ['image/png', 'image/jpeg', 'image/jpg']
+      if (!imgArr.includes(file.type) || sizeM > 2) {
+        this.vmMsgError('请上传后缀为.jpg或.png或.jpeg且小于2M的图片')
         return false
       }
     },

@@ -56,9 +56,9 @@ export default {
     apply (identity) {
       if (identity === this.dealer) {
         this.getState(2).then(res => {
-          if (res && res.data.DealerAndCompanys) {
-            this.vmMsgWarning('你已经是经销商，无法再申请！'); return
-          }
+          // if (res && res.data.DealerAndCompanys) {
+          //   this.vmMsgWarning('你已经是经销商，无法再申请！'); return
+          // }
           this.$router.push(this.applyUrl[identity])
         })
       } else {

@@ -24,7 +24,7 @@
                 v-model="searchKeyWord"
                 clearable>
               </el-input>
-              <el-button class="btn-search" type="primary" @click="getCoopLists(1)">查询</el-button>
+              <el-button class="btn-search" type="primary" @click="getCoopLists()">查询</el-button>
               <el-button v-if="vmHasAuth(AdminPermissionsLib.DEL_COOP, tableData.res)" class="btn-circle-delete btn-circle-right" type="danger" icon="el-icon-delete" circle @click="deleteCoop"></el-button>
             </el-col>
           </el-row>
@@ -110,7 +110,8 @@ export default {
         hasNumber: true,
         pageOptions: {
           pageSize: 10,
-          total: this.tableData.total
+          total: this.tableData.total,
+          currentPage: 1
         },
         columns: [
           {
@@ -135,7 +136,7 @@ export default {
     }
   },
   created () {
-    this.getCoopLists(1)
+    this.getCoopLists()
     document.body.addEventListener('keydown', this.keyCodeDown, false)
   },
   beforeDestroy () {
@@ -144,15 +145,15 @@ export default {
   methods: {
     keyCodeDown (e) {
       if (e.keyCode === 13) {
-        this.getCoopLists(1)
+        this.getCoopLists()
       }
     },
     handleSelectionChange (val) {
       this.selectedData = val
     },
-    getCoopLists: _.debounce(function (currentPage) {
+    getCoopLists: _.debounce(function () {
       let data = this.createFormData({
-        page: currentPage,
+        page: parseInt(this.tableOptions.pageOptions.currentPage),
         page_size: 20,
         query_by_name: this.searchKeyWord,
         start_time: this.searchDate ? this.searchDate[0] : '',
@@ -182,7 +183,7 @@ export default {
           let wait = this.vmLoadingFull()
           this.$http.post(DELETE_COOP_COMPANY_POST, data).then(res => {
             if (this.vmResponseHandler(res)) {
-              this.getCoopLists(this.tableData.page)
+              this.getCoopLists(this.tableOptions.pageOptions.currentPage)
               this.vmMsgSuccess('删除成功！')
             }
             wait.close()

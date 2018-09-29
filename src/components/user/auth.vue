@@ -59,6 +59,7 @@
         <el-steps class="step-operation">
           <el-step></el-step>
           <el-step v-if="isShowSubmit" class="auth"></el-step>
+          <el-step v-else-if="canUpdate" @click.native="showDialog" class="edit"></el-step>
           <el-step v-else @click.native="showDialog"></el-step>
           <el-step v-if="isShowUpdate || isUpdateState" :class="'review'"></el-step>
           <el-step v-else @click.native="updateReviewState(true)"></el-step>
@@ -70,7 +71,7 @@
     <el-dialog title="提交审核" :visible.sync="isDialogVisible" center>
       <p class="note">* 所有填写的信息要与营业执照上保持一致</p>
       <el-form :model="form" status-icon ref="authForm" :rules="rules" label-position="right" label-width="100px">
-        <el-form-item label="公司名" prop="name" class="form-row">
+        <el-form-item label="公司名" prop="name" class="form-row" v-if="authStatu !== authCode.PASS">
           <el-input
             placeholder="请输入公司全称"
             v-model="form.name"
@@ -78,7 +79,15 @@
           </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="证件号码" prop="agency_code" class="form-row">
+        <el-form-item label="公司英文名" prop="en_name" class="form-row" v-if="authStatu !== authCode.PASS">
+          <el-input
+            placeholder="请输入公司英文名称"
+            v-model="form.en_name"
+            clearable>
+          </el-input>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item label="证件号码" prop="agency_code" class="form-row" v-if="authStatu !== authCode.PASS">
           <el-input
             placeholder="请输入单位证件号码"
             v-model="form.agency_code">
@@ -99,7 +108,7 @@
           </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="营业执照" prop="cert" class="form-row">
+        <el-form-item label="营业执照" prop="file_ids" class="form-row" v-if="authStatu !== authCode.PASS">
           <span class="form-img-cert" v-if="isUploading">
             {{uploadProgress || picTip}}
           </span>
@@ -108,7 +117,7 @@
             <el-upload
               :action="uploadPath"
               name="photo"
-              accept=".jpg"
+              accept=".jpg,.jpeg,.png"
               :before-upload="onBeforeUpload"
               :on-success="onUploadSuccess"
               :on-progress="onUploadProgress"
@@ -119,7 +128,7 @@
           </div>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item prop="protocolChecked" class="form-row">
+        <el-form-item prop="protocolChecked" class="form-row" v-if="authStatu !== authCode.PASS">
           <el-checkbox v-model="form.protocolChecked">同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a></el-checkbox>
         </el-form-item>
         <el-form-item class="form-row">
@@ -152,7 +161,7 @@ export default {
           callback(new Error('请输入证件号码'))
         } else if (rule.field === 'tel') {
           callback(new Error('请输入联系电话'))
-        } else if (rule.field === 'cert') {
+        } else if (rule.field === 'file_ids') {
           callback(new Error('请上传营业执照'))
         }
       } else {
@@ -172,6 +181,7 @@ export default {
     return {
       authStatu: this.$store.getters.getAuthState,
       isUpdateState: false,
+      isToUpdate: false,
       uploadPath: CERT_UPLOAD_POST,
       isDialogVisible: false,
       protocolChecked: false,
@@ -183,11 +193,12 @@ export default {
       form: {
         role: this.merchantCode.coop,
         name: '',
+        en_name: '',
         addr: '',
         agency_code: '',
         tel: '',
         protocolChecked: true,
-        cert: ''
+        file_ids: ''
       },
       rules: {
         name: [
@@ -205,15 +216,18 @@ export default {
         protocolChecked: [
           { validator: validateIsEmpty, trigger: 'blur' }
         ],
-        cert: [
+        file_ids: [
           { validator: validateIsEmpty, trigger: 'blur' }
         ]
       }
     }
   },
   computed: {
+    canUpdate () {
+      return this.isToUpdate && this.authStatu === this.authCode.PASS
+    },
     isShowSubmit () {
-      return this.authStatu === this.authCode.PASS || this.authStatu === this.authCode.WAIT
+      return this.authStatu === this.authCode.WAIT
     },
     isShowUpdate () {
       return this.authStatu !== this.authCode.WAIT
@@ -250,10 +264,16 @@ export default {
     authenticate () {
       this.$refs['authForm'].validate((valid) => {
         if (valid) {
+          let loading = this.vmLoadingFull()
           this.$http.post(PARTNER_AUTH_POST, this.createFormData(this.form)).then(res => {
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess('审核提交成功，审核周期为24小时内，我们将尽快处理！')
+              loading.close()
               this.isDialogVisible = false
+              if (this.authStatu === this.authCode.PASS) {
+                this.vmMsgSuccess('修改成功！'); return
+              } else {
+                this.vmMsgSuccess('审核提交成功，审核周期为24小时内，我们将尽快处理！')
+              }
               this.isUploading = true
               this.uploadProgress = ''
               this.$refs['authForm'].resetFields()
@@ -268,20 +288,24 @@ export default {
     },
     updateReviewState (flag) {
       this.isUpdateState = true
+      let loading = this.vmLoadingFull()
       this.$http.post(UPDATE_AUTH_STATE_POST, this.createFormData({role: this.merchantCode.coop})).then(res => {
+        loading.close()
         if (this.vmResponseHandler(res)) {
           this.isUpdateState = false
+          this.isToUpdate = res.data.company_change
           this.authStatu = res.data.company_status
           this.authFailedReason = res.data.data.review_mark
           this.$store.commit(AUTH_CHANGE, { authState: res.data.company_status })
           this.$store.commit(USER_ID_UPDATE, { ID: res.data.company_client_id })
           this.$store.commit(USER_KEY_UPDATE, { KEY: res.data.company_client_secret })
-          if (this.authStatu === this.authCode.REJECT) {
+          if (this.authStatu === this.authCode.REJECT || this.authStatu === this.authCode.PASS) {
             this.form.name = res.data.data.name
+            this.form.en_name = res.data.data.en_name
             this.form.addr = res.data.data.addr
             this.form.agency_code = res.data.data.agency_code
             this.form.tel = res.data.data.tel
-            this.form.cert = res.data.data.file_ids
+            this.form.file_ids = res.data.data.file_ids
             this.picPath = res.data.data.file_ids
             this.isUploading = false
           }
@@ -300,8 +324,9 @@ export default {
     },
     onBeforeUpload (file) {
       let sizeM = file.size / 1024 / 1024
-      if (file.type !== 'image/jpeg' || sizeM > 2) {
-        this.vmMsgError('请上传后缀为.jpg且小于2M的图片')
+      let imgArr = ['image/png', 'image/jpeg', 'image/jpg']
+      if (!imgArr.includes(file.type) || sizeM > 2) {
+        this.vmMsgError('请上传后缀为.jpg或.png或.jpeg且小于2M的图片')
         return false
       }
     },
@@ -317,7 +342,7 @@ export default {
       }
       this.isUploading = false
       this.picPath = file.url
-      this.form.cert = file.url
+      this.form.file_ids = response.file_ids
     },
     onUploadProgress (event, file, fileList) {
       this.isUploading = true
@@ -497,8 +522,13 @@ export default {
     border-radius: 0;
     background: transparent;
   }
-  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon::after {
+  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon::after{
     content: '提交认证';
+  }
+  .step-operation .el-step.edit:nth-child(2) /deep/ .el-step__head .el-step__icon::after{
+    content: '修改信息';
+  }
+  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon::after {
     color: #3da0f4;
     font-size:1.17rem;
   }

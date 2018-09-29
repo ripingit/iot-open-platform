@@ -2,7 +2,8 @@ const params = {
   prod: 'manage',
   dev: 'manageTest'
 }
-const prefix = params.dev
+
+const prefix = process.env.DEPLOY_ENV === 'dev' ? params.dev : params.prod
 
 /** 管理员获取权限数据 */
 export const ADMIN_AUTH_GET = prefix + '/admin.php?m=Admin&c=Login&a=getRes'
@@ -109,6 +110,9 @@ export const COOP_FIRMWARES_UPLOAD_POST = '../' + prefix + '/index.php?m=Home&c=
 /** 合作商固件管理，新增固件 */
 export const COOP_FIRMWARES_ADD_POST = prefix + '/index.php?m=Home&c=Rom&a=deviceRomAdd'
 
+/** 合作商固件管理，撤销灰度的固件发布条件 */
+export const COOP_CANCEL_RELEASE = prefix + '/index.php?m=Home&c=Rom&a=adminRomUpdCondAddDel'
+
 /** 合作商固件管理，获取固件历史信息 */
 export const GET_COOP_FIRMWARE_HISTORY_POST = prefix + '/index.php?m=Home&c=Rom&a=deviceRom'
 
@@ -135,6 +139,12 @@ export const EQUIPMENT_MODEL_QUERY = prefix + '/admin.php?m=AdminA&c=Product&a=p
 
 /** 平台管理，设备型号,删除型号 */
 export const EQUIPMENT_MODEL_DELETE = prefix + '/admin.php?m=AdminA&c=Product&a=productDel'
+
+/** 平台管理，设备型号,编辑型号时上传图片 */
+export const ADMIN_EQUIPMENT_MODEL_UPLOADIMG = '../' + prefix + '/admin.php?m=Admin&c=Product&a=putObject'
+
+/** 平台管理，设备型号，编辑型号 */
+export const ADMIN_EQUIPMENT_MODEL_UPDATE = prefix + '/admin.php?m=Admin&c=Product&a=productEditPic'
 
 /** 合作商,设备型号查询 */
 export const USER_EQUIPMENT_MODEL_QUERY = prefix + '/index.php?m=Home&c=Product&a=productList'
@@ -215,7 +225,7 @@ export const COOP_HOMEDATA_QUERY = '/' + prefix + '/index.php?m=Home&c=Index&a=h
 export const GET_GOODS_POST = prefix + '/admin.php?m=Admin&c=Goods&a=goodsquery'
 
 /** admin商品管理，上传商品图片 */
-export const GOOD_PIC_UPLOAD_POST = prefix + '/admin.php?m=Admin&c=Goods&a=putObject'
+export const GOOD_PIC_UPLOAD_POST = '../' + prefix + '/admin.php?m=Admin&c=Goods&a=putObject'
 
 /** admin商品管理，添加商品 */
 export const ADD_GOOD_POST = prefix + '/admin.php?m=Admin&c=Goods&a=goodsgenerate'
@@ -257,7 +267,7 @@ export const GET_EQUIPMENT_POST = prefix + '/index.php?m=Home&c=Production&a=adm
 export const GET_EQUIPMENT_REWORK_POST = prefix + '/index.php?m=Home&c=Production&a=adminDeviceRepairList'
 
 /** 合作商设备生产，设备返修图片上传 */
-export const REWORK_UPLOAD_PIC_POST = prefix + '/index.php?m=Home&c=Production&a=putObject'
+export const REWORK_UPLOAD_PIC_POST = '../' + prefix + '/index.php?m=Home&c=Production&a=putObject'
 
 /** 合作商设备生产，添加设备返修 */
 export const REWORK_ADD_POST = prefix + '/index.php?m=Home&c=Production&a=adminDeviceRepairAdd'
@@ -323,7 +333,7 @@ export const GET_USEREQUIPMENTMANAGEMENT_RECORD_POST = prefix + '/index.php?m=Ho
 export const USEREQUIPMENTMANAGEMENT_ADD_POST = prefix + '/index.php?m=Home&c=Device&a=adminDeviceRepairAdd'
 
 /** 合作商设备管理添加设备图片上传返修信息 */
-export const MANAGEMENTREWORK_UPLOAD_PIC_POST = prefix + '/index.php?m=Home&c=Device&a=putObject'
+export const MANAGEMENTREWORK_UPLOAD_PIC_POST = '../' + prefix + '/index.php?m=Home&c=Device&a=putObject'
 
 /** 合作商key管理，短信设置查询 */
 export const COOP_SMS_QUERY_POST = prefix + '/index.php?m=Home&c=Key&a=adminSMSVcodeTempList'
@@ -342,3 +352,30 @@ export const COOP_EMAIL_ADD_POST = prefix + '/index.php?m=Home&c=Key&a=adminMail
 
 /** 合作商key管理，邮件设置更新 */
 export const COOP_EMAIL_UPDATE_POST = prefix + '/index.php?m=Home&c=Key&a=adminMailVcodeTempUpdate'
+
+/** 合作商key管理，协议设置添加 */
+export const COOP_PROTOCOL_ADD_POST = prefix + '/index.php?m=Home&c=Key&a=adminProtoSet'
+
+/** 合作商key管理，协议设置查询 */
+export const COOP_PROTOCOL_QUERY_POST = prefix + '/index.php?m=Home&c=Key&a=adminProtoList'
+
+/** 合作商设备型号，生成设备ID */
+export const COOP_GENERATE_DEVICE_ID_POST = prefix + '/index.php?m=Home&c=Product&a=deviceAdd'
+
+/** 合作商经销商用户列表 */
+export const COOP_AUTH_USER_LIST_POST = prefix + '/index.php?m=Admin&c=Powers&a=userList'
+
+/** 合作商经销商用户列表的具体权限 */
+export const COOP_AUTH_USER_PERMISSIONS_POST = prefix + '/index.php?m=Admin&c=Powers&a=resList'
+
+/** 编辑合作商经销商用户列表的具体权限 */
+export const COOP_AUTH_USER_PERMISSIONS_EDIT = prefix + '/index.php?m=Admin&c=Powers&a=aclUserPermission'
+
+/** 合作商，上传app */
+export const COOP_APP_UPLOAD_POST = '../' + prefix + '/index.php?m=Home&c=App&a=putObject'
+
+/** 合作商，设备生产下载模板 */
+export const COOP_PROD_TEMPLATE_POST = prefix + '/index.php?m=Home&c=Production&a=examplese'
+
+/** 合作商，设备生产导入数据 */
+export const COOP_PROD_IMPORT_POST = '../' + prefix + '/index.php?m=Home&c=Production&a=putObject'
