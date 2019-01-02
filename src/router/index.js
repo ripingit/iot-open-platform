@@ -16,20 +16,12 @@ const router = new Router({
       path: '/signup',
       component: resolve => require(['@/components/user/sign-up'], resolve),
       meta: { title: '注册' }
-    }, {
-      path: '/qrcode/:appName/:company',
-      component: resolve => require(['@/components/qrcode'], resolve),
-      meta: { title: '二维码' }
-    }, {
-      path: '/test',
-      component: resolve => require(['@/components/_ui/test.vue'], resolve),
-      meta: { title: '测试页面' }
     }
   ]
 })
 
 router.beforeEach((to, from, next) => {
-  let filter = ['/signin', '/signup', '/qrcode', '/test']
+  let filter = ['/signin', '/signup', '/qrcode']
 
   if (filter.includes(to.fullPath) || to.fullPath.indexOf('/qrcode') !== -1) {
     next(); return
@@ -42,10 +34,10 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach((route) => {
-  let documentTitle = '迈科物联开放平台'
+  let documentTitle = ''
   route.matched.forEach((path) => {
     if (path.meta.title) {
-      documentTitle += ` - ${path.meta.title}`
+      documentTitle += `${path.meta.title}`
     }
   })
 

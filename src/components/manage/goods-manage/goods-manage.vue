@@ -61,7 +61,7 @@
                 <el-table-column
                   prop="class_name"
                   label="类型">
-                  <template slot-scope="scope">{{ goodTypeCode[scope.row.class_name] }}</template>
+                  <template slot-scope="scope">{{ tableData.class.find(o => o.class_name === scope.row.class_name).class_desc }}</template>
                 </el-table-column>
                 <el-table-column
                   prop="goods_lasteddate"

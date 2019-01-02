@@ -18,20 +18,20 @@
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-form :model="formData" status-icon :show-message="false" :rules="rules" ref="loginForm">
+            <el-form
+              :model="formData"
+              status-icon
+              :show-message="false"
+              :rules="rules"
+              ref="loginForm"
+            >
               <el-form-item prop="account">
-                <el-input
-                  placeholder="请输入账号"
-                  v-model="formData.account"
-                  clearable>
+                <el-input placeholder="请输入账号" v-model="formData.account" clearable>
                   <i slot="prefix" class="iconfont icon-yonghuming"></i>
                 </el-input>
               </el-form-item>
               <el-form-item prop="password">
-                <el-input
-                  type="password"
-                  placeholder="请输入密码"
-                  v-model="formData.password">
+                <el-input type="password" placeholder="请输入密码" v-model="formData.password">
                   <i slot="prefix" class="iconfont icon-mima"></i>
                   <i slot="suffix" class="iconfont icon-chakanmima_guan"></i>
                 </el-input>
@@ -41,18 +41,18 @@
         </el-row>
         <el-row>
           <el-col :span="24" class="forgot">
-             <el-checkbox v-model="pwChecked" @click="rememberPass">记住密码</el-checkbox>
-             <a @click="forgotPass">忘记密码？</a>
+            <el-checkbox v-model="pwChecked" @click="rememberPass">记住密码</el-checkbox>
+            <a @click="forgotPass">忘记密码？</a>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
-             <el-button type="primary" @click="signIn">登录</el-button>
+            <el-button type="primary" @click="signIn">登录</el-button>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
-             <router-link to="/signup" class="sign-up">还没账号？去注册</router-link>
+            <router-link to="/signup" class="sign-up">还没账号？去注册</router-link>
           </el-col>
         </el-row>
       </div>
@@ -68,44 +68,42 @@ YUCnRYiiN30nW7KNiuD6XigaiNQ/hTwBPWPykUKXTiC3tzA06iyVcyts+rIFlUJR
 -----END PUBLIC KEY-----
 </textarea>
 
-    <el-dialog
-      title="找回密码"
-      :visible.sync="isForgotVisible"
-      width="50rem"
-      center>
+    <el-dialog title="找回密码" :visible.sync="isForgotVisible" width="50rem" center>
       <p class="note">* 管理员分配的账号请找管理员重置</p>
-      <el-form :model="formDataCheck" status-icon ref="checkForm" :rules="rulesCheck" label-position="right" label-width="100px">
+      <el-form
+        :model="formDataCheck"
+        status-icon
+        ref="checkForm"
+        :rules="rulesCheck"
+        label-position="right"
+        label-width="100px"
+      >
         <el-form-item label="账号" prop="user_name" class="form-row">
-          <el-input
-            placeholder="请输入手机号/邮箱"
-            v-model="formDataCheck.user_name"
-            clearable>
-          </el-input>
+          <el-input placeholder="请输入手机号/邮箱" v-model="formDataCheck.user_name" clearable></el-input>
         </el-form-item>
         <el-form-item label="验证码" prop="vcode" class="form-row">
           <el-input
             placeholder="请输入验证码"
             v-model="formDataCheck.vcode"
             clearable
-            style="width: 15rem">
-          </el-input>
-          <CheckCodeComponent class="btn-code" :isReset="toResetBtnCode" v-on:emit-statu="getCheckCode"></CheckCodeComponent>
+            style="width: 15rem"
+          ></el-input>
+          <CheckCodeComponent
+            class="btn-code"
+            :isReset="toResetBtnCode"
+            v-on:emit-statu="getCheckCode"
+          ></CheckCodeComponent>
         </el-form-item>
         <el-form-item label="新密码" prop="new_pass" class="form-row">
-          <el-input
-            type="password"
-            placeholder="请输入新密码"
-            v-model="formDataCheck.new_pass"
-            clearable>
-          </el-input>
+          <el-input type="password" placeholder="请输入新密码" v-model="formDataCheck.new_pass" clearable></el-input>
         </el-form-item>
         <el-form-item label="确认新密码" prop="confirmPass" class="form-row">
           <el-input
             type="password"
             placeholder="请再次输入新密码"
             v-model="formDataCheck.confirmPass"
-            clearable>
-          </el-input>
+            clearable
+          ></el-input>
         </el-form-item>
         <el-form-item class="form-row" style="margin-top: 2rem">
           <el-button type="primary" class="btn-submit" @click="changePassword">确定</el-button>
@@ -116,225 +114,265 @@ YUCnRYiiN30nW7KNiuD6XigaiNQ/hTwBPWPykUKXTiC3tzA06iyVcyts+rIFlUJR
 </template>
 
 <script>
-import CheckCodeComponent from '@/components/_ui/verificate-code.vue'
-import VersionComponent from '@/components/_ui/version.vue'
-import JSEncrypt from 'jsencrypt'
-import { validateEmail, validatePhone } from '@/lib/validate.js'
-import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST } from '@/lib/api.js'
-import { AUTH_CHANGE, IDENTITY_UPDATE, AUTH_UPDATE } from '@/store/mutations-type'
-import { createRoutes } from '@/router/routes/index'
-import { generateMenus, coopMenuRouteMap, adminMenuRouteMap } from '@/lib/route-menu-map'
-import { getState } from '@/lib/mixins'
+import CheckCodeComponent from "@/components/_ui/verificate-code.vue";
+import VersionComponent from "@/components/_ui/version.vue";
+import JSEncrypt from "jsencrypt";
+import { validateEmail, validatePhone } from "@/lib/validate.js";
+import {
+  SIGNIN_POST,
+  TOKEN_POST,
+  LOST_PASS_POST,
+  CODE_POST
+} from "@/lib/api.js";
+import {
+  AUTH_CHANGE,
+  IDENTITY_UPDATE,
+  AUTH_UPDATE
+} from "@/store/mutations-type";
+import { createRoutes } from "@/router/routes/index";
+import {
+  generateMenus,
+  coopMenuRouteMap,
+  adminMenuRouteMap
+} from "@/lib/route-menu-map";
+import { getState } from "@/lib/mixins";
 
-import _ from 'lodash'
+import _ from "lodash";
 export default {
-  mixins: [{
-    methods: { getState }
-  }],
+  mixins: [
+    {
+      methods: { getState }
+    }
+  ],
   components: { CheckCodeComponent, VersionComponent },
-  data () {
+  data() {
     let validatePass = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请再次输入密码'))
+      if (value === "") {
+        callback(new Error("请再次输入密码"));
       } else if (value !== this.formDataCheck.new_pass) {
-        callback(new Error('两次输入密码不一致!'))
+        callback(new Error("两次输入密码不一致!"));
       } else {
-        callback()
+        callback();
       }
-    }
+    };
     let validateIsEmpty = (rule, value, callback) => {
-      if (value === '') {
-        if (rule.field === 'vcode') {
-          callback(new Error('请输入验证码'))
-        } else if (rule.field === 'confirmPass' || rule.field === 'new_pass') {
-          callback(new Error('请输入密码'))
+      if (value === "") {
+        if (rule.field === "vcode") {
+          callback(new Error("请输入验证码"));
+        } else if (rule.field === "confirmPass" || rule.field === "new_pass") {
+          callback(new Error("请输入密码"));
         }
       }
-      callback()
-    }
+      callback();
+    };
     let validateAccount = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请输入账号'))
+      if (value === "") {
+        callback(new Error("请输入账号"));
       } else {
-        let isEmail = validateEmail(value)
-        let isPhone = validatePhone(value)
+        let isEmail = validateEmail(value);
+        let isPhone = validatePhone(value);
         if (!isEmail && !isPhone) {
-          callback(new Error('请输入正确的账号'))
+          callback(new Error("请输入正确的账号"));
         }
-        callback()
+        callback();
       }
-    }
+    };
     return {
       isForgotVisible: false,
       toResetBtnCode: false,
       formData: {
-        account: '',
-        password: ''
+        account: "",
+        password: ""
       },
       formDataCheck: {
-        user_name: '',
-        vcode: '',
-        new_pass: '',
-        confirmPass: ''
+        user_name: "",
+        vcode: "",
+        new_pass: "",
+        confirmPass: ""
       },
       pwChecked: true,
       rules: {
-        account: [
-          { required: true, message: '请输入账号', trigger: 'blur' }
-        ],
-        password: [
-          { required: true, message: '请输入密码', trigger: 'blur' }
-        ]
+        account: [{ required: true, message: "请输入账号", trigger: "blur" }],
+        password: [{ required: true, message: "请输入密码", trigger: "blur" }]
       },
       rulesCheck: {
-        user_name: [
-          { validator: validateAccount, trigger: 'blur' }
-        ],
+        user_name: [{ validator: validateAccount, trigger: "blur" }],
         new_pass: [
-          { validator: validateIsEmpty, trigger: 'blur' },
-          { min: 8, max: 30, message: '长度在 8 到 30 个字符', trigger: 'blur' }
+          { validator: validateIsEmpty, trigger: "blur" },
+          { min: 8, max: 30, message: "长度在 8 到 30 个字符", trigger: "blur" }
         ],
-        confirmPass: [
-          { validator: validatePass, trigger: 'blur' }
-        ],
-        vcode: [
-          { validator: validateIsEmpty, trigger: 'blur' }
-        ]
+        confirmPass: [{ validator: validatePass, trigger: "blur" }],
+        vcode: [{ validator: validateIsEmpty, trigger: "blur" }]
       }
-    }
+    };
   },
-  created () {
-    let pwdChecked = localStorage['_ck']
-    this.pwChecked = pwdChecked === undefined ? true : Boolean(pwdChecked)
+  created() {
+    let pwdChecked = localStorage["_ck"];
+    this.pwChecked = pwdChecked === undefined ? true : Boolean(pwdChecked);
 
     if (this.pwChecked) {
-      this.formData.account = localStorage['_acd']
+      this.formData.account = localStorage["_acd"];
     }
 
-    this.getToken()
+    this.getToken();
 
-    document.body.addEventListener('keydown', this.keyCodeDown, false)
+    document.body.addEventListener("keydown", this.keyCodeDown, false);
   },
-  beforeDestroy () {
-    document.body.removeEventListener('keydown', this.keyCodeDown, false)
+  beforeDestroy() {
+    document.body.removeEventListener("keydown", this.keyCodeDown, false);
   },
   methods: {
-    keyCodeDown (e) {
+    keyCodeDown(e) {
       if (e.keyCode === 13) {
         if (this.isForgotVisible) {
-          this.changePassword()
+          this.changePassword();
         } else {
-          this.signIn()
+          this.signIn();
         }
       }
     },
-    rememberPass () {
-      localStorage['_ck'] = this.pwChecked
+    rememberPass() {
+      localStorage["_ck"] = this.pwChecked;
     },
-    getToken () {
-      this.$http.post(TOKEN_POST).then(res => {
-        if (this.vmResponseHandler(res)) {
-          sessionStorage['token'] = res.data.token
-        }
-      }).catch(() => {
-        this.vmMsgError('网络错误！')
-      })
+    getToken() {
+      this.$http
+        .post(TOKEN_POST)
+        .then(res => {
+          if (this.vmResponseHandler(res)) {
+            sessionStorage["token"] = res.data.token;
+          }
+        })
+        .catch(() => {
+          this.vmMsgError("网络错误！");
+        });
     },
-    signIn: _.debounce(function () {
-      this.$refs['loginForm'].validate((valid) => {
+    signIn: _.debounce(function() {
+      this.$refs["loginForm"].validate(valid => {
         if (valid) {
-          let loading = this.vmLoadingFull()
+          let loading = this.vmLoadingFull();
           if (this.pwChecked) {
-            localStorage['_acd'] = this.formData.account
+            localStorage["_acd"] = this.formData.account;
           } else {
-            localStorage.removeItem('_acd')
+            localStorage.removeItem("_acd");
           }
 
-          let encrypt = new JSEncrypt()
-          encrypt.setPublicKey(document.getElementById('rsakey').value)
+          let encrypt = new JSEncrypt();
+          encrypt.setPublicKey(document.getElementById("rsakey").value);
 
-          let token = sessionStorage['token']
+          let token = sessionStorage["token"];
           let data = this.createFormData({
             user_name: this.formData.account,
             password: encrypt.encrypt(token + this.formData.password)
-          })
-          this.$http.post(SIGNIN_POST, data).then(res => {
-            loading.close()
-            if (this.vmResponseHandler(res)) {
-              if (res.data.client_id === this.identityCode.ADMIN) {
-                this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id })
-                this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, adminMenuRouteMap) })
-                this.$router.addRoutes(createRoutes(res.data.title))
-                this.$router.push('/manage/admin/home/0')
-              } else {
-                this.$store.commit(AUTH_CHANGE, { authState: res.data.company_status })
-                this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id || this.identityCode.COOP })
-                this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, coopMenuRouteMap) })
-                this.$router.addRoutes(createRoutes(res.data.title))
-                Promise.all([this.getState(this.merchantCode.coop), this.getState(this.merchantCode.dealer)]).then(response => {
-                  // 未提交认证且未注册经销商
-                  if ((response[0] && response[0].data.company_status === this.authCode.NO_SUBMIT) && (response[1] && !response[1].data.DealerAndCompanys)) {
-                    this.$router.push('/manage/coopApply')
-                  } else {
-                    if (response[0] && response[0].data.company_status !== this.authCode.NO_SUBMIT) {
-                      this.$router.push('/manage'); return
+          });
+          this.$http
+            .post(SIGNIN_POST, data)
+            .then(res => {
+              loading.close();
+              if (this.vmResponseHandler(res)) {
+                if (res.data.client_id === this.identityCode.ADMIN) {
+                  this.$store.commit(IDENTITY_UPDATE, {
+                    identity: res.data.client_id
+                  });
+                  this.$store.commit(AUTH_UPDATE, {
+                    menus: generateMenus(res.data.title, adminMenuRouteMap)
+                  });
+                  this.$router.addRoutes(createRoutes(res.data.title));
+                  this.$router.push("/manage/admin/home/0");
+                } else {
+                  this.$store.commit(AUTH_CHANGE, {
+                    authState: res.data.company_status
+                  });
+                  this.$store.commit(IDENTITY_UPDATE, {
+                    identity: res.data.client_id || this.identityCode.COOP
+                  });
+                  this.$store.commit(AUTH_UPDATE, {
+                    menus: generateMenus(res.data.title, coopMenuRouteMap)
+                  });
+                  this.$router.addRoutes(createRoutes(res.data.title));
+                  Promise.all([
+                    this.getState(this.merchantCode.coop),
+                    this.getState(this.merchantCode.dealer)
+                  ]).then(response => {
+                    // 未提交认证且未注册经销商
+                    if (
+                      response[0] &&
+                      response[0].data.company_status ===
+                        this.authCode.NO_SUBMIT &&
+                      (response[1] && !response[1].data.DealerAndCompanys)
+                    ) {
+                      this.$router.push("/manage/coopApply");
+                    } else {
+                      if (
+                        response[0] &&
+                        response[0].data.company_status !==
+                          this.authCode.NO_SUBMIT
+                      ) {
+                        this.$router.push("/manage");
+                        return;
+                      }
+                      this.$router.push("/manage/user/deviceManage/1");
                     }
-                    this.$router.push('/manage/user/deviceManage/1')
-                  }
-                })
+                  });
+                }
               }
-            }
-          }).catch(e => {
-            this.vmMsgError('网络错误！')
-            loading.close()
-          })
+            })
+            .catch(e => {
+              this.vmMsgError("网络错误！");
+              loading.close();
+            });
         }
-      })
+      });
     }, 300),
 
-    forgotPass () {
-      this.isForgotVisible = true
+    forgotPass() {
+      this.isForgotVisible = true;
     },
-    getCheckCode: _.debounce(function () {
+    getCheckCode: _.debounce(function() {
       if (!this.formDataCheck.user_name) {
-        this.toResetBtnCode = !this.toResetBtnCode
-        this.vmMsgWarning('请填写手机号或邮箱'); return
+        this.toResetBtnCode = !this.toResetBtnCode;
+        this.vmMsgWarning("请填写手机号或邮箱");
+        return;
       }
       let data = this.createFormData({
         type: 2,
         user_name: this.formDataCheck.user_name
-      })
-      this.$http.post(CODE_POST, data).then(res => {
-        if (this.vmResponseHandler(res)) {
-          this.vmMsgSuccess('验证码已发送！')
-        } else {
-          this.toResetBtnCode = this.toResetBtnCode = !this.toResetBtnCode
-        }
-      }).catch((e) => {
-        this.vmMsgError('网络错误！')
-        this.toResetBtnCode = this.toResetBtnCode = !this.toResetBtnCode
-      })
+      });
+      this.$http
+        .post(CODE_POST, data)
+        .then(res => {
+          if (this.vmResponseHandler(res)) {
+            this.vmMsgSuccess("验证码已发送！");
+          } else {
+            this.toResetBtnCode = this.toResetBtnCode = !this.toResetBtnCode;
+          }
+        })
+        .catch(e => {
+          this.vmMsgError("网络错误！");
+          this.toResetBtnCode = this.toResetBtnCode = !this.toResetBtnCode;
+        });
     }, 300),
-    changePassword: _.debounce(function () {
-      this.$refs['checkForm'].validate((valid) => {
+    changePassword: _.debounce(function() {
+      this.$refs["checkForm"].validate(valid => {
         if (valid) {
-          this.$http.post(LOST_PASS_POST, this.createFormData(this.formDataCheck)).then(res => {
-            if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess('您的密码已成功重置！')
-              this.isForgotVisible = false
-            }
-          }).catch(() => {
-            this.vmMsgError('网络错误！')
-          })
+          this.$http
+            .post(LOST_PASS_POST, this.createFormData(this.formDataCheck))
+            .then(res => {
+              if (this.vmResponseHandler(res)) {
+                this.vmMsgSuccess("您的密码已成功重置！");
+                this.isForgotVisible = false;
+              }
+            })
+            .catch(() => {
+              this.vmMsgError("网络错误！");
+            });
         }
-      })
+      });
     }, 300)
   }
-}
+};
 </script>
 
 <style scoped>
-
 @media (min-width: 1366px) {
   .panel-pos {
     margin-top: -20rem;
@@ -342,93 +380,93 @@ export default {
 }
 
 /* @media (min-width: 720px) { */
-  .container {
-    height: 100%;
-    position: relative;
-    background: url('../../assets/img/bg.jpg') no-repeat;
-    background-size: cover;
-  }
-  .panel {
-    height: 100%;
-    margin: 0 auto;
-    padding: 0 2rem;
-    display: flex;
-    align-items: center;
-    width: 25rem;
-  }
-  .panel-pos {
-    width: 100%;
-    text-align: center;
-    color: #fff;
-  }
-  .panel .brand {
-    font-size: 2.5rem;
-    padding: 3rem 0;
-  }
-  .panel .brand span.name-en {
-    font-size: 1rem;
-    letter-spacing: 0.2rem;
-    color: #a8a8a8;
-    vertical-align: text-top;
-  }
-  .panel .brand i.logo {
-    font-size: 2.5rem;
-    vertical-align: text-bottom;
-  }
-  .panel .brand i.logo,
-  .panel .brand i.placeholder {
-    width: 2.5rem;
-    height: 2.5rem;
-    display: inline-block;
-  }
+.container {
+  height: 100%;
+  position: relative;
+  background: url("../../assets/img/bg.jpg") no-repeat;
+  background-size: cover;
+}
+.panel {
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  width: 25rem;
+}
+.panel-pos {
+  width: 100%;
+  text-align: center;
+  color: #fff;
+}
+.panel .brand {
+  font-size: 2.5rem;
+  padding: 3rem 0;
+}
+.panel .brand span.name-en {
+  font-size: 1rem;
+  letter-spacing: 0.2rem;
+  color: #a8a8a8;
+  vertical-align: text-top;
+}
+.panel .brand i.logo {
+  font-size: 2.5rem;
+  vertical-align: text-bottom;
+}
+.panel .brand i.logo,
+.panel .brand i.placeholder {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-block;
+}
 
-  .panel .el-button {
-    width: 100%;
-    border-radius: 0;
-    margin: 2rem 0;
-  }
+.panel .el-button {
+  width: 100%;
+  border-radius: 0;
+  margin: 2rem 0;
+}
 
-  .forgot {
-    margin-top: 1rem;
-  }
-  .forgot .el-checkbox {
-    float: left;
-  }
+.forgot {
+  margin-top: 1rem;
+}
+.forgot .el-checkbox {
+  float: left;
+}
 
-  .forgot a {
-    float: right;
-    color: #fff;
-    text-decoration: none;
-    font-size: 1.17rem;
-    margin-top: 0.2rem;
-    cursor: pointer;
-  }
+.forgot a {
+  float: right;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.17rem;
+  margin-top: 0.2rem;
+  cursor: pointer;
+}
 
-  .sign-up {
-    color: #3193e6;
-    font-size: 1.17rem;
-  }
-  .el-form-item {
-    margin-bottom: 1px;
-  }
+.sign-up {
+  color: #3193e6;
+  font-size: 1.17rem;
+}
+.el-form-item {
+  margin-bottom: 1px;
+}
 /* } */
 
-  .btn-code {
-    width: 9.7rem;
-    height: 3.33rem;
-    margin: 0;
-  }
-  #rsakey {
-    display: none;
-  }
+.btn-code {
+  width: 9.7rem;
+  height: 3.33rem;
+  margin: 0;
+}
+#rsakey {
+  display: none;
+}
 
-  .el-dialog .note {
-    position: absolute;
-    top: 5rem;
-    width: 100%;
-    left: 0;
-    text-align: center;
-    color: #e36068;
-    font-size: 1rem;
-  }
+.el-dialog .note {
+  position: absolute;
+  top: 5rem;
+  width: 100%;
+  left: 0;
+  text-align: center;
+  color: #e36068;
+  font-size: 1rem;
+}
 </style>

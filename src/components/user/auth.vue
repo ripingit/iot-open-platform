@@ -266,8 +266,8 @@ export default {
         if (valid) {
           let loading = this.vmLoadingFull()
           this.$http.post(PARTNER_AUTH_POST, this.createFormData(this.form)).then(res => {
+            loading.close()
             if (this.vmResponseHandler(res)) {
-              loading.close()
               this.isDialogVisible = false
               if (this.authStatu === this.authCode.PASS) {
                 this.vmMsgSuccess('修改成功！'); return
@@ -357,209 +357,269 @@ export default {
 </script>
 
 <style scoped>
-@media (min-width: 1366px) { /**大于笔记本屏幕 */
-
+@media (min-width: 1366px) {
+  /**大于笔记本屏幕 */
 }
-  .content-container {
-    padding: 5rem 5.83rem;
-    color: #fff;
-  }
-  .panel {
-    height: 17.5rem;
-    background: #36393e;
-    margin-top: 1.75rem;
-    border-radius: 0.5rem;
-  }
-  .panel.flow {
-    padding: 4.17rem;
-    height: 24.25rem;
-  }
-  .big-font {
-    font-size: 2.5rem;
-    color: #3da0f4;
-    display: inline-block;
-    vertical-align: middle;
-  }
-  .small-font {
-    display: inline-block;
-    vertical-align: middle;
-  }
+.content-container {
+  padding: 5rem 5.83rem;
+  color: #fff;
+}
+.panel {
+  height: 17.5rem;
+  background: #36393e;
+  margin-top: 1.75rem;
+  border-radius: 0.5rem;
+}
+.panel.flow {
+  padding: 4.17rem;
+  height: 24.25rem;
+}
+.big-font {
+  font-size: 2.5rem;
+  color: #3da0f4;
+  display: inline-block;
+  vertical-align: middle;
+}
+.small-font {
+  display: inline-block;
+  vertical-align: middle;
+}
 
-  .small-font .cn {
-    font-size: 1.5rem;
-  }
-  .small-font .en {
-    font-size: 0.83rem;
-    transform: scale(0.8);
-    margin-left: -0.5rem;
-    color: #808080;
-    margin-top: 0.4rem;
-  }
+.small-font .cn {
+  font-size: 1.5rem;
+}
+.small-font .en {
+  font-size: 0.83rem;
+  transform: scale(0.8);
+  margin-left: -0.5rem;
+  color: #808080;
+  margin-top: 0.4rem;
+}
 
-  .eligibility {
-    text-align: center;
-    height: 100%;
-    display: flex;
-    align-items: center;
-  }
-  .eligibility .right {
-    flex: 1;
-    text-align: right;
-  }
-  .eligibility.center {
-    justify-content:center;
-  }
-  .eligibility i.iconfont {
-    font-size: 6rem;
-  }
-  .eligibility i.pass {
-    display: inline-block;
-    font-size: inherit;
-    width: 2.58rem;
-    height: 2.58rem;
-    border-radius: 50%;
-    background-color: #2acba7;
-    border: 0.17rem solid #36393e;
-    position: absolute;
-    bottom: -0.7rem;
-    right: -0.8rem;
-    line-height: 2.58rem;
-    text-align: center;
-  }
+.eligibility {
+  text-align: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.eligibility .right {
+  flex: 1;
+  text-align: right;
+}
+.eligibility.center {
+  justify-content: center;
+}
+.eligibility i.iconfont {
+  font-size: 6rem;
+}
+.eligibility i.pass {
+  display: inline-block;
+  font-size: inherit;
+  width: 2.58rem;
+  height: 2.58rem;
+  border-radius: 50%;
+  background-color: #2acba7;
+  border: 0.17rem solid #36393e;
+  position: absolute;
+  bottom: -0.7rem;
+  right: -0.8rem;
+  line-height: 2.58rem;
+  text-align: center;
+}
 
-  .eligibility .eligi-icon, .eligi-desc {
-    display: inline-block;
-    position: relative;
-  }
-  .eligibility .eligi-desc{
-    text-align: left;
-    padding-left: 2.5rem;
-  }
+.eligibility .eligi-icon,
+.eligi-desc {
+  display: inline-block;
+  position: relative;
+}
+.eligibility .eligi-desc {
+  text-align: left;
+  padding-left: 2.5rem;
+}
 
-  .eligibility .eligi-desc .name {
-    font-size: 1.33rem;
-  }
-  .eligibility .eligi-desc .note {
-    font-size: 1.17rem;
-    line-height: 1.4;
-    color: #9f9f9f;
-    margin-top: 1.2rem;
-  }
-  .eligibility .eligi-desc .note-01 { width: 15.5rem; }
-  .eligibility .eligi-desc .note-02 { width: 11rem; }
-  .eligibility .eligi-desc .note-03 { width: 13rem; }
+.eligibility .eligi-desc .name {
+  font-size: 1.33rem;
+}
+.eligibility .eligi-desc .note {
+  font-size: 1.17rem;
+  line-height: 1.4;
+  color: #9f9f9f;
+  margin-top: 1.2rem;
+}
+.eligibility .eligi-desc .note-01 {
+  width: 15.5rem;
+}
+.eligibility .eligi-desc .note-02 {
+  width: 11rem;
+}
+.eligibility .eligi-desc .note-03 {
+  width: 13rem;
+}
 
-  .el-steps /deep/ .el-step__title.is-success,
-  .el-steps /deep/ .el-step__title.is-process,
-  .el-steps /deep/ .el-step__title.is-wait,
-  .el-steps /deep/ .el-step__head.is-success,
-  .el-steps /deep/ .el-step__head.is-error{
-    color: #fff !important;
-  }
-  .el-steps /deep/ .el-step__head.is-error .el-step__icon.is-text,
-  .el-steps /deep/ .el-step__head.is-error .el-step__line {
-    border: none;
-    background: #f56c6c;
-  }
-  .el-steps /deep/ .el-step__head.is-success .el-step__icon.is-text,
-  .el-steps /deep/ .el-step__head.is-success .el-step__line {
-    background: #2acba7;
-    border: none;
-  }
-  .el-steps /deep/ .el-step__head.is-success .el-step__line-inner {
-    width: 0 !important;
-  }
-  .el-steps /deep/ .el-step__head.is-process .el-step__icon.is-text {
-    border: 0.17rem solid #2acba7;
-    background: #36393e;
-    color: transparent;
-  }
-  .el-steps /deep/ .el-step__head.is-process .el-step__line,
-  .el-steps /deep/ .el-step__head.is-wait .el-step__line,
-  .el-steps /deep/ .el-step__head.is-error .el-step__line {
-    background-color: #808080
-  }
+.el-steps /deep/ .el-step__title.is-success,
+.el-steps /deep/ .el-step__title.is-process,
+.el-steps /deep/ .el-step__title.is-wait,
+.el-steps /deep/ .el-step__head.is-success,
+.el-steps /deep/ .el-step__head.is-error {
+  color: #fff !important;
+}
+.el-steps /deep/ .el-step__head.is-error .el-step__icon.is-text,
+.el-steps /deep/ .el-step__head.is-error .el-step__line {
+  border: none;
+  background: #f56c6c;
+}
+.el-steps /deep/ .el-step__head.is-success .el-step__icon.is-text,
+.el-steps /deep/ .el-step__head.is-success .el-step__line {
+  background: #2acba7;
+  border: none;
+}
+.el-steps /deep/ .el-step__head.is-success .el-step__line-inner {
+  width: 0 !important;
+}
+.el-steps /deep/ .el-step__head.is-process .el-step__icon.is-text {
+  border: 0.17rem solid #2acba7;
+  background: #36393e;
+  color: transparent;
+}
+.el-steps /deep/ .el-step__head.is-process .el-step__line,
+.el-steps /deep/ .el-step__head.is-wait .el-step__line,
+.el-steps /deep/ .el-step__head.is-error .el-step__line {
+  background-color: #808080;
+}
 
-  .el-steps /deep/ .el-step__head.is-wait .el-step__icon.is-text {
-    border: 0.17rem solid #808080;
-    background: #36393e;
-    color: transparent;
-  }
+.el-steps /deep/ .el-step__head.is-wait .el-step__icon.is-text {
+  border: 0.17rem solid #808080;
+  background: #36393e;
+  color: transparent;
+}
 
-  .el-steps /deep/ .el-step__description.is-success,
-  .el-steps /deep/ .el-step__description.is-process {
-    color: #9f9f9f;
-    font-size: 1.17rem;
-  }
+.el-steps /deep/ .el-step__description.is-success,
+.el-steps /deep/ .el-step__description.is-process {
+  color: #9f9f9f;
+  font-size: 1.17rem;
+}
 
-  .el-steps /deep/ .el-step:nth-child(2) .el-step__description {
-    width: 9.4rem;
-  }
-  .el-steps /deep/ .el-step:nth-child(3) .el-step__description {
-    width: 9.4rem;
-  }
-  .el-steps /deep/ .el-step:nth-child(4) .el-step__description {
-    width: 11rem;
-  }
+.el-steps /deep/ .el-step:nth-child(2) .el-step__description {
+  width: 9.4rem;
+}
+.el-steps /deep/ .el-step:nth-child(3) .el-step__description {
+  width: 9.4rem;
+}
+.el-steps /deep/ .el-step:nth-child(4) .el-step__description {
+  width: 11rem;
+}
 
-  .step-operation { margin-top: 1.5rem; }
-  .step-operation .el-step:first-child /deep/ .el-step__head,
-  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__line,
-  .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__line,
-  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon .el-step__icon-inner,
-  .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__icon .el-step__icon-inner,
-  .step-operation .el-step:nth-child(4) /deep/ .el-step__head .el-step__icon .el-step__icon-inner,
-  .step-operation .el-step.auth:nth-child(2) /deep/ .el-step__head .el-step__icon,
-  .step-operation .el-step.review:nth-child(3) /deep/ .el-step__head .el-step__icon,
-  .step-operation .el-step.key:nth-child(4) /deep/ .el-step__head .el-step__icon {
-    display: none;
-  }
+.step-operation {
+  margin-top: 1.5rem;
+}
+.step-operation .el-step:first-child /deep/ .el-step__head,
+.step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__line,
+.step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__line,
+.step-operation
+  .el-step:nth-child(2)
+  /deep/
+  .el-step__head
+  .el-step__icon
+  .el-step__icon-inner,
+.step-operation
+  .el-step:nth-child(3)
+  /deep/
+  .el-step__head
+  .el-step__icon
+  .el-step__icon-inner,
+.step-operation
+  .el-step:nth-child(4)
+  /deep/
+  .el-step__head
+  .el-step__icon
+  .el-step__icon-inner,
+.step-operation .el-step.auth:nth-child(2) /deep/ .el-step__head .el-step__icon,
+.step-operation
+  .el-step.review:nth-child(3)
+  /deep/
+  .el-step__head
+  .el-step__icon,
+.step-operation .el-step.key:nth-child(4) /deep/ .el-step__head .el-step__icon {
+  display: none;
+}
 
-  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon {
-    width: 7.8rem;
-    height: 2.5rem;
-    border: solid 1px #3da0f4;
-    border-radius: 0;
-    background: transparent;
-  }
-  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon::after{
-    content: '提交认证';
-  }
-  .step-operation .el-step.edit:nth-child(2) /deep/ .el-step__head .el-step__icon::after{
-    content: '修改信息';
-  }
-  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon::after {
-    color: #3da0f4;
-    font-size:1.17rem;
-  }
-  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon:active {
-    border: none;
-    background: #3da0f4;
-  }
-  .step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon:active::after {
-    color: #fff;
-  }
+.step-operation .el-step:nth-child(2) /deep/ .el-step__head .el-step__icon {
+  width: 7.8rem;
+  height: 2.5rem;
+  border: solid 1px #3da0f4;
+  border-radius: 0;
+  background: transparent;
+}
+.step-operation
+  .el-step:nth-child(2)
+  /deep/
+  .el-step__head
+  .el-step__icon::after {
+  content: "提交认证";
+}
+.step-operation
+  .el-step.edit:nth-child(2)
+  /deep/
+  .el-step__head
+  .el-step__icon::after {
+  content: "修改信息";
+}
+.step-operation
+  .el-step:nth-child(2)
+  /deep/
+  .el-step__head
+  .el-step__icon::after {
+  color: #3da0f4;
+  font-size: 1.17rem;
+}
+.step-operation
+  .el-step:nth-child(2)
+  /deep/
+  .el-step__head
+  .el-step__icon:active {
+  border: none;
+  background: #3da0f4;
+}
+.step-operation
+  .el-step:nth-child(2)
+  /deep/
+  .el-step__head
+  .el-step__icon:active::after {
+  color: #fff;
+}
 
-  .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__icon,
-  .step-operation .el-step:nth-child(4) /deep/ .el-step__head .el-step__icon {
-    width: 7.8rem;
-    height: 2.5rem;
-    border: none;
-    background: transparent;
-  }
-  .step-operation .el-step.loading:nth-child(3) /deep/ .el-step__head .el-step__icon::after {
-    content: '\E61E';
-    position: absolute;
-    left: 0;
-  }
-  .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__icon::after,
-  .step-operation .el-step:nth-child(4) /deep/ .el-step__head .el-step__icon::after {
-    content: '刷新';
-    color: #ff6870;
-    position: absolute;
-    left: 0;
-  }
-.el-dialog__wrapper /deep/ .el-dialog{
+.step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__icon,
+.step-operation .el-step:nth-child(4) /deep/ .el-step__head .el-step__icon {
+  width: 7.8rem;
+  height: 2.5rem;
+  border: none;
+  background: transparent;
+}
+.step-operation
+  .el-step.loading:nth-child(3)
+  /deep/
+  .el-step__head
+  .el-step__icon::after {
+  content: "\E61E";
+  position: absolute;
+  left: 0;
+}
+.step-operation
+  .el-step:nth-child(3)
+  /deep/
+  .el-step__head
+  .el-step__icon::after,
+.step-operation
+  .el-step:nth-child(4)
+  /deep/
+  .el-step__head
+  .el-step__icon::after {
+  content: "刷新";
+  color: #ff6870;
+  position: absolute;
+  left: 0;
+}
+.el-dialog__wrapper /deep/ .el-dialog {
   width: 50rem;
 }
 .el-dialog .note {

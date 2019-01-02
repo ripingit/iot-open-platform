@@ -8,7 +8,7 @@
     </el-row>
     <el-row class="table" v-loading="loading">
       <el-col :span="24" class="VisitPower-checkbox" v-for="group in groupData" :key="group.cmd_id">
-        <el-checkbox class="VisitPower-checkbox-1" :indeterminate="group.hasChecked" v-model="group.allChecked" @change="CheckAll(group)">{{group.label}}</el-checkbox>
+        <el-checkbox class="VisitPower-checkbox-1" :indeterminate="group.hasChecked" v-model="group.hasChecked" @change="CheckAll(group)">{{group.label}}</el-checkbox>
         <div style="margin: 1.5rem 0;"></div>
         <el-checkbox v-model="item.checked" @change="ChangeGroup(group)" v-for="item in group.child" :label="item.label" :key="item.id">{{item.label}}</el-checkbox>
       </el-col>
@@ -127,15 +127,15 @@ export default {
       })
     },
     CheckAll (row) {
-      row.allChecked = row.child.length ? (row.childChecked.length === row.child.length) : row.allChecked
+      // 父选框为菜单权限，子选框为菜单对应页面的操作权限，有菜单权限不一定有操作权限
+      // row.allChecked = row.child.length ? (row.childChecked.length === row.child.length) : row.allChecked
       row.childChecked = []
       row.child.forEach(function (val) {
-        val.checked = !row.allChecked
-        if (val.checked)row.childChecked.push(val)
+        if (!row.hasChecked) val.checked = false
       })
-      let childChecked = row.childChecked.length
-      row.allChecked = row.child.length ? (childChecked === row.child.length) : row.allChecked
-      row.hasChecked = childChecked > 0 && childChecked < row.child.length
+      // let childChecked = row.childChecked.length
+      // row.allChecked = row.child.length ? (childChecked === row.child.length) : row.allChecked
+      // row.hasChecked = childChecked > 0 && childChecked < row.child.length
     },
     ChangeGroup (row) {
       row.childChecked = []
@@ -143,28 +143,29 @@ export default {
         if (val.checked)row.childChecked.push(val)
       })
       let childChecked = row.childChecked.length
-      row.allChecked = childChecked === row.child.length
-      row.hasChecked = childChecked > 0 && childChecked < row.child.length
+      // row.allChecked = childChecked === row.child.length
+      row.hasChecked = childChecked > 0 || row.hasChecked
     }
   }
 }
 </script>
 <style scoped>
-  .VisitPower{
-    padding: 1.67rem 2.5rem;
-    color: #fff;
-  }
-  .VisitPower-checkbox:first-child{
-    margin-top: 0;
-  }
-  .VisitPower-checkbox{
-    margin-top: 2rem;
-    color: #808080;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #808080;
-  }
+.VisitPower {
+  padding: 1.67rem 2.5rem;
+  color: #fff;
+}
+.VisitPower-checkbox:first-child {
+  margin-top: 0;
+}
+.VisitPower-checkbox {
+  margin-top: 2rem;
+  color: #808080;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #808080;
+}
 </style>
 <style>
-  .el-checkbox__input.is-checked .el-checkbox__inner, .el-checkbox__input.is-indeterminate .el-checkbox__inner{
-  }
+.el-checkbox__input.is-checked .el-checkbox__inner,
+.el-checkbox__input.is-indeterminate .el-checkbox__inner {
+}
 </style>

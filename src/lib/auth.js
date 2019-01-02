@@ -48,6 +48,7 @@ export default {
       ADD_FIREWARE: { id: 3003, name: '添加固件' },
       RECORD_UPDATE_FIREWARE: { id: 3002, name: '固件升级记录' },
       RELEASE_FIREWARE: { id: 3004, name: '固件发布' },
+      RELEASE_FIREWARE_CANCEL: { id: 3005, name: '固件发布撤销' },
       ADD_DEVICE_MODEL: { id: 2002, name: '设备型号添加' },
       DEL_DEVICE_MODEL: { id: 2003, name: '设备型号删除' },
       SET_DEVICE_MODEL: { id: 2004, name: '设备型号配置' },

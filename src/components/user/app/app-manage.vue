@@ -158,8 +158,16 @@
           <el-input v-model="ruleForm.md5" placeholder="请输入app MD5值"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="升级描述" prop="change_log" class="form-row">
-          <el-input type="textarea" :rows="6" placeholder="请输入升级描述" v-model="ruleForm.change_log"></el-input>
+        <el-form-item label="升级描述" prop="" class="form-row">
+          <el-select v-model="appLanguage" placeholder="请选择语言" @change="appLanguageChange">
+            <el-option
+              v-for="(item, index) in appManageLanguage"
+              :key="index"
+              :label="item.name"
+              :value="item.id"></el-option>
+          </el-select>
+          <div class="split-line"></div>
+          <el-input type="textarea" :rows="6" placeholder="请输入升级描述" v-model="appDesc" @change="upgradeLogSet"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row">
@@ -183,9 +191,9 @@
         <el-form-item label="MD5值">
           <span class="detail_item">{{detailData.md5}}</span>
         </el-form-item>
-        <el-form-item label="升级描述">
+        <!--<el-form-item label="升级描述">
           <span class="detail_item log-pre" v-html="vmEscapeToHTML(detailData.change_log)"></span>
-        </el-form-item>
+        </el-form-item>-->
       </el-form>
     </el-dialog>
 
@@ -212,7 +220,7 @@ import '@/assets/css/content.css'
 import ScaleImgComponent from '@/components/_ui/scale-img.vue'
 import UploadComponent from '@/components/_ui/upload.vue'
 import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST, GET_CLIENT_NAME_POST, COOP_APP_UPLOAD_POST } from '@/lib/api.js'
-import { appStore } from '@/lib/const'
+import { appStore, appManageLanguage } from '@/lib/const'
 import _ from 'lodash'
 export default {
   components: { ScaleImgComponent, UploadComponent },
@@ -235,6 +243,7 @@ export default {
     }
     return {
       appStore: appStore,
+      appManageLanguage: appManageLanguage,
       inputVal: '',
       multipleSelection: [],
       tableData: {
@@ -248,6 +257,8 @@ export default {
       uploadPath: COOP_APP_UPLOAD_POST,
       storeName: '',
       storeUrl: '',
+      appLanguage: '',
+      appDesc: '',
       totalAll: 0,
       loading: false,
       dialogVisible: false,
@@ -257,7 +268,7 @@ export default {
         client_id: '',
         app_name: '',
         ver: '',
-        change_log: '',
+        change_log: appManageLanguage,
         url: appStore,
         md5: ''
       },
@@ -271,9 +282,6 @@ export default {
           { validator: validateIsEmpty, trigger: 'blur' }
         ],
         ver: [
-          { validator: validateIsEmpty, trigger: 'blur' }
-        ],
-        change_log: [
           { validator: validateIsEmpty, trigger: 'blur' }
         ],
         md5: [
@@ -337,12 +345,17 @@ export default {
         this.updateStyle = 'add'
         this.dialogVisible = true
         for (let key in this.ruleForm) {
-          key !== 'url' && (this.ruleForm[key] = '')
           if (key === 'url') {
             this.ruleForm.url.forEach(o => { o.url = '' })
+          } else if (key === 'change_log') {
+            this.ruleForm.change_log.forEach(o => { o.desc = '' })
+          } else {
+            this.ruleForm[key] = ''
           }
           this.storeName = this.appStore[0].id
           this.storeUrl = ''
+          this.appLanguage = this.appManageLanguage[0].id
+          this.appDesc = ''
         }
       } else if (type === 'edit') {
         this.updateStyle = 'update'
@@ -351,7 +364,15 @@ export default {
           let value = this.tableData.data[ix][key]
           // 存在老数据app下载地址为字符串的，需要将其转换成现在的数组格式
           if (key === 'change_log') {
-            this.ruleForm[key] = this.vmEscapeToHTML(value)
+            if (this.isJsonString(value)) {
+              let parseObj = JSON.parse(value)
+              for (let item of parseObj) {
+                let tp = this.ruleForm.change_log.find(o => o.id === item.id)
+                tp.desc = item.desc
+              }
+            } else {
+              this.ruleForm[key][0].desc = value
+            }
           } else if (key === 'url') {
             if (this.isJsonString(value)) {
               let parseObj = JSON.parse(value)
@@ -368,6 +389,8 @@ export default {
         }
         this.storeName = 0
         this.storeUrl = this.ruleForm.url[0].url
+        this.appLanguage = 0
+        this.appDesc = this.ruleForm.change_log[0].desc
       } else {
         let data
         let ary = []
@@ -404,9 +427,19 @@ export default {
       temp.url = this.storeUrl
     },
 
+    upgradeLogSet () {
+      let temp = this.ruleForm.change_log.find(o => o.id === parseInt(this.appLanguage))
+      temp.desc = this.appDesc
+    },
+
     appStoreChange () {
       let temp = this.ruleForm.url.find(o => o.id === parseInt(this.storeName))
       !temp ? (this.storeUrl = '') : (this.storeUrl = temp.url)
+    },
+
+    appLanguageChange () {
+      let temp = this.ruleForm.change_log.find(o => o.id === parseInt(this.appLanguage))
+      !temp ? (this.appDesc = '') : (this.appDesc = temp.desc)
     },
 
     loadDownloadDialog () {
@@ -420,11 +453,14 @@ export default {
 
     submitForm: _.debounce(function () {
       if (!this.ruleForm.url[0].url) { this.vmMsgError('安卓通用下载地址为必填！'); return }
+      if (!this.ruleForm.change_log[0].desc || !this.ruleForm.change_log[1].desc) { this.vmMsgError('中文和英文的升级描述为必填！'); return }
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
           this.ruleForm.url = JSON.stringify(this.ruleForm.url) // 转成字符串传给后台
+          this.ruleForm.change_log = JSON.stringify(this.ruleForm.change_log) // 转成字符串传给后台
           let data = this.createFormData(this.ruleForm)
           this.ruleForm.url = JSON.parse(this.ruleForm.url) // 在转回数组以便前台显示
+          this.ruleForm.change_log = JSON.parse(this.ruleForm.change_log) // 在转回数组以便前台显示
           let loading = this.vmLoadingFull()
           this.$http.post(APP_ADD_POST, data).then(res => {
             loading.close()

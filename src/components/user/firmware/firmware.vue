@@ -210,21 +210,20 @@
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row number" prop="update_percent" :label="formRelease.pub_ver_type === firmwareTypeMap.GRAYSCALE ? '' : '升级百分比'">
-          <el-input v-model="formRelease.update_percent" auto-complete="off" :style="{width: formRelease.pub_ver_type === firmwareTypeMap.FORMAL ? '25rem' : '18rem'  }" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
+          <el-input v-model="formRelease.update_percent" auto-complete="off" :style="{width: formRelease.pub_ver_type === firmwareTypeMap.FORMAL ? '25rem' : '11rem'  }" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
             <span slot="suffix">%</span>
           </el-input>
           <el-button @click="showDeviceID" class="btn-deviceid-add" size="medium" type="primary" v-if="formRelease.pub_ver_type !== firmwareTypeMap.FORMAL">设备ID</el-button>
-          <el-button @click="cancelRelease" class="btn-deviceid-add" size="medium" type="primary" v-if="formRelease.pub_ver_type === firmwareTypeMap.GRAYSCALE">撤销</el-button>
+          <el-button @click="cancelRelease" class="btn-deviceid-add" size="medium" type="primary" v-if="formRelease.pub_ver_type !== firmwareTypeMap.FORMAL && vmHasAuth(CoopPermissionsLib.RELEASE_FIREWARE_CANCEL, tableData.res)" style="margin-left:0">撤销</el-button>
           <!-- <span class="form-tip">*</span> -->
         </el-form-item>
         <el-form-item class="form-row" label="升级地区" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
-          <el-select v-model="formRelease.country_id" multiple collapse-tags placeholder="请选择升级地区" @change="selectAllCountry_id" no-data-text="无数据">
-            <el-option label="全选" value="all"></el-option>
+          <el-select v-model="formRelease.country_id" filterable multiple collapse-tags placeholder="请选择升级地区" @change="selectAllCountry_id" no-data-text="无数据">
             <el-option
-              v-for="item in countryIds"
-              :key="item.country_id"
+              v-for="item in countrys"
+              :key="item.code"
               :label="item.name"
-              :value="item.country_id"></el-option>
+              :value="item.code"></el-option>
           </el-select>
         </el-form-item>
         <!--<el-form-item class="form-row code-panel" label="经销商" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
@@ -356,22 +355,6 @@ export default {
         res: []
       },
       romVersion: [],
-      countryIds: [{
-        country_id: 'CN',
-        name: '中国'
-      }, {
-        country_id: 'US',
-        name: '美国'
-      }, {
-        country_id: 'BR',
-        name: '巴西'
-      }, {
-        country_id: 'AE',
-        name: '阿联酋'
-      }, {
-        country_id: 'DZ',
-        name: '阿尔及利亚'
-      }],
       rules: {
         product_code: [
           { validator: validateIsEmpty, trigger: 'change' }
@@ -508,9 +491,10 @@ export default {
         if (this.vmResponseHandler(res)) {
           this.releaseTargetVer = res.data.data.target_rom_ver
           this.romVersion = res.data.romver
-          this.formRelease.rom_ver = res.data.data.rom_ver
+          this.formRelease.rom_ver = res.data.data.rom_ver.includes('all') ? res.data.romver.map(o => o.rom_ver) : res.data.data.rom_ver
+          res.data.data.rom_ver.includes('all') && this.formRelease.rom_ver.unshift('all')
           this.formRelease.update_percent = res.data.data.update_percent
-          this.formRelease.country_id = res.data.data.country_id
+          this.formRelease.country_id = res.data.data.country_id.includes('all') ? this.countrys.map(o => o.code) : res.data.data.country_id
           this.formRelease.if_force_upd = res.data.data.if_force_upd
           this.formRelease.device_id = res.data.data.device_id.join('\n')
           this.deviceIDForm.update_done_num = res.data.data.update_done_num
@@ -531,12 +515,17 @@ export default {
     },
     selectAllCountry_id (val) {
       let allValues = []
+      // TODO: 全选时点击非全选选项时无法取消
       if (val.includes('all')) {
         // 保留所有版本值
-        for (let item of this.countryIds) {
-          allValues.push(item.country_id)
+        for (let item of this.countrys) {
+          allValues.push(item.code)
         }
         this.formRelease.country_id = allValues
+      } else {
+        if (val.length === this.countrys.length - 1) {
+          this.formRelease.country_id = []
+        }
       }
     },
     selectAllDealer (val) {
@@ -625,14 +614,14 @@ export default {
 
 <style scoped>
 /** 本页定制 start */
-.el-dialog__wrapper /deep/ .el-dialog{
+.el-dialog__wrapper /deep/ .el-dialog {
   width: 51rem;
 }
 
 .el-dialog .btn-submit {
   margin-top: 4.33rem;
 }
-.code-panel{
+.code-panel {
   position: relative;
 }
 .code-panel .form-btn-upload {
@@ -677,7 +666,7 @@ export default {
 .gap {
   margin-left: 1rem;
 }
-.pTxt{
+.pTxt {
   color: #ffffff;
 }
 /** 本页定制 end */

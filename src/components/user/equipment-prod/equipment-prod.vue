@@ -63,6 +63,10 @@
                   label="经销商">
                 </el-table-column>
                 <el-table-column
+                  prop="out_bound"
+                  label="地区">
+                </el-table-column>
+                <el-table-column
                   prop="delivery_time"
                   label="收货时间">
                 </el-table-column>
@@ -85,7 +89,7 @@
                     <span v-else @click="showReworkList(scope.row.device_id)" style="cursor:pointer;color:#38a0f8">查看</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作"
+                <!-- <el-table-column label="操作"
                   width="120"
                   v-if="vmHasAuth(CoopPermissionsLib.ADD_REWORK, tableData.res)">
                   <template slot-scope="scope">
@@ -96,7 +100,7 @@
                       circle
                       @click="reworkEquip(scope.$index, scope.row)"></el-button>
                   </template>
-                </el-table-column>
+                </el-table-column> -->
               </el-table>
             </el-col>
           </el-row>

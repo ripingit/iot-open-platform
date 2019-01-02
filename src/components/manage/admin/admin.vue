@@ -340,13 +340,13 @@ export default {
 }
 </script>
 <style scoped>
-  .admin{
-    padding: 1.67rem 2.5rem;
-    color: #fff;
-  }
+.admin {
+  padding: 1.67rem 2.5rem;
+  color: #fff;
+}
 </style>
 <style>
-  .admin /deep/ .el-dialog{
-    width:54.17rem;
-  }
+.admin /deep/ .el-dialog {
+  width: 54.17rem;
+}
 </style>

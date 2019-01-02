@@ -62,6 +62,10 @@
                   width="250">
                 </el-table-column>
                 <el-table-column
+                  prop="out_bound"
+                  label="地区">
+                </el-table-column>
+                <el-table-column
                   prop="delivery_time"
                   label="收货时间"
                   width="100">

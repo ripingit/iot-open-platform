@@ -104,15 +104,20 @@
         :span-method="spanMethod"
         style="width: 100%">
         <el-table-column
-          prop="device"
-          label="设备">
+          prop="product_name"
+          label="设备"
+          width="300">
         </el-table-column>
         <el-table-column
-          prop="name"
+          prop="add_service"
           label="服务">
         </el-table-column>
         <el-table-column
-          prop="time"
+          prop="open_cycle"
+          label="开通周期">
+        </el-table-column>
+        <el-table-column
+          prop="end_of_time"
           label="到期时间">
         </el-table-column>
       </el-table>
@@ -123,7 +128,12 @@
 <script>
 import '@/assets/css/content.css'
 import { ADMIN_USERS_GET } from '@/lib/api'
+import { validatePhone, validateEmail } from '@/lib/validate.js'
 import _ from 'lodash'
+
+// 定义在data中会出现死循环
+let rowspanRange = ''
+
 export default {
   data () {
     return {
@@ -137,23 +147,7 @@ export default {
         pageAll: 1,
         total: 1
       },
-      ValueAddedServices: [
-        {
-          device: 'KGB9982',
-          name: '云存储',
-          time: '2018-09-12'
-        },
-        {
-          device: 'KGB9982',
-          name: '短信',
-          time: '2018-09-12'
-        },
-        {
-          device: 'SB0082',
-          name: '短信',
-          time: '2018-09-12'
-        }
-      ]
+      ValueAddedServices: []
     }
   },
   created () {
@@ -171,21 +165,24 @@ export default {
     },
     spanMethod ({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 0) {
-        if (rowIndex % 2 === 0) {
-          return {
-            rowspan: 2,
-            colspan: 1
-          }
-        } else {
+        let data = this.ValueAddedServices.filter(o => o.product_name === row.product_name)
+        if (rowspanRange === row.product_name) {
           return {
             rowspan: 0,
             colspan: 0
+          }
+        } else {
+          rowspanRange = row.product_name
+          return {
+            rowspan: data.length,
+            colspan: 1
           }
         }
       }
     },
     showListDialog (index, row) {
       this.isDialogVisibleList = true
+      this.ValueAddedServices = row.userServiceInfo
     },
     getUsersLists: _.debounce(function (currentPage) {
       let data = this.createFormData({
@@ -199,6 +196,29 @@ export default {
       this.$http.post(ADMIN_USERS_GET, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
+          // 下列代码待封装
+          this.tableData.data.map(value => {
+            let account = value.user_name
+            if (validateEmail(account)) {
+              let start = account.slice(0, 3)
+              let index = account.indexOf('@')
+              let end = account.slice(index)
+              let length = account.slice(3, index).length
+              value.user_name = start + ('*'.repeat(length)) + end
+            } else if (account.indexOf('-') !== -1) {
+              account = account.split('-')
+              let start = account[1].slice(0, 3)
+              let end = account[1].slice(8)
+              value.user_name = account[0] + '-' + start + '****' + end
+            } else if (validatePhone(account)) {
+              let start = account.slice(0, 3)
+              let end = account.slice(8)
+              value.user_name = start + '****' + end
+            } else {
+              let start = account.slice(0, 3)
+              value.user_name = start + '****'
+            }
+          })
         }
         this.loading = false
       }).catch(e => {

@@ -72,6 +72,12 @@ export const coopMenuRouteMap = [
     icon: 'icon-yonghuguanli',
     name: '设备管理',
     auth: true
+  }, {
+    id: 21001,
+    path: '/manage/user/productData',
+    icon: 'icon-yonghuguanli',
+    name: '生产数据',
+    auth: true
   }
 ]
 // , {

@@ -298,99 +298,98 @@ export default {
 </script>
 
 <style scoped>
-
 @media (min-width: 1366px) {
   .panel-pos {
     margin-top: -20rem;
   }
 }
 
-  .version {
-    position: absolute;
-    bottom: 3rem;
-    color: #fff;
-    text-align: center;
-    width: 100%;
-    font-size: 14px;
-  }
+.version {
+  position: absolute;
+  bottom: 3rem;
+  color: #fff;
+  text-align: center;
+  width: 100%;
+  font-size: 14px;
+}
 
 /* @media (min-width: 720px) { */
-  .container {
-    height: 100%;
-    position: relative;
-    background: url('../../assets/img/bg.jpg') no-repeat;
-    background-size: cover;
-  }
-  .panel {
-    height: 100%;
-    margin: 0 auto;
-    padding: 0 2rem;
-    display: flex;
-    align-items: center;
-    width: 25rem;
-  }
-  .panel-pos {
-    width: 100%;
-    text-align: center;
-    color: #fff;
-  }
-  .panel .brand {
-    font-size: 2.5rem;
-    padding: 3rem 0;
-  }
-  .panel .brand span.name-en {
-    font-size: 1rem;
-    letter-spacing: 0.2rem;
-    color: #a8a8a8;
-    vertical-align: text-top;
-  }
-  .panel .brand i.logo {
-    font-size: 2.5rem;
-    vertical-align: text-bottom;
-  }
-  .panel .brand i.logo,
-  .panel .brand i.placeholder {
-    width: 2.5rem;
-    height: 2.5rem;
-    display: inline-block;
-  }
+.container {
+  height: 100%;
+  position: relative;
+  background: url("../../assets/img/bg.jpg") no-repeat;
+  background-size: cover;
+}
+.panel {
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  width: 25rem;
+}
+.panel-pos {
+  width: 100%;
+  text-align: center;
+  color: #fff;
+}
+.panel .brand {
+  font-size: 2.5rem;
+  padding: 3rem 0;
+}
+.panel .brand span.name-en {
+  font-size: 1rem;
+  letter-spacing: 0.2rem;
+  color: #a8a8a8;
+  vertical-align: text-top;
+}
+.panel .brand i.logo {
+  font-size: 2.5rem;
+  vertical-align: text-bottom;
+}
+.panel .brand i.logo,
+.panel .brand i.placeholder {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-block;
+}
 
-  .panel .el-button {
-    width: 100%;
-    border-radius: 0;
-    margin: 2rem 0;
-  }
+.panel .el-button {
+  width: 100%;
+  border-radius: 0;
+  margin: 2rem 0;
+}
 
-  .forgot {
-    margin-top: 1rem;
-  }
-  .forgot .el-checkbox {
-    float: left;
-  }
+.forgot {
+  margin-top: 1rem;
+}
+.forgot .el-checkbox {
+  float: left;
+}
 
-  .forgot a {
-    float: right;
-    color: #fff;
-    text-decoration: none;
-    font-size: 1.17rem;
-    margin-top: 0.2rem;
-  }
+.forgot a {
+  float: right;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.17rem;
+  margin-top: 0.2rem;
+}
 
-  .sign-up {
-    color: #3193e6;
-    font-size: 1.17rem;
-  }
-  .el-form-item {
-    margin-bottom: 1px;
-  }
+.sign-up {
+  color: #3193e6;
+  font-size: 1.17rem;
+}
+.el-form-item {
+  margin-bottom: 1px;
+}
 /* } */
 
-  .btn-code {
-    width: 9.7rem;
-    height: 3.33rem;
-    margin: 0;
-  }
-  #rsakey {
-    display: none;
-  }
+.btn-code {
+  width: 9.7rem;
+  height: 3.33rem;
+  margin: 0;
+}
+#rsakey {
+  display: none;
+}
 </style>

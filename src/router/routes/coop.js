@@ -120,7 +120,8 @@ export let userRoute = [
       path: 'admins/:index',
       name: 'admins',
       component: resolve => require(['@/components/user/admin/admin'], resolve),
-      meta: { title: '平台用户', identity: [1] }
+      meta: { title: '平台用户', identity: [1] },
+      beforeEnter: RoutingInterception
     }
   }, {
     id: 11001,
@@ -141,7 +142,8 @@ export let userRoute = [
         path: 'memberPower/:group_id',
         name: 'memberPower',
         component: resolve => require(['@/components/user/admin/memberPower'], resolve)
-      }]
+      }],
+      beforeEnter: RoutingInterception
     }
   }, {
     id: 19001,
@@ -149,7 +151,16 @@ export let userRoute = [
       path: 'deviceManage/:index',
       name: 'deviceManage',
       component: resolve => require(['@/components/user/dealer/device-manage'], resolve),
-      meta: { title: '设备管理', identity: [1] }
+      meta: { title: '设备管理', identity: [1] },
+      beforeEnter: RoutingInterception
+    }
+  }, {
+    id: 21001,
+    route: {
+      path: 'productData/:index',
+      name: 'productData',
+      component: resolve => require(['@/components/user/product-data/product-data'], resolve),
+      meta: { title: '生产数据', identity: [1] }
     }
   }
 ]

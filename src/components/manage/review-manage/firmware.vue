@@ -148,11 +148,7 @@
       </el-row>
       <el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">固件类型</el-col>
-        <el-col :span="22" :sm="21" class="label-value">
-          {{reviewData.rom_type === 1 ? '正式'
-          : reviewData.rom_type === 2 ? '临时'
-          : reviewData.rom_type === 3 ? '灰度' : ''}}
-        </el-col>
+        <el-col :span="22" :sm="21" class="label-value">{{reviewData.rom_type}}</el-col>
       </el-row>
       <el-row class="label-row">
         <el-col :span="2" :sm="3" class="label-name">更新说明</el-col>

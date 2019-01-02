@@ -179,12 +179,12 @@ export default {
     queryState () {
       Promise.all([this.getState(this.merchantCode.coop), this.getState(this.merchantCode.dealer)]).then(res => {
         if (res[0].data.company_status === this.authCode.PASS) {
-          // 为合作商，显示合作商信息，禁止修改
+          // 为合作商，显示合作商信息
           this.formData.name = res[0].data.data.name
           this.formData.addr = res[0].data.data.addr
           this.formData.tel = res[0].data.data.tel
-          this.isUpdateForm = true
-          return false
+          // this.isUpdateForm = true
+          // return false
         }
         if (!res[1].data.DealerAndCompanys) {
           // 不是合作商且未注册为经销商，可以进行经销商注册
@@ -213,95 +213,95 @@ export default {
   .main {
     padding-bottom: 4000px;
     margin-bottom: -4000px;
-    background:#292c31;
+    background: #292c31;
     height: 100%;
     overflow: auto;
   }
 }
 
 /* @media (min-width: 720px) { */
-  .container {
-    height: 100%;
-    position: relative;
-  }
-  .panel {
-    height: 100%;;
-    display: flex;
-    align-items: center;
-    margin: 10rem auto;
-    width: 31.67rem;
-  }
-  .panel-pos {
-    width: 100%;
-    text-align: center;
-    color: #fff;
-  }
+.container {
+  height: 100%;
+  position: relative;
+}
+.panel {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  margin: 10rem auto;
+  width: 31.67rem;
+}
+.panel-pos {
+  width: 100%;
+  text-align: center;
+  color: #fff;
+}
 
-  .panel .brand {
-    font-size: 2.5rem;
-    padding: 5rem 0;
-  }
-  .panel .brand i.logo {
-    font-size: 2.5rem;
-    display: inline-block;
-    vertical-align: bottom;
-    margin-right: 1.33rem;
-  }
+.panel .brand {
+  font-size: 2.5rem;
+  padding: 5rem 0;
+}
+.panel .brand i.logo {
+  font-size: 2.5rem;
+  display: inline-block;
+  vertical-align: bottom;
+  margin-right: 1.33rem;
+}
 
-  .btn-signup {
-    width: 100%;
-    border-radius: 0;
-    margin: 1rem 0;
-  }
+.btn-signup {
+  width: 100%;
+  border-radius: 0;
+  margin: 1rem 0;
+}
 
-  .el-form-item /deep/ .el-form-item__label {
-    line-height: 40px;
-    font-size: 1.17rem;
-    color: #fff;
-    padding-right: 1.17rem;
-  }
+.el-form-item /deep/ .el-form-item__label {
+  line-height: 40px;
+  font-size: 1.17rem;
+  color: #fff;
+  padding-right: 1.17rem;
+}
 
-  .el-form-item {
-    margin-bottom: 0;
-  }
-  .row {
-    margin-bottom: 0.5rem;
-  }
+.el-form-item {
+  margin-bottom: 0;
+}
+.row {
+  margin-bottom: 0.5rem;
+}
 
-  .forgot {
-    margin-top: 1rem;
-  }
-  .forgot .el-checkbox {
-    float: left;
-  }
+.forgot {
+  margin-top: 1rem;
+}
+.forgot .el-checkbox {
+  float: left;
+}
 
-  .sign-up {
-    color: #3193e6;
-    font-size: 1.17rem;
-  }
-  .code-panel{
-    position: relative;
-  }
+.sign-up {
+  color: #3193e6;
+  font-size: 1.17rem;
+}
+.code-panel {
+  position: relative;
+}
 
-  .code-panel .el-button {
-    position: absolute;
-    height: 2.17rem;
-    width: auto;
-    right: 0.67rem;
-    top: 0.6rem;
-    font-size: 1rem;
-    background: #1f7ecf;
-    border: none;
-    padding: 0.56rem 0.83rem;
-  }
-  .code-panel .el-button.disabled {
-    background: #949494 !important;
-  }
-  .tips {
-    margin: 2rem 0;
-    text-align: left;
-    text-indent: 0.5rem;
-    font-size: 1.25rem;
-  }
+.code-panel .el-button {
+  position: absolute;
+  height: 2.17rem;
+  width: auto;
+  right: 0.67rem;
+  top: 0.6rem;
+  font-size: 1rem;
+  background: #1f7ecf;
+  border: none;
+  padding: 0.56rem 0.83rem;
+}
+.code-panel .el-button.disabled {
+  background: #949494 !important;
+}
+.tips {
+  margin: 2rem 0;
+  text-align: left;
+  text-indent: 0.5rem;
+  font-size: 1.25rem;
+}
 /* } */
 </style>

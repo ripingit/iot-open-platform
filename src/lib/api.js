@@ -375,7 +375,10 @@ export const COOP_AUTH_USER_PERMISSIONS_EDIT = prefix + '/index.php?m=Admin&c=Po
 export const COOP_APP_UPLOAD_POST = '../' + prefix + '/index.php?m=Home&c=App&a=putObject'
 
 /** 合作商，设备生产下载模板 */
-export const COOP_PROD_TEMPLATE_POST = prefix + '/index.php?m=Home&c=Production&a=examplese'
+export const COOP_PROD_TEMPLATE_POST = '../' + prefix + '/index.php?m=Home&c=Production&a=examplese'
 
 /** 合作商，设备生产导入数据 */
 export const COOP_PROD_IMPORT_POST = '../' + prefix + '/index.php?m=Home&c=Production&a=putObject'
+
+/** 合作商，查询生产数据 */
+export const COOP_PROD_DATA_QUERY = '../' + prefix + '/index.php?m=Home&c=ProductionData&a=adminDeviceRootsChart'
