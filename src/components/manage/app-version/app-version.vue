@@ -39,6 +39,14 @@
             label="APP名称">
           </el-table-column>
           <el-table-column
+            prop="pic1"
+            min-width="150"
+            label="LOGO">
+            <template slot-scope="scope">
+              <ScaleImgComponent :path="scope.row.pic1" style="width:5rem;height:5rem" alt="图2"></ScaleImgComponent>
+            </template>
+          </el-table-column>
+          <el-table-column
             prop="company_name"
             min-width="240"
             label="所属公司">
@@ -174,7 +182,15 @@ export default {
     operationData (type, ix) {
       if (type === 'select') {
         this.detailDialogVisible = true
-        this.detailData = JSON.parse(JSON.stringify(this.tableData[ix]))
+        let data = JSON.parse(JSON.stringify(this.tableData[ix]))
+        if (this.isJsonString(data.change_log)) {
+          const t = JSON.parse(data.change_log)
+          if (Array.isArray(t)) {
+            const zhDesc = t.find(o => o.lang === 'zh') // 仅显示中文的升级描述
+            data.change_log = zhDesc ? zhDesc.desc : ''
+          }
+        }
+        this.detailData = data
       } else {
         let data
         let ary = []
@@ -196,7 +212,7 @@ export default {
               }
             }).catch(e => {
               loading.close()
-              this.vmMsgError('网络错误！')
+              this.vmMsgError('程序错误！')
             })
           }
         })
@@ -217,7 +233,7 @@ export default {
         this.loading = false
       }).catch(e => {
         this.loading = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     }, 300)
   }

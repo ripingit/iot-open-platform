@@ -28,6 +28,13 @@
             <el-form-item>
               <el-button type="primary" @click="onSubmit">查询</el-button>
             </el-form-item>
+            <el-form-item>
+              <el-button
+                type="primary"
+                @click="onModelTransfer"
+                v-if="vmHasAuth(AdminPermissionsLib.TRANS_DEVICE, resData.res)"
+              >转移</el-button>
+            </el-form-item>
           </el-form>
           <el-button
             icon="el-icon-delete"
@@ -68,16 +75,9 @@
             </el-table-column>
             <template slot-scope="scope" slot="pic1_fileid">
               <ScaleImgComponent
-                :path="scope.row.pic1_fileid"
+                :path="typeof scope.row.pic1_fileid === 'string' ? scope.row.pic1_fileid : scope.row.pic1_fileid.thumb"
                 style="width:6rem;height:4.5rem"
-                alt="图1"
-              ></ScaleImgComponent>
-            </template>
-            <template slot-scope="scope" slot="pic2_fileid">
-              <ScaleImgComponent
-                :path="scope.row.pic2_fileid"
-                style="width:6rem;height:4.5rem"
-                alt="图2"
+                alt="缩略图"
               ></ScaleImgComponent>
             </template>
           </TableComponent>
@@ -252,9 +252,9 @@
                 <el-radio v-model="formConfig.voice_detect" label="1" disabled>支持</el-radio>
                 <el-radio v-model="formConfig.voice_detect" label="0" disabled>不支持</el-radio>
               </el-form-item>
-              <el-form-item label="移动侦测" class="form-row" prop="motion_detect">
-                <el-radio v-model="formConfig.motion_detect" label="1" disabled>支持</el-radio>
-                <el-radio v-model="formConfig.motion_detect" label="0" disabled>不支持</el-radio>
+              <el-form-item label="人体感应" class="form-row" prop="body_induction">
+                <el-radio v-model="formConfig.body_induction" label="1" disabled>支持</el-radio>
+                <el-radio v-model="formConfig.body_induction" label="0" disabled>不支持</el-radio>
               </el-form-item>
               <el-form-item label="低功耗" class="form-row" prop="liteos">
                 <el-radio v-model="formConfig.liteos" label="1" disabled>支持</el-radio>
@@ -266,112 +266,31 @@
       </el-row>
     </el-dialog>
 
-    <el-dialog title="型号编辑" :visible.sync="dialogVisible" center>
-      <el-form label-width="100px" status-icon :model="formUpdate" ref="AddForm" :rules="rules">
-        <el-form-item label="型号名称" class="form-row" prop="product_name">
-          <el-input v-model="formUpdate.product_name" disabled></el-input>
+    <EditModelComponent
+      :isVisible="dialogVisible"
+      :formData="editFormData"
+      :nbiCode="nbi_code_options"
+      :productCode="prodt_code_options"
+      @close="editModelDialogClose"></EditModelComponent>
+
+    <el-dialog title="型号转移" :visible.sync="showTransferDialog" center>
+      <el-form
+        label-width="100px"
+        status-icon
+        :model="formModelTransfer"
+        ref="modelTransferForm"
+        :rules="rulesTransfer"
+      >
+        <el-form-item label="设备ID" class="form-row" prop="device_id">
+          <el-input v-model="formModelTransfer.device_id"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="型号代码" class="form-row" prop="product_code">
-          <el-input v-model="formUpdate.product_code" maxlength="6" disabled></el-input>
-          <span class="form-tip">*</span>
-        </el-form-item>
-        <el-form-item label="连接方式" class="form-row" prop="nbi_code">
-          <el-select v-model="formUpdate.nbi_code" multiple placeholder="请选择连接方式">
-            <el-option
-              v-for="item in nbi_code_options"
-              :key="item.nbi_code"
-              :label="item.nbi_code_name"
-              :value="item.nbi_code"
-            ></el-option>
-          </el-select>
-          <span class="form-tip">*</span>
-        </el-form-item>
-        <el-form-item label="设备类别" class="form-row" prop="prodt_code">
-          <el-select v-model="formUpdate.prodt_code" multiple disabled placeholder="请选择设备类别">
-            <el-option
-              v-for="item in prodt_code_options"
-              :key="item.prodt_code"
-              :label="item.prodt_name"
-              :value="item.prodt_code"
-            ></el-option>
-          </el-select>
-          <span class="form-tip">*</span>
-        </el-form-item>
-        <el-form-item label="在线图片" class="form-row" prop="pic1_fileid">
-          <el-col :span="24" style="line-height:1.2">
-            <span class="device-model-uploadImg" v-if="isPiconeUploading">{{piconeUploadProgress}}</span>
-            <div
-              v-else
-              class="device-model-uploadImg"
-              style="position: relative;display: inline-block"
-            >
-              <img class="device-model-uploadImg" :src="piconePath">
-              <i class="el-icon-zoom-in showBig" @click="piconeDialogVisible=true"></i>
-            </div>
-            <div style="display: inline-block;">
-              <el-upload
-                :action="uploadPath"
-                :data="{pic:1}"
-                name="photo"
-                accept=".jpg, .jpeg, .png"
-                :before-upload="onBeforeUpload"
-                :on-success="onUploadSuccess"
-                :on-progress="onUploadProgress"
-                :on-error="onUploadError"
-                :show-file-list="false"
-              >
-                <el-button class="btn-upload" size="small" type="primary">上传</el-button>
-              </el-upload>
-            </div>
-            <el-dialog :modal="false" :visible.sync="piconeDialogVisible">
-              <img width="100%" :src="piconePath">
-            </el-dialog>
-            <div class="device-model-div">
-              <p>底色：白色</p>
-              <p>尺寸：608*470</p>
-              <p>图片大小不超过2M</p>
-            </div>
-          </el-col>
-        </el-form-item>
-        <el-form-item label="离线图片" class="form-row" prop="pic2_fileid">
-          <el-col :span="24" style="line-height:1.2">
-            <span class="device-model-uploadImg" v-if="isPictwoUploading">{{pictwoUploadProgress}}</span>
-            <div
-              v-if="!isPictwoUploading"
-              class="device-model-uploadImg"
-              style="position: relative;display: inline-block"
-            >
-              <img class="device-model-uploadImg" :src="pictwoPath">
-              <i class="el-icon-zoom-in showBig" @click="pictwoDialogVisible=true"></i>
-            </div>
-            <div style="display: inline-block;">
-              <el-upload
-                :action="uploadPath"
-                :data="{pic:2}"
-                name="photo"
-                accept=".jpg, .jpeg, .png"
-                :before-upload="onBeforeUpload2"
-                :on-success="onUploadSuccess2"
-                :on-progress="onUploadProgress2"
-                :on-error="onUploadError2"
-                :show-file-list="false"
-              >
-                <el-button class="btn-upload" size="small" type="primary">上传</el-button>
-              </el-upload>
-            </div>
-            <el-dialog :modal="false" :visible.sync="pictwoDialogVisible">
-              <img width="100%" :src="pictwoPath">
-            </el-dialog>
-            <div class="device-model-div">
-              <p>底色：白色</p>
-              <p>尺寸：608*470</p>
-              <p>图片大小不超过2M</p>
-            </div>
-          </el-col>
+        <el-form-item label="转移方式" class="form-row" prop="change_id">
+          <el-radio v-model="formModelTransfer.change_id" label="1">正式到测试</el-radio>
+          <el-radio v-model="formModelTransfer.change_id" label="2">测试到正式</el-radio>
         </el-form-item>
         <el-form-item style="margin-top: 4.33rem;">
-          <el-button type="primary" class="btn-submit" @click="EnsureSubmit()">提 交</el-button>
+          <el-button type="primary" class="btn-submit" @click="transferSubmit()">提 交</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -389,14 +308,14 @@ import {
 import { validateProductCode } from "@/lib/validate.js";
 import ScaleImgComponent from "@/components/_ui/scale-img.vue";
 import TableComponent from "@/components/_ui/table.vue";
+import EditModelComponent from "./component/edit-model.vue";
 import {
   EQUIPMENT_MODEL_QUERY,
   EQUIPMENT_MODEL_DELETE,
-  ADMIN_EQUIPMENT_MODEL_UPLOADIMG,
-  ADMIN_EQUIPMENT_MODEL_UPDATE
+  ADMIN_TRANSFER_POST
 } from "../../../lib/api.js";
 export default {
-  components: { ScaleImgComponent, TableComponent },
+  components: { ScaleImgComponent, TableComponent, EditModelComponent },
   mixins: [
     {
       data() {
@@ -449,6 +368,18 @@ export default {
       callback();
     };
     return {
+      editFormData: {
+        product_name: "",
+        product_code: "",
+        nbi_code: [],
+        prodt_code: [],
+        pic1_fileid: {
+          online: "",
+          state: "",
+          reset: "",
+          thumb: ""
+        }
+      },
       rules: {
         pic1_fileid: [{ validator: validateIsEmpty, trigger: "blur" }],
         pic2_fileid: [{ validator: validateIsEmpty, trigger: "blur" }],
@@ -460,22 +391,22 @@ export default {
         num: [{ validator: validateIsEmpty, trigger: "blur" }],
         num2: [{ validator: validateIsEmpty, trigger: "blur" }]
       },
+      rulesTransfer: {
+        device_id: [
+          { required: true, message: "请输入设备ID", trigger: "blur" }
+        ]
+      },
       dialogVisible: false,
+      showTransferDialog: false,
       formInline: {
         ChoiceTime: "",
         query_by_name: ""
       },
-      formUpdate: {
-        product_name: "",
-        product_code: "",
-        nbi_code: [],
-        prodt_code: [],
-        pic1_fileid: "",
-        pic2_fileid: "",
-        url_old1: "",
-        url_old2: ""
+      formModelTransfer: {
+        device_id: "",
+        change_id: "1"
       },
-      uploadPath: ADMIN_EQUIPMENT_MODEL_UPLOADIMG,
+
       piconePath: "",
       piconeDialogVisible: false,
       isPiconeUploading: false,
@@ -522,13 +453,8 @@ export default {
           },
           {
             prop: "pic1_fileid",
-            label: "图1",
+            label: "缩略图",
             slotName: "pic1_fileid"
-          },
-          {
-            prop: "pic2_fileid",
-            label: "图2",
-            slotName: "pic2_fileid"
           },
           {
             prop: "rom_ver",
@@ -560,6 +486,46 @@ export default {
         this.onSubmit();
       }
     },
+
+    editModelDialogClose (isToUpdate) {
+      if (isToUpdate) {
+        this.onSubmit()
+      }
+      this.dialogVisible = false
+    },
+
+    onModelTransfer() {
+      this.showTransferDialog = true;
+    },
+    transferSubmit: _.debounce(function() {
+      let param = this.createFormData({
+        device_id: this.formModelTransfer.device_id,
+        change_id: parseInt(this.formModelTransfer.change_id)
+      });
+      let msgTip = `确定将设备ID为${this.formModelTransfer.device_id}的设备从${
+        this.formModelTransfer.change_id === "1"
+          ? "正式环境转移到测试环境"
+          : "测试环境转移到正式环境"
+      }?`;
+      this.vmConfirm({
+        msg: msgTip,
+        confirmCallback: () => {
+          let loading = this.vmLoadingFull();
+          this.$http
+            .post(ADMIN_TRANSFER_POST, param)
+            .then(res => {
+              loading.close();
+              if (this.vmResponseHandler(res)) {
+                this.vmMsgSuccess("转移成功！");
+              }
+            })
+            .catch(() => {
+              loading.close();
+              this.vmMsgError("程序错误");
+            });
+        }
+      });
+    }),
     onSubmit: _.debounce(function() {
       let param = this.createFormData({
         page: parseInt(this.tableOptions.pageOptions.currentPage),
@@ -595,6 +561,11 @@ export default {
                   .map(subval => codeObj[subval])
                   .join("、");
               }
+
+              if (this.isJsonString(val.pic1_fileid)) {
+                val.pic1_fileid = JSON.parse(val.pic1_fileid)
+              }
+
               return val;
             });
             this.resData = res.data;
@@ -603,7 +574,7 @@ export default {
         })
         .catch(() => {
           this.tableOptions.loading = false;
-          this.vmMsgError("网络错误！");
+          this.vmMsgError("程序错误");
         });
     }, 300),
     Delete() {
@@ -633,7 +604,7 @@ export default {
             })
             .catch(() => {
               loading.close();
-              this.vmMsgError("网络错误！");
+              this.vmMsgError("程序错误");
             });
         }
       });
@@ -724,6 +695,11 @@ export default {
           liteos:
             rowData[0].conf.liteos === 0 || rowData[0].conf.liteos === 1
               ? String(rowData[0].conf.liteos)
+              : "0",
+          body_induction:
+            rowData[0].conf.body_induction === 0 ||
+            rowData[0].conf.body_induction === 1
+              ? String(rowData[0].conf.body_induction)
               : "0"
         };
       }
@@ -731,108 +707,24 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    handleClose(done) {
-      done();
-    },
-    onBeforeUpload(file) {
-      let sizeM = file.size / 1024 / 1024;
-      let imgArr = ["image/png", "image/jpeg", "image/jpg"];
-      if (!imgArr.includes(file.type) || sizeM > 2) {
-        this.vmMsgError("请上传后缀为.jpg或.png或.jpeg且小于2M的图片");
-        return false;
-      }
-    },
-    onUploadSuccess(response, file, fileList) {
-      this.piconeUploadProgress = "";
-      if (response.statu === 0) {
-        this.$router.push("/signin");
-        return;
-      }
-      if (!response.status) {
-        this.vmMsgError(response.msg);
-        return;
-      }
-      this.isPiconeUploading = false;
-      this.piconePath = file.url;
-      this.formUpdate.pic1_fileid = response.pic1_fileid;
-    },
-    onUploadProgress(event, file, fileList) {
-      this.isPiconeUploading = true;
-      this.piconeUploadProgress = "已上传" + event.percent + "%";
-    },
-    onUploadError(err, file, fileList) {
-      this.vmMsgError(err);
-    },
-    onBeforeUpload2(file) {
-      let sizeM = file.size / 1024 / 1024;
-      let imgArr = ["image/png", "image/jpeg", "image/jpg"];
-      if (!imgArr.includes(file.type) || sizeM > 2) {
-        this.vmMsgError("请上传后缀为.jpg或.png或.jpeg且小于2M的图片");
-        return false;
-      }
-    },
-    onUploadSuccess2(response, file, fileList) {
-      this.pictwoUploadProgress = "";
-      // 上传
-      if (response.statu === 0) {
-        this.$router.push("/signin");
-        return;
-      }
-      if (!response.status) {
-        this.vmMsgError(response.msg);
-        return;
-      }
-      this.isPictwoUploading = false;
-      this.pictwoPath = file.url;
-      this.formUpdate.pic2_fileid = response.pic2_fileid;
-    },
-    onUploadProgress2(event, file, fileList) {
-      this.isPictwoUploading = true;
-      this.pictwoUploadProgress = "已上传" + event.percent + "%";
-    },
-    onUploadError2(err, file, fileList) {
-      this.vmMsgError(err);
-    },
+
     updateDevice(row) {
-      let tempRow = this.tableDataCache.find(
+      this.editFormData = this.tableDataCache.find(
         o => o.product_code === row.product_code
       );
-      this.dialogVisible = true;
-      this.isPiconeUploading = false;
-      this.isPictwoUploading = false;
-      this.formUpdate.product_name = tempRow.product_name;
-      this.formUpdate.product_code = tempRow.product_code;
-      this.formUpdate.nbi_code = tempRow.nbi_code;
-      this.formUpdate.prodt_code = tempRow.prodt_code;
-      this.formUpdate.url_old1 = tempRow.pic1_fileid;
-      this.formUpdate.url_old2 = tempRow.pic2_fileid;
-      this.piconePath = this.formUpdate.pic1_fileid = tempRow.pic1_fileid;
-      this.pictwoPath = this.formUpdate.pic2_fileid = tempRow.pic2_fileid;
-    },
-    EnsureSubmit: _.debounce(function() {
-      this.$refs["AddForm"].validate(valid => {
-        if (valid) {
-          let param = this.createFormData(this.formUpdate);
-          this.$http
-            .post(ADMIN_EQUIPMENT_MODEL_UPDATE, param)
-            .then(res => {
-              if (this.vmResponseHandler(res)) {
-                this.vmMsgSuccess("操作成功！");
-                this.dialogVisible = false;
-                this.isPiconeUploading = true;
-                this.piconeUploadProgress = "";
-                this.isPictwoUploading = true;
-                this.pictwoUploadProgress = "";
-                this.$refs["AddForm"].resetFields();
-                this.onSubmit();
-              }
-            })
-            .catch(() => {
-              this.vmMsgError("网络错误！");
-            });
+      // 如果pic1_fileid为以前的格式（一个字符串地址），则设置成现有格式（json）
+      if (this.isJsonString(this.editFormData.pic1_fileid)) {
+        this.editFormData.pic1_fileid = JSON.parse(this.editFormData.pic1_fileid)
+      } else if (typeof this.editFormData.pic1_fileid === 'string') {
+        this.editFormData.pic1_fileid = {
+          online: this.editFormData.pic1_fileid,
+          thumb: '',
+          reset: '',
+          state: ''
         }
-      });
-    }, 300)
+      }
+      this.dialogVisible = true;
+    }
   }
 };
 </script>

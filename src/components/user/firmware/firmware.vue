@@ -408,7 +408,7 @@ export default {
         }
       }).catch(() => {
         this.isGetHistory = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
     getFirmwareLists: _.debounce(function (currentPage) {
@@ -425,7 +425,7 @@ export default {
         this.loading = false
       }).catch(e => {
         this.loading = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     }, 300),
     onBeforeUpload (file) {
@@ -472,7 +472,7 @@ export default {
             wait.close()
           }).catch(() => {
             wait.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })
@@ -500,7 +500,7 @@ export default {
           this.deviceIDForm.update_done_num = res.data.data.update_done_num
         }
       }).catch(() => {
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
     selectAllRom_ver (val) {
@@ -580,7 +580,7 @@ export default {
         wait.close()
       }).catch(() => {
         wait.close()
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
 
@@ -605,7 +605,7 @@ export default {
         wait.close()
       }).catch(() => {
         wait.close()
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     }, 300)
   }

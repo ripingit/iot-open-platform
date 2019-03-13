@@ -32,18 +32,18 @@
             <el-table-column prop="product_code" label="型号代码"></el-table-column>
             <el-table-column prop="prodt_code2" label="设备类别" width="200"></el-table-column>
             <el-table-column prop="nbi_code" label="连接方式"></el-table-column>
-            <el-table-column prop="pic1_fileid" label="图1">
+            <el-table-column prop="pic1_fileid" label="缩略图">
               <template slot-scope="scope">
                 <div>
                   <ScaleImgComponent
-                    :path="scope.row.pic1_fileid"
+                    :path="typeof scope.row.pic1_fileid === 'string' ? scope.row.pic1_fileid : scope.row.pic1_fileid.thumb"
                     style="width:6rem;height:4.5rem"
-                    alt="图2"
+                    alt="缩略图"
                   ></ScaleImgComponent>
                 </div>
               </template>
             </el-table-column>
-            <el-table-column prop="pic2_fileid" label="图2">
+            <!-- <el-table-column prop="pic2_fileid" label="图2">
               <template slot-scope="scope">
                 <div>
                   <ScaleImgComponent
@@ -53,7 +53,7 @@
                   ></ScaleImgComponent>
                 </div>
               </template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column prop="is_review" label="审核状态">
               <template slot-scope="scope">
                 <span v-if="scope.row.is_review===0">待审核</span>
@@ -112,120 +112,14 @@
           ></el-pagination>
         </el-row>
       </el-row>
-      <el-dialog
-        :title="dialogTitle"
-        :visible.sync="dialogVisible"
-        center
-        :before-close="handleClose"
-      >
-        <el-form label-width="100px" status-icon :model="formAdd" ref="AddForm" :rules="rules">
-          <el-form-item label="型号名称" class="form-row" prop="product_name">
-            <el-input v-model="formAdd.product_name"></el-input>
-            <span class="form-tip">*</span>
-          </el-form-item>
-          <el-form-item label="型号代码" class="form-row" prop="product_code">
-            <el-input v-model="formAdd.product_code" maxlength="6"></el-input>
-            <span class="form-tip">*</span>
-          </el-form-item>
-          <el-form-item label="连接方式" class="form-row" prop="nbi_code">
-            <el-select v-model="formAdd.nbi_code" multiple placeholder="请选择连接方式">
-              <el-option
-                v-for="item in nbi_code_options"
-                :key="item.nbi_code"
-                :label="item.nbi_code_name"
-                :value="item.nbi_code"
-              ></el-option>
-            </el-select>
-            <span class="form-tip">*</span>
-          </el-form-item>
-          <el-form-item label="设备类别" class="form-row" prop="prodt_code">
-            <el-select v-model="formAdd.prodt_code" multiple placeholder="请选择设备类别">
-              <el-option
-                v-for="item in prodt_code_options"
-                :key="item.prodt_code"
-                :label="item.prodt_name"
-                :value="item.prodt_code"
-              ></el-option>
-            </el-select>
-            <span class="form-tip">*</span>
-          </el-form-item>
-          <el-form-item label="在线图片" class="form-row" prop="pic1">
-            <el-col :span="24" style="line-height:1.2">
-              <span class="device-model-uploadImg" v-if="isUploading">{{uploadProgress}}</span>
-              <div
-                v-else
-                class="device-model-uploadImg"
-                style="position: relative;display: inline-block"
-              >
-                <img class="device-model-uploadImg" :src="picPath">
-                <i class="el-icon-zoom-in showBig" @click="dialogVisibleImg=true"></i>
-              </div>
-              <div style="display: inline-block;">
-                <el-upload
-                  :action="uploadPath"
-                  :data="{pic:1}"
-                  name="photo"
-                  accept=".jpg, .jpeg, .png"
-                  :before-upload="onBeforeUpload"
-                  :on-success="onUploadSuccess"
-                  :on-progress="onUploadProgress"
-                  :on-error="onUploadError"
-                  :show-file-list="false"
-                >
-                  <el-button class="btn-upload" size="small" type="primary">上传</el-button>
-                </el-upload>
-              </div>
-              <el-dialog :modal="false" :visible.sync="dialogVisibleImg">
-                <img width="100%" :src="picPath">
-              </el-dialog>
-              <div class="device-model-div">
-                <p>底色：白色</p>
-                <p>尺寸：608*470</p>
-                <p>图片大小不超过2M</p>
-              </div>
-            </el-col>
-          </el-form-item>
-          <el-form-item label="离线图片" class="form-row" prop="pic2">
-            <el-col :span="24" style="line-height:1.2">
-              <span class="device-model-uploadImg" v-if="isUploading2">{{uploadProgress2}}</span>
-              <div
-                v-if="!isUploading2"
-                class="device-model-uploadImg"
-                style="position: relative;display: inline-block"
-              >
-                <img class="device-model-uploadImg" :src="picPath2">
-                <i class="el-icon-zoom-in showBig" @click="dialogVisibleImg2=true"></i>
-              </div>
-              <div style="display: inline-block;">
-                <el-upload
-                  :action="uploadPath"
-                  :data="{pic:2}"
-                  name="photo"
-                  accept=".jpg, .jpeg, .png"
-                  :before-upload="onBeforeUpload2"
-                  :on-success="onUploadSuccess2"
-                  :on-progress="onUploadProgress2"
-                  :on-error="onUploadError2"
-                  :show-file-list="false"
-                >
-                  <el-button class="btn-upload" size="small" type="primary">上传</el-button>
-                </el-upload>
-              </div>
-              <el-dialog :modal="false" :visible.sync="dialogVisibleImg2">
-                <img width="100%" :src="picPath2">
-              </el-dialog>
-              <div class="device-model-div">
-                <p>底色：白色</p>
-                <p>尺寸：608*470</p>
-                <p>图片大小不超过2M</p>
-              </div>
-            </el-col>
-          </el-form-item>
-          <el-form-item style="margin-top: 4.33rem;">
-            <el-button type="primary" class="btn-submit" @click="EnsureSubmit()">提 交</el-button>
-          </el-form-item>
-        </el-form>
-      </el-dialog>
+
+      <!-- 设备型号添加 -->
+      <ModelAddComponent
+        :isVisible="dialogVisible"
+        :nbiCode="nbi_code_options"
+        :productCode="prodt_code_options"
+        @close="modelAddDialogClose"></ModelAddComponent>
+
       <el-dialog
         title="型号配置"
         :visible.sync="editDialog"
@@ -404,9 +298,9 @@
                   <el-radio v-model="formConfig.voice_detect" label="1">支持</el-radio>
                   <el-radio v-model="formConfig.voice_detect" label="0">不支持</el-radio>
                 </el-form-item>
-                <el-form-item label="移动侦测" class="form-row" prop="motion_detect">
-                  <el-radio v-model="formConfig.motion_detect" label="1">支持</el-radio>
-                  <el-radio v-model="formConfig.motion_detect" label="0">不支持</el-radio>
+                <el-form-item label="人体感应" class="form-row" prop="body_induction">
+                  <el-radio v-model="formConfig.body_induction" label="1">支持</el-radio>
+                  <el-radio v-model="formConfig.body_induction" label="0">不支持</el-radio>
                 </el-form-item>
                 <el-form-item label="低功耗" class="form-row" prop="liteos">
                   <el-radio v-model="formConfig.liteos" label="1">支持</el-radio>
@@ -435,18 +329,19 @@
 <script>
 import "@/assets/css/content.css";
 import ScaleImgComponent from "@/components/_ui/scale-img.vue";
+import UploadComponent from "@/components/_ui/upload.vue";
+import ModelAddComponent from "./component/add-model.vue";
 import { validateProductCode } from "../../../lib/validate.js";
 import {
   USER_EQUIPMENT_MODEL_QUERY,
-  USER_EQUIPMENT_MODEL_UPLOADIMG,
-  USER_EQUIPMENT_MODEL_ADD,
   USER_EQUIPMENT_MODEL_DEL,
   USER_EQUIPMENT_MODEL_CONFIG,
   COOP_GENERATE_DEVICE_ID_POST
 } from "../../../lib/api.js";
+
 import _ from "lodash";
 export default {
-  components: { ScaleImgComponent },
+  components: { ScaleImgComponent, UploadComponent, ModelAddComponent },
   data() {
     let validateIsEmpty = (rule, value, callback) => {
       if (value === "") {
@@ -458,10 +353,6 @@ export default {
           callback(new Error("请选择连接方式"));
         } else if (rule.field === "prodt_code") {
           callback(new Error("请选择设备类别"));
-        } else if (rule.field === "pic1") {
-          callback(new Error("请上传图1"));
-        } else if (rule.field === "pic2") {
-          callback(new Error("请上传图2"));
         } else if (rule.field === "class0") {
           callback(new Error("请选择设备分类"));
         } else if (rule.field === "dec") {
@@ -492,8 +383,6 @@ export default {
         product_code: [{ validator: validateIsEmpty, trigger: "change" }],
         nbi_code: [{ validator: validateIsEmpty, trigger: "change" }],
         prodt_code: [{ validator: validateIsEmpty, trigger: "change" }],
-        pic1: [{ validator: validateIsEmpty, trigger: "blur" }],
-        pic2: [{ validator: validateIsEmpty, trigger: "blur" }],
         class0: [{ validator: validateIsEmpty, trigger: "change" }],
         dec: [{ validator: validateIsEmpty, trigger: "change" }],
         chans: [{ validator: validateIsEmpty, trigger: "blur" }],
@@ -503,15 +392,6 @@ export default {
         num2: [{ validator: validateIsEmpty, trigger: "blur" }]
       },
       loading: false,
-      uploadPath: USER_EQUIPMENT_MODEL_UPLOADIMG,
-      picPath: "",
-      dialogVisibleImg: false,
-      isUploading: true,
-      uploadProgress: "",
-      picPath2: "",
-      dialogVisibleImg2: false,
-      isUploading2: true,
-      uploadProgress2: "",
       dialogVisible: false,
       editDialog: false,
       IPCC: false,
@@ -519,15 +399,6 @@ export default {
       CMSW: false,
       VZDB: false,
       query_by_name: "",
-      dialogTitle: "",
-      formAdd: {
-        product_name: "",
-        product_code: "",
-        nbi_code: [],
-        prodt_code: [],
-        pic1: "",
-        pic2: ""
-      },
       formConfig: {
         class0: "",
         dec: "",
@@ -546,6 +417,7 @@ export default {
         human_track: "1",
         osd: "1",
         voice_detect: "1",
+        body_induction: "1",
         cry_detect: "1",
         motion_detect: "1",
         area_detect: "1",
@@ -615,12 +487,17 @@ export default {
   methods: {
     keyCodeDown(e) {
       if (e.keyCode === 13) {
-        if (this.dialogVisible) {
-          this.EnsureSubmit();
-        } else if (this.editDialog) {
+        if (this.editDialog) {
           this.ConfigSubmit();
         }
       }
+    },
+
+    modelAddDialogClose(isToRefresh) {
+      if (isToRefresh) {
+        this.onSubmit()
+      }
+      this.dialogVisible = false;
     },
     onSubmit: _.debounce(function() {
       this.loading = true;
@@ -659,6 +536,10 @@ export default {
                   .map(subval => prodtObj[subval])
                   .join("、");
               }
+              if (this.isJsonString(val.pic1_fileid)) {
+                val.pic1_fileid = JSON.parse(val.pic1_fileid)
+              }
+
               return val;
             });
             this.total = res.data.total;
@@ -667,41 +548,13 @@ export default {
         })
         .catch(() => {
           this.loading = false;
-          this.vmMsgError("网络错误！");
+          this.vmMsgError("程序错误！");
         });
     }, 300),
     addDevice() {
-      this.dialogTitle = "添加型号";
       this.dialogVisible = true;
     },
-    EnsureSubmit: _.debounce(function() {
-      this.$refs["AddForm"].validate(valid => {
-        if (valid) {
-          let param = this.createFormData(this.formAdd);
-          this.$http
-            .post(USER_EQUIPMENT_MODEL_ADD, param)
-            .then(res => {
-              if (res.data.statu === 0) {
-                this.$router.push("/signin");
-                return false;
-              }
-              if (this.vmResponseHandler(res)) {
-                this.vmMsgSuccess("操作成功！");
-                this.dialogVisible = false;
-                this.isUploading = true;
-                this.uploadProgress = "";
-                this.isUploading2 = true;
-                this.uploadProgress2 = "";
-                this.$refs["AddForm"].resetFields();
-                this.onSubmit();
-              }
-            })
-            .catch(() => {
-              this.vmMsgError("网络错误！");
-            });
-        }
-      });
-    }, 300),
+
     editDevice(row) {
       if (row.is_review !== 1) {
         this.vmMsgWarning("只有通过审核才能进行型号配置！");
@@ -770,6 +623,11 @@ export default {
             rowData[0].conf.voice_detect === 0 ||
             rowData[0].conf.voice_detect === 1
               ? String(rowData[0].conf.voice_detect)
+              : "0",
+          body_induction:
+            rowData[0].conf.body_induction === 0 ||
+            rowData[0].conf.body_induction === 1
+              ? String(rowData[0].conf.body_induction)
               : "0",
           cry_detect:
             rowData[0].conf.cry_detect === 0 || rowData[0].conf.cry_detect === 1
@@ -868,7 +726,7 @@ export default {
                     yun: parseInt(this.formConfig.yun),
                     status_light: parseInt(this.formConfig.status_light),
                     voice_detect: parseInt(this.formConfig.voice_detect),
-                    motion_detect: parseInt(this.formConfig.motion_detect),
+                    body_induction: parseInt(this.formConfig.body_induction),
                     liteos: parseInt(this.formConfig.liteos)
                   }
                 }
@@ -890,7 +748,7 @@ export default {
               }
             })
             .catch(() => {
-              this.vmMsgError("网络错误！");
+              this.vmMsgError("程序错误！");
             });
         }
       });
@@ -923,7 +781,7 @@ export default {
             })
             .catch(() => {
               loading.close();
-              this.vmMsgError("网络错误！");
+              this.vmMsgError("程序错误！");
             });
         }
       });
@@ -934,14 +792,21 @@ export default {
         this.vmMsgWarning("只有通过审核才能生成设备ID！");
         return;
       }
-      let loading = this.vmLoadingFull();
-      let data = this.createFormData({ product_code: row.product_code });
-      this.$http.post(COOP_GENERATE_DEVICE_ID_POST, data).then(res => {
-        loading.close();
-        if (this.vmResponseHandler(res)) {
-          let a = document.createElement("a");
-          a.href = res.data.url;
-          a.click();
+      this.vmConfirm({
+        msg: `确定下载设备信息吗？`,
+        confirmCallback: () => {
+          let loading = this.vmLoadingFull();
+          let data = this.createFormData({ product_code: row.product_code });
+          this.$http.post(COOP_GENERATE_DEVICE_ID_POST, data).then(res => {
+            loading.close();
+            if (this.vmResponseHandler(res)) {
+              let a = document.createElement("a");
+              a.href = res.data.url;
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(() => a.remove(), 1000);
+            }
+          });
         }
       });
     }, 300),
@@ -952,66 +817,6 @@ export default {
     },
     handleClose(done) {
       done();
-    },
-    onBeforeUpload(file) {
-      let sizeM = file.size / 1024 / 1024;
-      let imgArr = ["image/png", "image/jpeg", "image/jpg"];
-      if (!imgArr.includes(file.type) || sizeM > 2) {
-        this.vmMsgError("请上传后缀为.jpg或.png或.jpeg且小于2M的图片");
-        return false;
-      }
-    },
-    onUploadSuccess(response, file, fileList) {
-      this.uploadProgress = "";
-      // 上传
-      if (response.statu === 0) {
-        this.$router.push("/signin");
-        return;
-      }
-      if (!response.status) {
-        this.vmMsgError(response.msg);
-        return;
-      }
-      this.isUploading = false;
-      this.picPath = file.url;
-      this.formAdd.pic1 = file.url;
-    },
-    onUploadProgress(event, file, fileList) {
-      this.isUploading = true;
-      this.uploadProgress = "已上传" + event.percent + "%";
-    },
-    onUploadError(err, file, fileList) {
-      this.vmMsgError(err);
-    },
-    onBeforeUpload2(file) {
-      let sizeM = file.size / 1024 / 1024;
-      let imgArr = ["image/png", "image/jpeg", "image/jpg"];
-      if (!imgArr.includes(file.type) || sizeM > 2) {
-        this.vmMsgError("请上传后缀为.jpg或.png或.jpeg且小于2M的图片");
-        return false;
-      }
-    },
-    onUploadSuccess2(response, file, fileList) {
-      this.uploadProgress2 = "";
-      // 上传
-      if (response.statu === 0) {
-        this.$router.push("/signin");
-        return;
-      }
-      if (!response.status) {
-        this.vmMsgError(response.msg);
-        return;
-      }
-      this.isUploading2 = false;
-      this.picPath2 = file.url;
-      this.formAdd.pic2 = file.url;
-    },
-    onUploadProgress2(event, file, fileList) {
-      this.isUploading2 = true;
-      this.uploadProgress2 = "已上传" + event.percent + "%";
-    },
-    onUploadError2(err, file, fileList) {
-      this.vmMsgError(err);
     }
   }
 };
@@ -1062,6 +867,7 @@ export default {
   color: #fff;
   background-color: rgba(0, 0, 0, 0.5);
 }
+
 .el-dialog .btn-upload {
   height: 6rem;
   width: 3rem;

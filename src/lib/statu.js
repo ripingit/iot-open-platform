@@ -57,29 +57,6 @@ export default {
       3: '测试版本'
     }
 
-    /** 国家识别码 */
-    Vue.prototype.countryCode = {
-      'CN': '中国',
-      'BR': '巴西',
-      'ID': '印度尼西亚',
-      'MY': '马来西亚',
-      'TH': '泰国',
-      'US': '美国',
-      'TR': '土耳其',
-      'RU': '俄罗斯',
-      'IN': '印度',
-      'TW': '台湾',
-      'KR': '韩国',
-      'GB': '英国',
-      'VN': '越南',
-      'AU': '澳大利亚',
-      'HK': '香港',
-      'AE': '迪拜',
-      'ZA': '南非',
-      'MX': '墨西哥',
-      'AR': '阿根廷'
-    }
-
     /** 商品类型 */
     Vue.prototype.goodTypeCode = {
       css: '云储存服务'
@@ -89,6 +66,13 @@ export default {
     Vue.prototype.goodSaleCode = {
       1: '已上架',
       2: '已下架'
+    }
+
+    /** 商品促销状态 */
+    Vue.prototype.goodPromotionCode = {
+      1: '未促销',
+      2: '促销中',
+      3: '免费'
     }
 
     /** 设备解绑状态 */

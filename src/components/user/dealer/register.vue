@@ -170,7 +170,7 @@ export default {
               })
             }
           }).catch(() => {
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })

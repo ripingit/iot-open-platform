@@ -87,7 +87,7 @@ export default {
       }
       ).catch(() => {
         this.loading = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
     goBack () {
@@ -121,7 +121,7 @@ export default {
             }
           }).catch(() => {
             loading.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })

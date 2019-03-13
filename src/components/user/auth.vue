@@ -281,7 +281,7 @@ export default {
               this.$store.commit(AUTH_CHANGE, { authState: this.authCode.WAIT })
             }
           }).catch(() => {
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })
@@ -319,7 +319,7 @@ export default {
           }
         }
       }).catch(() => {
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
     onBeforeUpload (file) {

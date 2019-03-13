@@ -181,7 +181,7 @@ export default {
       }
       ).catch(() => {
         this.loadingAuth = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
     confirm (val) {
@@ -202,7 +202,7 @@ export default {
             }
           }).catch(() => {
             loading.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         },
         cancelCallback: () => {
@@ -221,7 +221,7 @@ export default {
         this.loading = false
       }).catch(e => {
         this.loading = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     }, 300)
   }

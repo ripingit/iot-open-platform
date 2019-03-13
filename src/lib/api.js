@@ -382,3 +382,27 @@ export const COOP_PROD_IMPORT_POST = '../' + prefix + '/index.php?m=Home&c=Produ
 
 /** 合作商，查询生产数据 */
 export const COOP_PROD_DATA_QUERY = '../' + prefix + '/index.php?m=Home&c=ProductionData&a=adminDeviceRootsChart'
+
+/** admin设备转移 */
+export const ADMIN_TRANSFER_POST = prefix + '/admin.php?m=AdminA&c=Product&a=admindeviceexchange'
+
+/** admin商品促销信息查询 */
+export const ADMIN_SALES_SEARCH_POST = prefix + '/admin.php?m=Admin&c=Goods&a=GoodsPromotionList'
+
+/** admin商品促销信息删除 */
+export const ADMIN_SALES_DELETE_POST = prefix + '/admin.php?m=Admin&c=Goods&a=GoodsPromotionDelete'
+
+/** admin商品促销信息添加 */
+export const ADMIN_SALES_ADD_POST = prefix + '/admin.php?m=Admin&c=Goods&a=GoodsPromotionGenerate'
+
+/** admin商品促销信息编辑 */
+export const ADMIN_SALES_UPDATE_POST = prefix + '/admin.php?m=Admin&c=Goods&a=GoodsPromotionUpdate'
+
+/** 合作商 app-logo上传 */
+export const COOP_APP_LOGO_UPLOAD_POST = '../' + prefix + '/index.php?m=Home&c=App&a=putPic'
+
+/** 合作商app 编辑 */
+export const COOP_APP_UPDATE_POST = prefix + '/index.php?m=Home&c=App&a=appVerEdit'
+
+/** admin设备类别编辑 */
+export const ADMIN_EQUIPMENT_CATEGORY_EDIT = prefix + '/admin.php?m=Admin&c=ProductType&a=adminProdtEdit'

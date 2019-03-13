@@ -219,7 +219,7 @@ export default {
           sessionStorage['token'] = res.data.token
         }
       }).catch(() => {
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
     signIn: _.debounce(function () {
@@ -249,7 +249,7 @@ export default {
               this.$router.push('/manage/admin/home/0')
             }
           }).catch(e => {
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
             loading.close()
           })
         }
@@ -275,7 +275,7 @@ export default {
       //     this.toResetBtnCode = true
       //   }
       // }).catch((e) => {
-      //   this.vmMsgError('网络错误！')
+      //   this.vmMsgError('程序错误！')
       //   this.toResetBtnCode = true
       // })
     },
@@ -288,7 +288,7 @@ export default {
       //         this.isForgotVisible = false
       //       }
       //     }).catch(() => {
-      //       this.vmMsgError('网络错误！')
+      //       this.vmMsgError('程序错误！')
       //     })
       //   }
       // })

@@ -167,7 +167,7 @@ export default {
           this.toResetBtnCode = !this.toResetBtnCode
         }
       }).catch((e) => {
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
         this.toResetBtnCode = !this.toResetBtnCode
       })
     }, 300),
@@ -180,7 +180,7 @@ export default {
               this.$router.push('/signin')
             }
           }).catch(() => {
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })

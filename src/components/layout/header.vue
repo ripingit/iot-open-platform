@@ -7,9 +7,7 @@
         </div>
       </el-col>
       <el-col :span="8">
-        <el-input
-          placeholder="请输入关键字进行搜索"
-          v-model="keyword">
+        <el-input placeholder="请输入关键字进行搜索" v-model="keyword">
           <i slot="prefix" class="iconfont icon-sousuo"></i>
         </el-input>
       </el-col>
@@ -34,81 +32,95 @@
 </template>
 
 <script>
-import { ADMIN_SIGN_OUT_POST, SIGN_OUT_POST } from '../../lib/api.js'
-import { validatePhone, validateEmail } from '../../lib/validate.js'
-import { MENU_UPDATE, IDENTITY_UPDATE, AUTH_UPDATE, AUTH_CHANGE, MENU_TOGGLE_UPDATE } from '@/store/mutations-type'
+import { ADMIN_SIGN_OUT_POST, SIGN_OUT_POST } from "../../lib/api.js";
+import { validatePhone, validateEmail } from "../../lib/validate.js";
+import {
+  MENU_UPDATE,
+  IDENTITY_UPDATE,
+  AUTH_UPDATE,
+  AUTH_CHANGE,
+  MENU_TOGGLE_UPDATE
+} from "@/store/mutations-type";
 export default {
-  data () {
+  data() {
     return {
       identity: this.$store.getters.getUserIdentity,
-      keyword: '',
+      keyword: "",
       isPanelShow: false,
-      userAccount: ''
-    }
+      userAccount: ""
+    };
   },
   computed: {
-    resetPassPath () {
-      return this.identity === this.identityCode.ADMIN ? '/manage/admin/resetAdminPass' : '/manage/user/resetPass'
+    resetPassPath() {
+      return this.identity === this.identityCode.ADMIN
+        ? "/manage/admin/resetAdminPass"
+        : "/manage/user/resetPass";
     }
   },
-  created () {
-    document.addEventListener('click', () => {
-      this.isPanelShow = false
-    })
+  created() {
+    document.addEventListener("click", () => {
+      this.isPanelShow = false;
+    });
 
-    let account = localStorage['_acd']
-    let start = account.slice(0, 3)
+    let account = localStorage["_acd"];
+    let start = account.slice(0, 3);
     if (validatePhone(account)) {
-      let end = account.slice(8)
-      this.userAccount = start + '****' + end
+      let end = account.slice(8);
+      this.userAccount = start + "****" + end;
     } else if (validateEmail(account)) {
-      let index = account.indexOf('@')
-      let end = account.slice(index)
-      let length = account.slice(3, index + 1).length
-      this.userAccount = start + ('*'.repeat(length)) + end
+      let index = account.indexOf("@");
+      let end = account.slice(index);
+      let length = account.slice(3, index + 1).length;
+      this.userAccount = start + "*".repeat(length) + end;
     } else {
-      this.userAccount = account
+      this.userAccount = account;
     }
   },
   methods: {
-    toggleMenu () {
-      let flag = this.$store.getters.getToggleMenu
-      this.$store.commit(MENU_TOGGLE_UPDATE, { toggleMenu: !flag })
+    toggleMenu() {
+      let flag = this.$store.getters.getToggleMenu;
+      this.$store.commit(MENU_TOGGLE_UPDATE, { toggleMenu: !flag });
     },
 
-    showSetPanel () {
-      this.isPanelShow = !this.isPanelShow
+    showSetPanel() {
+      this.isPanelShow = !this.isPanelShow;
     },
-    routeGo (route) {
-      this.$store.commit(MENU_UPDATE, { highlightMenu: '-1' })
-      this.$router.push(route)
+    routeGo(route) {
+      this.$store.commit(MENU_UPDATE, { highlightMenu: "-1" });
+      this.$router.push(route);
     },
-    signOut () {
+    signOut() {
       this.vmConfirm({
-        msg: '确认要退出登录吗？',
+        msg: "确认要退出登录吗？",
         confirmCallback: () => {
-          let url = this.identity === this.identityCode.ADMIN ? ADMIN_SIGN_OUT_POST : SIGN_OUT_POST
-          this.$http.post(url).then(res => {
-            if (this.vmResponseHandler) {
-              this.$router.push('/signin')
-              this.$store.commit(IDENTITY_UPDATE, { identity: '-1' })
-              this.$store.commit(AUTH_UPDATE, { menus: [] })
-              this.$store.commit(AUTH_CHANGE, { authState: -1 })
+          let url =
+            this.identity === this.identityCode.ADMIN
+              ? ADMIN_SIGN_OUT_POST
+              : SIGN_OUT_POST;
+          this.$http
+            .post(url)
+            .then(res => {
+              if (this.vmResponseHandler) {
+                this.$router.push("/signin");
+                this.$store.commit(IDENTITY_UPDATE, { identity: "-1" });
+                this.$store.commit(AUTH_UPDATE, { menus: [] });
+                this.$store.commit(AUTH_CHANGE, { authState: -1 });
 
-              this.vmMsgSuccess('退出成功！')
-            }
-          }).catch(() => {
-            this.vmMsgError('网络错误！')
-          })
+                this.vmMsgSuccess("退出成功！");
+              }
+            })
+            .catch(() => {
+              this.vmMsgError("程序错误！");
+            });
         }
-      })
+      });
     }
   }
-}
+};
 </script>
 
 <style scoped>
-@media (max-width:1200px) {
+@media (max-width: 1200px) {
   .menu-icon {
     font-size: 2rem;
     padding-left: 2.5rem;
@@ -123,15 +135,21 @@ export default {
   display: none;
 }
 .header-container {
-    line-height: 4.67rem;
-    background: #3b3f42;
-    color: #fff;
-    width: auto;
+  line-height: 4.67rem;
+  background: #3b3f42;
+  color: #fff;
+  width: auto;
 }
 
-.el-input /deep/ input::-webkit-input-placeholder { color: #808080; }
-.el-input /deep/ input::-moz-placeholder { color: #808080; }
-.el-input /deep/ input:-ms-input-placeholder { color:#808080; }
+.el-input /deep/ input::-webkit-input-placeholder {
+  color: #808080;
+}
+.el-input /deep/ input::-moz-placeholder {
+  color: #808080;
+}
+.el-input /deep/ input:-ms-input-placeholder {
+  color: #808080;
+}
 .el-input /deep/ input {
   border: none;
   background: #3b3f42;
@@ -147,7 +165,7 @@ export default {
   display: inline-block;
   position: relative;
 }
-.info .user-control p{
+.info .user-control p {
   line-height: 1;
 }
 .info .user-control .control-panel {
@@ -181,7 +199,7 @@ export default {
   vertical-align: middle;
 }
 .info .tips::after {
-  content: '';
+  content: "";
   width: 0px;
   height: 0;
   border-radius: 50%;
@@ -193,10 +211,10 @@ export default {
 
 /** 过渡动画 */
 .slide-enter-active {
-  animation: enter .3s;
+  animation: enter 0.3s;
 }
 .slide-leave-active {
-  animation: leave .3s;
+  animation: leave 0.3s;
 }
 
 @keyframes enter {

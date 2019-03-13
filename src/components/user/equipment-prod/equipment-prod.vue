@@ -317,7 +317,7 @@ export default {
         this.loading = false
       }).catch(e => {
         this.loading = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     }, 300),
 
@@ -333,7 +333,7 @@ export default {
         this.reloading = false
       }).catch(e => {
         this.reloading = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
 
@@ -387,7 +387,7 @@ export default {
             wait.close()
           }).catch(() => {
             wait.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })

@@ -34,124 +34,101 @@
            type="primary"
            circle
            class="btn-circle-add"
-           v-if="vmHasAuth(AdminPermissionsLib.ADD_DEVICE_CATE, resData.res)"
-           @click="addDevice()"></el-button>
+           v-if="vmHasAuth(AdminPermissionsLib.ADD_DEVICE_CATE, tableData.res)"
+           @click="showDialog(null, 'add')"></el-button>
          <el-button
            icon="el-icon-delete"
            type="danger"
            circle
            class="btn-circle-delete btn-circle-right"
-           v-if="vmHasAuth(AdminPermissionsLib.DEL_DEVICE_CATE, resData.res)"
+           v-if="vmHasAuth(AdminPermissionsLib.DEL_DEVICE_CATE, tableData.res)"
            @click="Delete()"></el-button>
        </el-col>
      </el-row>
       <el-row>
-        <el-table
-          ref="multipleTable"
-          v-loading="loading"
-          :data="tableData"
-          style="width: 100%;"
-          @selection-change="handleSelectionChange">
+        <TableComponent :options="tableOptions" :data="tableData.data" v-on:page-change="onSubmit" v-on:selection="handleSelectionChange">
           <el-table-column
-            type="selection">
+            label="操作"
+            width="120" slot="handler">
+            <template slot-scope="scope">
+              <el-button
+                class="btn-circle"
+                size="mini"
+                icon="iconfont icon-bianji"
+                circle
+                v-if="vmHasAuth(AdminPermissionsLib.UPDATE_DEVICE_CATE, tableData.res)"
+                @click="showDialog(scope.row, 'edit')"></el-button>
+            </template>
           </el-table-column>
-          <el-table-column
-            type="index"
-            width="100"
-            label="编号">
-          </el-table-column>
-          <el-table-column
-            prop="prodt_name"
-            label="类别名称">
-          </el-table-column>
-          <el-table-column
-            prop="prodt_code"
-            label="类别代码">
-          </el-table-column>
-          <el-table-column
-            prop="create_time"
-            label="添加时间">
-          </el-table-column>
-          <el-table-column
-            prop="user_name"
-            label="提交人">
-          </el-table-column>
-          <el-table-column
-            prop="review_name"
-            label="审核人">
-          </el-table-column>
-        </el-table>
+        </TableComponent>
       </el-row>
-      <el-col v-if="total>page" :span="24" style="text-align: center">
-        <el-pagination
-          @current-change="handleCurrentChange"
-          :current-page.sync="currentPage"
-          :page-size="page"
-          layout="prev, pager, next, jumper"
-          :total="total">
-        </el-pagination>
-      </el-col>
     </el-row>
-    <el-dialog
-      title="添加类别"
-      :visible.sync="dialogVisible"
-      center
-      :before-close="handleClose">
-      <el-form label-width="100px" status-icon :model="formAdd" ref="AddForm" :rules="rules">
-        <el-form-item label="类别名称" class="form-row" prop="prodt_name">
-          <el-input v-model="formAdd.prodt_name"></el-input>
-        </el-form-item>
-        <el-form-item label="类别代码" class="form-row" prop="prodt_code">
-          <el-input v-model="formAdd.prodt_code"></el-input>
-        </el-form-item>
-        <el-form-item style="margin-top: 4rem;" class="form-row">
-          <el-button type="primary" class="btn-submit" @click="EnsureAdd()">确 定</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
+
+    <AddEditCategoryComponent
+      :title="dialogTitle"
+      :isVisible="dialogVisible"
+      :model="dialogModel"
+      :formData="dialogData"
+      @close="dialogClose"></AddEditCategoryComponent>
   </div>
 </template>
 <script>
 import '@/assets/css/content.css'
-import { EQUIPMENT_CATEGORY_QUERY, EQUIPMENT_CATEGORY_ADD, EQUIPMENT_CATEGORY_DELETE } from '../../../lib/api.js'
+import { EQUIPMENT_CATEGORY_QUERY, EQUIPMENT_CATEGORY_DELETE } from '../../../lib/api.js'
+import TableComponent from '@/components/_ui/table.vue'
+import AddEditCategoryComponent from './component/add-edit.vue'
 import _ from 'lodash'
 export default {
+  components: { TableComponent, AddEditCategoryComponent },
   data () {
-    let validateIsEmpty = (rule, value, callback) => {
-      if (value === '') {
-        if (rule.field === 'prodt_name') {
-          callback(new Error('请输入类别名称'))
-        } else if (rule.field === 'prodt_code') {
-          callback(new Error('请输入类别代码'))
-        }
-      }
-      callback()
-    }
     return {
-      rules: {
-        prodt_name: [
-          { validator: validateIsEmpty, trigger: 'blur' }
-        ],
-        prodt_code: [
-          { validator: validateIsEmpty, trigger: 'blur' }
-        ]
-      },
       dialogVisible: false,
       formInline: {
         ChoiceTime: '',
         query_by_name: ''
       },
-      formAdd: {
+      dialogTitle: "",
+      dialogModel: "",
+      dialogData: {
         prodt_name: '',
-        prodt_code: ''
+        prodt_code: '',
+        sec_type: '1'
       },
-      tableData: [],
-      resData: [],
-      multipleSelection: [],
-      currentPage: 1,
-      total: 0,
-      page: 20,
-      loading: false
+
+      tableOptions: {
+        loading: true,
+        hasSelection: true,
+        hasNumber: true,
+        pageOptions: {
+          pageSize: 20,
+          total: 0,
+          currentPage: 1
+        },
+        columns: [
+          {
+            label: '类别名称',
+            prop: 'prodt_name'
+          }, {
+            prop: 'prodt_code',
+            label: '类别代码',
+            width: '180'
+          }, {
+            prop: 'create_time',
+            label: '添加时间'
+          }, {
+            prop: 'user_name',
+            label: '提交人'
+          }, {
+            prop: 'review_name',
+            label: '审核人'
+          }
+        ]
+      },
+      tableData: {
+        data: [],
+        res: []
+      },
+      multipleSelection: []
     }
   },
   created () {
@@ -162,53 +139,48 @@ export default {
     document.body.removeEventListener('keydown', this.keyCodeDown, false)
   },
   methods: {
-    keyCodeDown (e) {
-      if (e.keyCode === 13) {
-        if (this.dialogVisible) { this.EnsureAdd(); return }
+    resetDialogData () {
+      this.dialogData.prodt_name = '';
+      this.dialogData.prodt_code = '';
+      this.dialogData.sec_type = '1'
+    },
+    showDialog (row, model) {
+      this.resetDialogData()
+      this.dialogModel = model;
+      if (row) {
+        this.dialogData.prodt_name = row.prodt_name;
+        this.dialogData.prodt_code = row.prodt_code;
+        this.dialogData.sec_type = row.sec_type.toString();
+      }
+      this.dialogVisible = true
+    },
+    dialogClose(isToUpdate) {
+      if (isToUpdate) {
         this.onSubmit()
       }
+      this.dialogVisible = false
     },
     onSubmit: _.debounce(function () {
-      this.loading = true
+      this.tableOptions.loading = true
       let param = this.createFormData({
-        page: parseInt(this.currentPage),
-        page_size: parseInt(this.page),
+        page: parseInt(this.tableOptions.pageOptions.currentPage),
+        page_size: parseInt(this.tableOptions.pageOptions.pageSize),
         query_by_name: this.formInline.query_by_name,
         start_time: this.formInline.ChoiceTime ? this.formInline.ChoiceTime[0] : '',
         end_time: this.formInline.ChoiceTime ? this.formInline.ChoiceTime[1] : ''
       })
       this.$http.post(EQUIPMENT_CATEGORY_QUERY, param).then(res => {
-        this.loading = false
+        this.tableOptions.loading = false
         if (this.vmResponseHandler(res)) {
-          this.tableData = res.data.data
-          this.resData = res.data
-          this.total = res.data.total
+          this.tableData = res.data
+          this.tableOptions.pageOptions.total = res.data.total
         }
       }).catch(() => {
-        this.loading = false
-        this.vmMsgError('网络错误！')
+        this.tableOptions.loading = false
+        this.vmMsgError('程序错误！')
       })
     }, 300),
-    addDevice () {
-      this.dialogVisible = true
-    },
-    EnsureAdd () {
-      this.$refs['AddForm'].validate((valid) => {
-        if (valid) {
-          let param = this.createFormData(this.formAdd)
-          this.$http.post(EQUIPMENT_CATEGORY_ADD, param).then(res => {
-            if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess('操作成功！')
-              this.dialogVisible = false
-              this.$refs['AddForm'].resetFields()
-              this.onSubmit()
-            }
-          }).catch(() => {
-            this.vmMsgError('网络错误！')
-          })
-        }
-      })
-    },
+
     Delete () {
       if (!this.multipleSelection.length) {
         this.vmMsgWarning('请选择记录')
@@ -233,20 +205,13 @@ export default {
             }
           }).catch(() => {
             loading.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })
     },
     handleSelectionChange (val) {
       this.multipleSelection = val
-    },
-    handleCurrentChange (val) {
-      this.currentPage = val
-      this.onSubmit(val)
-    },
-    handleClose (done) {
-      done()
     }
   }
 }

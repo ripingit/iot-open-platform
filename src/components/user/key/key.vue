@@ -780,7 +780,7 @@ export default {
             })
             .catch(e => {
               loading.close();
-              this.vmMsgError("网络错误！");
+              this.vmMsgError("程序错误！");
             });
         }
       });
@@ -803,7 +803,7 @@ export default {
             })
             .catch(e => {
               loading.close();
-              this.vmMsgError("网络错误！");
+              this.vmMsgError("程序错误！");
             });
         }
       });
@@ -843,7 +843,7 @@ export default {
             })
             .catch(e => {
               loading.close();
-              this.vmMsgError("网络错误！");
+              this.vmMsgError("程序错误！");
             });
         }
       });
@@ -867,7 +867,7 @@ export default {
             })
             .catch(e => {
               loading.close();
-              this.vmMsgError("网络错误！");
+              this.vmMsgError("程序错误！");
             });
         }
       });
@@ -884,7 +884,7 @@ export default {
         })
         .catch(e => {
           this.loading = false;
-          this.vmMsgError("网络错误！");
+          this.vmMsgError("程序错误！");
         });
     }, 300),
     createKey: function() {
@@ -907,7 +907,7 @@ export default {
             })
             .catch(e => {
               loading.close();
-              this.vmMsgError("网络错误！");
+              this.vmMsgError("程序错误！");
             });
         }
       });
@@ -931,7 +931,7 @@ export default {
         })
         .catch(e => {
           this.smsTableOptions.loading = false;
-          this.vmMsgError("网络错误！");
+          this.vmMsgError("程序错误！");
         });
     }, 300),
 
@@ -953,7 +953,7 @@ export default {
         })
         .catch(e => {
           this.emailTableOptions.loading = false;
-          this.vmMsgError("网络错误！");
+          this.vmMsgError("程序错误！");
         });
     }),
     getProtocolLists: _.debounce(function(page) {
@@ -974,7 +974,7 @@ export default {
         })
         .catch(e => {
           this.protocolTableOptions.loading = false;
-          this.vmMsgError("网络错误！");
+          this.vmMsgError("程序错误！");
         });
     }),
     //  文件上传

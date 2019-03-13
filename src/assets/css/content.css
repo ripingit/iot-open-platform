@@ -76,7 +76,7 @@
 
 /** 换行显示 */
 .log-pre {
-  white-space: pre;
+  white-space: pre-line;
   line-height: 1.4;
 }
 
@@ -107,4 +107,8 @@
     opacity: 0;
     transform: translateY(100px);
   }
+}
+
+.color-fff {
+  color: #fff;
 }

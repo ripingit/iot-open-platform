@@ -24,6 +24,7 @@
         v-bind="$attrs"
         :action="path"
         :name="name"
+        :data="data"
         :disabled="isUploading"
         :accept="accept.join(',')"
         :before-upload="onBeforeUpload"
@@ -66,6 +67,11 @@ export default {
     name: {
       type: String,
       default: 'photo'
+    },
+    // 上传时的额外参数
+    data: {
+      type: Object,
+      default: function () { return {} }
     },
     // 可上传文件类型
     accept: {
@@ -179,7 +185,7 @@ export default {
         return false
       }
       this.execSuccessStrategy(this.model, file)
-      this.$emit('response', response)
+      this.$emit('response', response, this.data)
       this.vmMsgSuccess('上传成功！')
     },
     onUploadProgress (event, file, fileList) {
@@ -219,6 +225,7 @@ export default {
       }
     },
     previewUploadSuccess (file) {
+      file.url = URL.createObjectURL(file.raw)
       this.image.src = file.url
       this.isShowLoading = true
       this.image.onload = () => {

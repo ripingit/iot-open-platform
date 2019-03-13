@@ -234,7 +234,7 @@ export default {
         this.loading = false
       }).catch(e => {
         this.loading = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
     deleteAudit () {
@@ -256,7 +256,7 @@ export default {
             wait.close()
           }).catch(e => {
             wait.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })
@@ -281,7 +281,7 @@ export default {
             wait.close()
           }).catch(e => {
             wait.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })

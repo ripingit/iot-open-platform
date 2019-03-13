@@ -27,54 +27,27 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-table
-          v-loading="loading"
-          :data="tableData.data"
-          @selection-change="handleSelectionChange"
-          style="width: 100%;">
-          <el-table-column
-            type="selection"
-            width="55">
-          </el-table-column>
-          <el-table-column
-            type="index"
-            min-width="100"
-            label="编号">
-          </el-table-column>
-          <el-table-column
-            prop="app_name"
-            min-width="120"
-            label="APP名称">
-          </el-table-column>
-          <el-table-column
-            prop="ver"
-            min-width="120"
-            label="版本号">
-          </el-table-column>
-          <el-table-column
-            prop="review_time"
-            min-width="150"
-            label="时间">
-          </el-table-column>
-          <el-table-column
-            prop="client_id"
-            min-width="200"
-            label="使用KEY">
-          </el-table-column>
-          <el-table-column
-            prop="QrcodeUrl"
-            min-width="120"
-            label="二维码">
+        <TableComponent class="sale-table"
+            :options="tableOptions"
+            :data="tableData.data"
+            v-on:page-change="handleCurrentChange"
+            v-on:selection="handleSelectionChange">
+          <template slot-scope="scope" slot="QrcodeUrl">
+            <ScaleImgComponent :path="scope.row.QrcodeUrl" style="width:5rem;height:5rem" alt="二维码"></ScaleImgComponent>
+            <p class="download" style="font-size: 12px; cursor: pointer" @click="download(scope.row.QrcodeUrl)">下载二维码</p>
+          </template>
+          <template slot-scope="scope" slot="pic1">
+            <ScaleImgComponent :path="scope.row.pic1" style="width:5rem;height:5rem" alt="logo"></ScaleImgComponent>
+          </template>
+          <el-table-column label="操作" width="150" slot="handler">
             <template slot-scope="scope">
-              <ScaleImgComponent :path="scope.row.QrcodeUrl" style="width:5rem;height:5rem" alt="图2"></ScaleImgComponent>
-              <p class="download" style="font-size: 12px; cursor: pointer" @click="download(scope.row.QrcodeUrl)">下载二维码</p>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop=""
-            label="操作"
-            min-width="80">
-            <template slot-scope="scope">
+              <el-button
+                class="btn-circle"
+                size="mini"
+                icon="iconfont icon-bianji"
+                circle
+                v-if="vmHasAuth(CoopPermissionsLib.UPDATE_APP, tableData.res)"
+                @click="updateApp(scope.row)"></el-button>
               <el-button
                 class="btn-circle"
                 size="mini"
@@ -90,38 +63,32 @@
                 @click="operationData('select',scope.$index)"></el-button>
             </template>
           </el-table-column>
-        </el-table>
-      </el-row>
-      <el-row type="flex" justify="center" v-if="totalAll!=0">
-        <el-pagination
-          @current-change="handleCurrentChange"
-          :current-page.sync="selectParam.page"
-          :page-size="selectParam.page_size"
-          layout="prev, pager, next, jumper"
-          :total="totalAll">
-        </el-pagination>
+        </TableComponent>
       </el-row>
     </el-row>
     <el-dialog
       :title="updateStyle==='add' ? 'APP添加' : 'APP升级'"
       center
       :visible.sync="dialogVisible"
-      :close-on-click-modal="false"
-      :before-close="handleClose">
+      :close-on-click-modal="false">
       <el-form status-icon :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" label-width="100px">
         <el-form-item label="升级方式" class="form-row">
           <span class="detail_item" v-show="updateStyle==='update'">更新</span>
           <span class="detail_item" v-show="updateStyle==='add'">添加</span>
         </el-form-item>
         <el-form-item label="APP名称" prop="app_name" class="form-row">
-          <el-select v-model="ruleForm.app_name" placeholder="请选择app名称" no-data-text="无数据" v-show="updateStyle==='add'">
+          <el-select v-model="ruleForm.app_name" @change="changeClientId" placeholder="请选择app名称" no-data-text="无数据" v-show="updateStyle==='add'">
             <el-option
               v-for="(item, index) in clientNames"
               :key="index"
-              :label="item"
-              :value="item"></el-option>
+              :label="item.app_name"
+              :value="item.app_name"></el-option>
           </el-select>
           <el-input v-model="ruleForm.app_name" readonly v-show="updateStyle==='update'"></el-input>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item label="英文名称" prop="en_app_name" class="form-row" v-if="updateStyle==='add'">
+          <el-input v-model="ruleForm.en_app_name" placeholder="请输入app英文名称"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item label="APP ID" prop="client_id" class="form-row" v-if="updateStyle==='update'">
@@ -170,6 +137,24 @@
           <el-input type="textarea" :rows="6" placeholder="请输入升级描述" v-model="appDesc" @change="upgradeLogSet"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
+        <el-form-item class="form-row" label="LOGO" prop="pic1" v-if="updateStyle==='add'">
+          <div class="form-btn-upload">
+            <UploadComponent
+              class="logo-pic"
+              ref="uploaderAppLogo"
+              :path="uploadPathLogo"
+              :previewPath="ruleForm.pic1"
+              :accept="['.jpg', '.jpeg', '.png']"
+              :size="2"
+              :data = "{name: 'pic1'}"
+              model="preview"
+              condition="格式为 jpg\jpeg\png 且小于2M"
+              @response="getLogoUploadResult"
+            ></UploadComponent>
+          </div>
+          <span class="form-tip">*</span>
+        </el-form-item>
+
         <el-form-item class="form-row">
           <el-button type="primary" @click="submitForm" class="btn-submit">提交</el-button>
         </el-form-item>
@@ -179,8 +164,7 @@
       title="APP升级详情"
       center
       :visible.sync="detailDialogVisible"
-      :close-on-click-modal="false"
-      :before-close="handleClose">
+      :close-on-click-modal="false">
       <el-form label-width="100px">
         <el-form-item label="APP名称">
           <span class="detail_item">{{detailData.app_name}}</span>
@@ -213,22 +197,28 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+
+    <AppEditComponent :isVisible="isAppUpdateDialogVisible" :formData="updateData" @close="closeAppUpdateDialog"></AppEditComponent>
   </div>
 </template>
 <script>
 import '@/assets/css/content.css'
 import ScaleImgComponent from '@/components/_ui/scale-img.vue'
 import UploadComponent from '@/components/_ui/upload.vue'
-import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST, GET_CLIENT_NAME_POST, COOP_APP_UPLOAD_POST } from '@/lib/api.js'
+import TableComponent from "@/components/_ui/table.vue";
+import AppEditComponent from './component/app-edit.vue'
+import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST, GET_CLIENT_NAME_POST, COOP_APP_UPLOAD_POST, COOP_APP_LOGO_UPLOAD_POST } from '@/lib/api.js'
 import { appStore, appManageLanguage } from '@/lib/const'
 import _ from 'lodash'
 export default {
-  components: { ScaleImgComponent, UploadComponent },
+  components: { ScaleImgComponent, UploadComponent, TableComponent, AppEditComponent },
   data () {
     let validateIsEmpty = (rule, value, callback) => {
       if (value === '') {
         if (rule.field === 'app_name') {
           callback(new Error('请输入app名称'))
+        } else if (rule.field === 'en_app_name') {
+          callback(new Error('请输入app英文名称'))
         } else if (rule.field === 'ver') {
           callback(new Error('请输入版本号'))
         } else if (rule.field === 'change_log') {
@@ -237,6 +227,8 @@ export default {
           callback(new Error('请输入md5值'))
         } else if (rule.field === 'client_id') {
           callback(new Error('请输入App ID'))
+        } else if (rule.field === 'pic1') {
+          callback(new Error('请上传logo'))
         }
       }
       callback()
@@ -248,30 +240,71 @@ export default {
       multipleSelection: [],
       tableData: {
         data: [],
-        res: []
+        res: [],
+        total: 0
       },
-      selectParam: {
-        page: 1,
-        page_size: 20
+      tableOptions: {
+        loading: true,
+        hasSelection: true,
+        hasNumber: true,
+        pageOptions: {
+          pageSize: 10,
+          total: 0,
+          currentPage: 1
+        },
+        columns: [
+          {
+            label: 'APP名称',
+            prop: 'app_name',
+            width: '120'
+          }, {
+            label: 'LOGO',
+            prop: 'pic1',
+            slotName: 'pic1'
+          }, {
+            prop: 'ver',
+            label: '版本号',
+            width: '120'
+          }, {
+            prop: 'review_time',
+            label: '时间',
+            width: 150
+          }, {
+            prop: 'client_id',
+            label: '使用KEY',
+            width: '200'
+          }, {
+            prop: "QrcodeUrl",
+            label: "二维码",
+            slotName: "QrcodeUrl"
+          }
+        ]
       },
       uploadPath: COOP_APP_UPLOAD_POST,
+      uploadPathLogo: COOP_APP_LOGO_UPLOAD_POST,
       storeName: '',
       storeUrl: '',
       appLanguage: '',
       appDesc: '',
-      totalAll: 0,
       loading: false,
       dialogVisible: false,
       detailDialogVisible: false,
       isDownloadDialogShow: false,
+      isAppUpdateDialogVisible: false,
+      updateData: {},
       ruleForm: {
         client_id: '',
         app_name: '',
+        en_app_name: '',
         ver: '',
         change_log: appManageLanguage,
         url: appStore,
-        md5: ''
+        md5: '',
+        pic1: '',
+        pic2: null
       },
+
+      bootAnimations: { pic1: '', url1: '', pic2: '', url2: '', pic3: '', url3: '' },
       updateStyle: 'update',
       rules: {
         app_name: [
@@ -284,7 +317,13 @@ export default {
         ver: [
           { validator: validateIsEmpty, trigger: 'blur' }
         ],
+        en_app_name: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
         md5: [
+          { validator: validateIsEmpty, trigger: 'blur' }
+        ],
+        pic1: [
           { validator: validateIsEmpty, trigger: 'blur' }
         ]
       },
@@ -306,6 +345,21 @@ export default {
         this.submitForm()
       }
     },
+
+    getLogoUploadResult(res) {
+      this.ruleForm.pic1 = res.path
+    },
+
+    updateApp (row) {
+      this.isAppUpdateDialogVisible = true;
+      this.updateData = _.cloneDeep(row);
+    },
+    closeAppUpdateDialog (isToRefresh) {
+      if (isToRefresh) {
+        this.loadData()
+      }
+      this.isAppUpdateDialogVisible = false
+    },
     getUploadResult (res) {
       if (res) {
         this.ruleForm.md5 = res.md5
@@ -322,15 +376,15 @@ export default {
           this.clientNames = res.data.data
         }
       }).catch(e => {
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
     searchData () {
-      this.selectParam.page = 1
+      this.tableData.pageOptions.currentPage = 1
       this.loadData()
     },
     handleCurrentChange (val) {
-      this.selectParam.page = val
+      this.tableData.pageOptions.currentPage = val
       this.loadData()
     },
     handleSelectionChange (val) {
@@ -383,6 +437,8 @@ export default {
             } else {
               this.ruleForm[key][0].url = value
             }
+          } else if (key === 'pic2') {
+            this.bootAnimations = JSON.parse(value)
           } else {
             this.ruleForm[key] = value
           }
@@ -412,14 +468,11 @@ export default {
               }
             }).catch(e => {
               loading.close()
-              this.vmMsgError('网络错误！')
+              this.vmMsgError('程序错误！')
             })
           }
         })
       }
-    },
-    handleClose (done) {
-      done()
     },
 
     downloadUrlSet () {
@@ -442,6 +495,11 @@ export default {
       !temp ? (this.appDesc = '') : (this.appDesc = temp.desc)
     },
 
+    changeClientId (val) {
+      let temp = this.clientNames.find(o => o.app_name === val)
+      this.ruleForm.client_id = temp.client_id
+    },
+
     loadDownloadDialog () {
       this.isDownloadDialogShow = true
     },
@@ -451,11 +509,16 @@ export default {
       this.isDownloadDialogShow = false
     },
 
+    resetBootAnimation () {
+      this.bootAnimations = { pic1: '', url1: '', pic2: '', url2: '', pic3: '', url3: '' }
+    },
+
     submitForm: _.debounce(function () {
       if (!this.ruleForm.url[0].url) { this.vmMsgError('安卓通用下载地址为必填！'); return }
       if (!this.ruleForm.change_log[0].desc || !this.ruleForm.change_log[1].desc) { this.vmMsgError('中文和英文的升级描述为必填！'); return }
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
+          this.ruleForm.pic2 = this.bootAnimations
           this.ruleForm.url = JSON.stringify(this.ruleForm.url) // 转成字符串传给后台
           this.ruleForm.change_log = JSON.stringify(this.ruleForm.change_log) // 转成字符串传给后台
           let data = this.createFormData(this.ruleForm)
@@ -466,15 +529,17 @@ export default {
             loading.close()
             if (this.vmResponseHandler(res)) {
               if (this.updateStyle === 'add') {
-                this.selectParam.page = 1
+                this.tableOptions.pageOptions.currentPage = 1
               }
               this.dialogVisible = false
+              this.$refs['ruleForm'].resetFields()
+              this.resetBootAnimation()
               this.vmMsgSuccess()
               this.loadData()
             }
           }).catch(e => {
             loading.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         } else {
           return false
@@ -482,17 +547,19 @@ export default {
       })
     }, 300),
     loadData: _.debounce(function () {
-      let data = this.createFormData(this.selectParam)
-      this.loading = true
+      let data = this.createFormData({
+        page: parseInt(this.tableOptions.pageOptions.currentPage),
+        page_size: parseInt(this.tableOptions.pageOptions.pageSize)
+      })
+      this.tableOptions.loading = true
       this.$http.post(APP_SELECT_POST, data).then(res => {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
-          this.totalAll = res.data.total
         }
-        this.loading = false
+        this.tableOptions.loading = false
       }).catch(e => {
-        this.loading = false
-        this.vmMsgError('网络错误！')
+        this.tableOptions.loading = false
+        this.vmMsgError('程序错误！')
       })
     }, 300),
 
@@ -591,4 +658,19 @@ export default {
   .uploader /deep/ .btn-progress {
     left: 0;
   }
+
+  .el-dialog .form-btn-upload {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .start-boot .url {
+    width: 12.5rem;
+    vertical-align: top;
+  }
+  .start-boot .pic /deep/ .upload-left,
+  .logo-pic /deep/ .upload-left {
+    width: 8.33rem;
+  }
+
 </style>

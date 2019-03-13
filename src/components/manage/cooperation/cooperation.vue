@@ -191,7 +191,7 @@ export default {
         this.loading = false
       }).catch(e => {
         this.loading = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     }, 300),
     deleteCoop () {
@@ -213,7 +213,7 @@ export default {
             wait.close()
           }).catch(e => {
             wait.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })
@@ -235,7 +235,7 @@ export default {
         this.loadingKey = false
       }).catch(e => {
         this.loadingKey = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     })
   }

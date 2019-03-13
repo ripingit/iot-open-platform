@@ -222,12 +222,13 @@ export default {
       let deviceCate = row.prodt_code && row.prodt_code.reduce((accumulator, currentValue) => {
         return accumulator + currentValue + '；'
       }, '')
+      const tempPic = JSON.parse(row.pic1_fileid)
       this.reviewData.product_name = row.product_name
       this.reviewData.product_code = row.product_code
       this.reviewData.nbi_code = connect
       this.reviewData.prodt_code = deviceCate
       this.reviewData.review_mark = ''
-      this.reviewData.filePaths = [row.pic1_fileid, row.pic2_fileid]
+      this.reviewData.filePaths = [tempPic.online, tempPic.reset, tempPic.thumb, tempPic.state]
       this.isDetailDialogVisible = true
     },
     getAuditList (currentPage) {
@@ -245,7 +246,7 @@ export default {
         this.loading = false
       }).catch(e => {
         this.loading = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
     deleteAudit () {
@@ -267,7 +268,7 @@ export default {
             wait.close()
           }).catch(e => {
             wait.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })
@@ -292,7 +293,7 @@ export default {
             wait.close()
           }).catch(e => {
             wait.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })

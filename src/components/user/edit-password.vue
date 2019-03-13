@@ -120,7 +120,7 @@ export default {
           this.toResetBtnCode = true
         }
       }).catch((e) => {
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
         this.toResetBtnCode = true
       })
     }, 300),
@@ -133,7 +133,7 @@ export default {
               this.$router.push('/manage/user/home/1')
             }
           }).catch((e) => {
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })

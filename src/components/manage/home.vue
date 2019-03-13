@@ -300,7 +300,7 @@ export default {
           this.polar.series[1].data = res.data.graph.reg_today
         }
       }).catch(e => {
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     }
   }

@@ -75,7 +75,7 @@ export default{
       }
       ).catch(() => {
         this.loading = false
-        this.vmMsgError('网络错误！')
+        this.vmMsgError('程序错误！')
       })
     },
     removePower (row) {
@@ -95,7 +95,7 @@ export default{
             }
           }).catch(() => {
             loading.close()
-            this.vmMsgError('网络错误！')
+            this.vmMsgError('程序错误！')
           })
         }
       })

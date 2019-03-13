@@ -117,7 +117,7 @@ export default {
     color: #fff;
   }
   .timeline-container .log-pre {
-    white-space: pre;
+    white-space: pre-line;
     line-height: 1.4;
   }
 </style>
