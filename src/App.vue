@@ -5,12 +5,12 @@
 </template>
 
 <script>
-import '@/assets/css/element-reset.css'
-import { ADMIN_AUTH_GET, COOP_AUTH_GET } from '@/lib/api.js'
-import { createRoutes } from '@/router/routes/index'
+import "@/assets/css/element-reset.css"
+import { ADMIN_AUTH_GET, COOP_AUTH_GET } from "@/lib/api.js"
+import { createRoutes } from "@/router/routes/index"
 
 export default {
-  name: 'App',
+  name: "App",
   created () {
     // 用于解决界面刷新后路由失效的问题
     if (this.$store.getters.getUserIdentity === this.identityCode.ADMIN) {
@@ -19,7 +19,7 @@ export default {
           this.$router.addRoutes(createRoutes(res.data.title))
         }
       })
-    } else if (this.$store.getters.getUserIdentity === this.identityCode.COOP) {
+    } else if (this.$store.getters.getUserIdentity === this.identityCode.COOP || this.$store.getters.getUserIdentity === this.identityCode.DEALER) {
       this.$http.post(COOP_AUTH_GET).then(res => {
         if (res.data.title) {
           this.$router.addRoutes(createRoutes(res.data.title))

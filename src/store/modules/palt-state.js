@@ -1,16 +1,16 @@
 
 /** 该模块中主要用于平台功能状态的存储 */
 
-import { MENU_UPDATE, AUTH_UPDATE, MENU_TOGGLE_UPDATE } from '@/store/mutations-type'
+import { MENU_UPDATE, AUTH_UPDATE, MENU_TOGGLE_UPDATE } from "@/store/mutations-type"
 
 export const moduleFunctionState = {
   state: {
     // 高亮的菜单
-    highlightMenu: '1',
+    highlightMenu: "1",
     // 菜单权限数据
-    menus: '',
+    menus        : "",
     // 小屏幕时设置菜单是展开还是收缩
-    toggleMenu: false
+    toggleMenu   : false
   },
   mutations: {
     [MENU_UPDATE] (state, payload) {
