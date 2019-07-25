@@ -2,7 +2,7 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-          <p class="title-cn">用户管理</p>
+          <p class="title-cn">{{$t("iot_plat_user_manage")}}</p>
           <p class="title-en">THE USER MANAGEMENT</p>
       </el-col>
     </el-row>
@@ -35,38 +35,38 @@
                 style="width: 100%">
                 <el-table-column
                   type="index"
-                  label="编号"
+                  :label="$t('iot_plat_number')"
                   width="80">
                 </el-table-column>
                 <el-table-column
                   prop="user_name"
-                  label="用户">
+                  :label="$t('iot_plat_user')">
                 </el-table-column>
                 <el-table-column
                   prop="create_time"
-                  label="注册时间">
+                  :label="$t('iot_plat_registered_time')">
                 </el-table-column>
                 <el-table-column
                   prop="site_name"
-                  label="地区">
+                  :label="$t('iot_plat_area')">
                 </el-table-column>
                 <el-table-column
                   prop="login_device"
-                  label="设备">
+                  :label="$t('iot_plat_device')">
                 </el-table-column>
                 <el-table-column
                   prop="login_os"
-                  label="操作系统">
+                  :label="$t('iot_plat_operate_system')">
                 </el-table-column>
                 <el-table-column
                   prop="last_time"
-                  label="最后一次登录">
+                  :label="$t('iot_plat_last_login')">
                 </el-table-column>
                 <el-table-column
                   prop="device_num"
-                  label="绑定设备数">
+                  :label="$t('iot_plat_bind_device_number')">
                 </el-table-column>
-                <el-table-column label="操作">
+                <el-table-column :label="$t('iot_plat_operate')">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"
@@ -95,27 +95,27 @@
       </el-col>
     </el-row>
 
-    <el-dialog title="用户增值服务" :visible.sync="isDialogVisibleList" center>
+    <el-dialog :title="$t('iot_plat_value_added_services_user')" :visible.sync="isDialogVisibleList" center>
       <el-table
         :data="ValueAddedServices"
         :span-method="spanMethod"
         style="width: 100%">
         <el-table-column
           prop="product_name"
-          label="设备"
+          :label="$t('iot_plat_device')"
           width="300">
         </el-table-column>
         <el-table-column
           prop="add_service"
-          label="服务">
+          :label="$t('iot_plat_service')">
         </el-table-column>
         <el-table-column
           prop="open_cycle"
-          label="开通周期">
+          :label="$t('iot_plat_opening_cycle')">
         </el-table-column>
         <el-table-column
           prop="end_of_time"
-          label="到期时间">
+          :label="$t('iot_plat_expire_date')">
         </el-table-column>
       </el-table>
     </el-dialog>
@@ -185,13 +185,12 @@ export default {
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
 
-          // 下列代码待封装
-          this.tableData.data.map(value => { value.user_name = this.encryptUserName(value.user_name) })
+          this.tableData.data.map(value => { value.user_name = this.encryptUserName(value.user_name, true) })
         }
         this.loading = false
       } catch (error) {
         this.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
       
     }

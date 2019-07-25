@@ -1,6 +1,9 @@
 /* eslint-disable no-undef */
 import store from "@/store/index"
+import i18n from "@/lang/index"
 import Vue from "vue"
+
+const vm = new Vue({ i18n })
 
 import { admin, adminRoute } from "./admin"
 import { user, userRoute } from "./coop"
@@ -24,13 +27,13 @@ const layout = [
         name     : "dealerRegister",
         path     : "dealerRegister",
         component: resolve => require([ "@/pages/user/dealer/register" ], resolve),
-        meta     : { title: "注册经销商", identity: [ 0 ] }
+        meta     : { title: vm.$t("iot_plat_registered_dealer"), identity: [ 0 ] }
       },
       {
         path     : "coopApply",
         name     : "coopApply",
         component: resolve => require([ "@/pages/user/coop-apply" ], resolve),
-        meta     : { title: "申请", identity: [ 0 ] }
+        meta     : { title: vm.$t("iot_plat_apply"), identity: [ 0 ] }
       }
     ]
   }

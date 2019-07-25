@@ -1,7 +1,7 @@
 <template>
   <div class="scale-container">
     <i class="icon el-icon-zoom-in" @click="scaleImg"></i>
-    <img ref="imgResource" class="scale-small-pic" :src="path" :alt="alt" title="点击放大查看"/>
+    <img ref="imgResource" class="scale-small-pic" :src="path" :alt="alt" :title="$t('iot_plat_click_scale_view')"/>
   </div>
 </template>
 

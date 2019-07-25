@@ -2,7 +2,7 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">固件审核</p>
+        <p class="title-cn">{{$t("iot_plat_fireware_review")}}</p>
         <p class="title-en">AUDIT MANAGEMENT</p>
       </el-col>
     </el-row>
@@ -31,30 +31,30 @@
           <el-row>
             <el-col :span="24">
               <el-table v-loading="loading" :data="tableData.data" style="width: 100%">
-                <el-table-column type="index" label="编号" width="80"></el-table-column>
-                <el-table-column prop="product_name" label="型号名称" width="200"></el-table-column>
-                <el-table-column prop="product_code" label="型号代码" width="150"></el-table-column>
-                <el-table-column prop="rom_ver" label="固件版本"></el-table-column>
-                <el-table-column prop="company_name" label="归属公司"></el-table-column>
-                <el-table-column prop="upgrade_time" label="提交时间"></el-table-column>
-                <el-table-column prop="is_review" label="状态">
+                <el-table-column type="index" :label="$t('iot_plat_number')" width="80"></el-table-column>
+                <el-table-column prop="product_name" :label="$t('iot_plat_model_name')" width="200"></el-table-column>
+                <el-table-column prop="product_code" :label="$t('iot_plat_model_code')" width="150"></el-table-column>
+                <el-table-column prop="rom_ver" :label="$t('iot_plat_fireware_version')"></el-table-column>
+                <el-table-column prop="company_name" :label="$t('iot_plat_belong_company')" width="180"></el-table-column>
+                <el-table-column prop="upgrade_time" :label="$t('iot_plat_submit_time')"></el-table-column>
+                <el-table-column prop="is_review" :label="$t('iot_plat_state')">
                   <template slot-scope="scope">
                     <span
                       :class="scope.row.is_review === 0 ? 'wait'
                     : scope.row.is_review === 1 ? 'pass'
                     : scope.row.is_review === 2 ? 'reject' : ''"
                     >
-                      {{scope.row.is_review === 0 ? '待审核'
-                      : scope.row.is_review === 1 ? '已通过'
-                      : scope.row.is_review === 2 ? '已驳回' : ''}}
+                      {{scope.row.is_review === 0 ? $t("iot_plat_wating_review")
+                      : scope.row.is_review === 1 ? $t("iot_plat_already_pass")
+                      : scope.row.is_review === 2 ? $t("iot_plat_already_reject") : ''}}
                     </span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="review_mark" label="备注"></el-table-column>
-                <el-table-column prop="review_name" label="审核人"></el-table-column>
-                <el-table-column prop="review_time" label="审核时间"></el-table-column>
+                <el-table-column prop="review_mark" :label="$t('iot_plat_marks')"></el-table-column>
+                <el-table-column prop="review_name" :label="$t('iot_plat_reviewer')"></el-table-column>
+                <el-table-column prop="review_time" :label="$t('iot_plat_review_time')"></el-table-column>
                 <el-table-column
-                  label="操作"
+                  :label="$t('iot_plat_operate')"
                   v-if="vmHasAuth(AdminPermissionsLib.REVIEW_AUDIT_FIRMWARE, tableData.res)"
                 >
                   <template slot-scope="scope">
@@ -86,37 +86,32 @@
       </el-col>
     </el-row>
 
-    <el-dialog title="固件审核" :visible.sync="isDetailDialogVisible" center>
+    <el-dialog :title="$t('iot_plat_fireware_review')" :visible.sync="isDetailDialogVisible" center>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">提交公司</el-col>
-        <el-col :span="22" :sm="21" class="label-value">{{reviewData.company_name}}</el-col>
+        <el-col :span="6" class="label-name">{{$t("iot_plat_submit_company")}}</el-col>
+        <el-col :span="18" class="label-value">{{reviewData.company_name}}</el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">型号</el-col>
-        <el-col :span="22" :sm="21" class="label-value">{{reviewData.product_code}}</el-col>
+        <el-col :span="6" class="label-name">{{$t("iot_plat_model")}}</el-col>
+        <el-col :span="18" class="label-value">{{reviewData.product_code}}</el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">提交版本</el-col>
-        <el-col :span="22" :sm="21" class="label-value">{{reviewData.rom_ver}}</el-col>
+        <el-col :span="6" :sm="3" class="label-name">{{$t("iot_plat_submit_version")}}</el-col>
+        <el-col :span="18" :sm="21" class="label-value">{{reviewData.rom_ver}}</el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">固件</el-col>
-        <el-col :span="22" :sm="21" class="label-value">
-          <a :href="reviewData.file_id" target="_blank" class="download">下载</a>
+        <el-col :span="6" class="label-name">{{$t("iot_plat_fireware")}}</el-col>
+        <el-col :span="18" class="label-value">
+          <a :href="reviewData.file_id" target="_blank" class="download">{{$t("iot_plat_download")}}</a>
         </el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">固件类型</el-col>
-        <el-col :span="22" :sm="21" class="label-value">{{reviewData.rom_type}}</el-col>
+        <el-col :span="6" class="label-name">{{$t("iot_plat_fireware_class")}}</el-col>
+        <el-col :span="18" class="label-value">{{reviewData.rom_type}}</el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">更新说明</el-col>
-        <el-col
-          :span="22"
-          :sm="21"
-          class="label-value log-pre"
-          v-html="vmEscapeToHTML(reviewData.change_log)"
-        ></el-col>
+        <el-col :span="6" :sm="3" class="label-name">{{$t("iot_plat_update_explaine")}}</el-col>
+        <el-col :span="18" class="label-value log-pre" v-html="vmEscapeToHTML(reviewData.change_log)"></el-col>
       </el-row>
       <el-row class="label-sug">
         <el-col :span="24">
@@ -124,7 +119,7 @@
             type="textarea"
             resize="none"
             :rows="4"
-            placeholder="请说明"
+            :placeholder="$t('iot_plat_explaine_please')"
             v-model="reviewData.review_mark"
           ></el-input>
         </el-col>
@@ -137,11 +132,11 @@
       </el-row>-->
       <el-row class="label-sug">
         <el-col :span="11">
-          <el-button class="btn-reject" type="danger" @click="reviewAudit(2)">驳回</el-button>
+          <el-button class="btn-reject" type="danger" @click="reviewAudit(2)">{{$t("iot_plat_reject")}}</el-button>
         </el-col>
         <el-col :span="2">&nbsp;</el-col>
         <el-col :span="11">
-          <el-button class="btn-pass" type="success" @click="reviewAudit(1)">通过</el-button>
+          <el-button class="btn-pass" type="success" @click="reviewAudit(1)">{{$t("iot_plat_pass")}}</el-button>
         </el-col>
       </el-row>
     </el-dialog>
@@ -192,7 +187,7 @@ export default {
       this.reviewData.review_mark = "";
       this.reviewData.state = row.state;
       this.reviewData.upload_status = row.upload_status;
-      this.reviewData.rom_type = this.firmwareTypeCode[row.rom_type];
+      this.reviewData.rom_type = this.$t(this.firmwareTypeCode[row.rom_type]);
       this.isDetailDialogVisible = true;
     },
     async getAuditList(currentPage) {
@@ -209,7 +204,7 @@ export default {
         this.loading = false;  
       } catch (error) {
         this.loading = false;
-        this.vmMsgError("！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     reviewAudit(review) {
@@ -224,24 +219,24 @@ export default {
         const data = this.createFormData({
           product_code: this.reviewData.product_code,
           is_review   : review,
-          review_mark : this.reviewData.review_mark || "无",
+          review_mark : this.reviewData.review_mark || this.$t("iot_plat_none"),
           rom_ver     : this.reviewData.rom_ver
         });
         this.vmConfirm({
-          msg            : review === 1 ? "确认通过该固件的审核？" : "确认驳回该固件的审核？",
+          msg            : review === 1 ? this.$t("iot_plat_confirm_pass_fireware_review") : this.$t("iot_plat_confirm_reject_fireware_review"),
           confirmCallback: async () => {
             const res = await this.$http.post(COOP_FIRMWARE_REVIEW, data)
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page);
               this.isDetailDialogVisible = false;
-              this.vmMsgSuccess("提交成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_submit_success"));
             }
             wait.close();
           }
         });
       } catch (error) {
         wait.close();
-        this.vmMsgError("！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }
   }

@@ -47,8 +47,8 @@
  */
 
 import ScaleImgComponent from "@/components/preview-img/scale-img.vue"
+import mimeToSuffix from "@/lib/mime.js"
 
-const BTN_TEXT = "上传"
 // 进度 100
 const PERCENT_HUNDRED = 100
 // 进度 50
@@ -108,7 +108,9 @@ export default {
     // 按钮文字
     buttonText: {
       type     : String,
-      "default": BTN_TEXT
+      "default": function () {
+        return this.$t("iot_plat_upload")
+      }
     }
   },
   data () {
@@ -130,7 +132,7 @@ export default {
         onlybtn: "btn"
       },
       // 上传按钮显示文字
-      btnText: "上传",
+      btnText: this.$t("iot_plat_upload"),
 
       // 上传成功策略
       successFunc: null,
@@ -173,13 +175,21 @@ export default {
 
     onBeforeUpload (file) {
       const sizeM = file.size / BYTES / BYTES
-      const isInclude = this.accept.some(o => file.type.indexOf(o.replace(".", "")))
+      let isInclude = false
+      // 如果file.type为空，就截取文件名后缀来判断
+      if (!file.type) {
+        const suffix = file.name.slice(file.name.lastIndexOf(".") + 1)
+        isInclude = mimeToSuffix(this.accept).split("、")
+          .includes(suffix)
+      } else {
+        isInclude = this.accept.some(o => file.type.indexOf(o) !== -1)
+      }
       if (this.accept.length > 0 && !isInclude) {
-        this.vmMsgError(`请上传格式为${this.accept.join(`、`)}的文件`)
+        this.vmMsgError(this.$t("iot_plat_upload_specified_format_file", [ mimeToSuffix(this.accept) ]))
         return false
       }
       if (this.size && sizeM > this.size) {
-        this.vmMsgError(`请上传小于${this.size}M的文件`)
+        this.vmMsgError(this.$t("iot_plat_upload_specified_size_file", [ this.size ]))
         return false
       }
     },
@@ -188,7 +198,7 @@ export default {
 
       // 登录状态失效或未登录则返回登录界面
       if (response.statu === 0) {
-        this.vmMsgError("请重新登录")
+        this.vmMsgError(this.$t("iot_plat_relogin_please"))
         this.$router.push("/signin"); return false
       }
 
@@ -200,7 +210,7 @@ export default {
       }
       this.execSuccessStrategy(this.model, file)
       this.$emit("response", response, this.data)
-      this.vmMsgSuccess("上传成功！")
+      this.vmMsgSuccess(this.$t("iot_plat_upload_success"))
     },
     onUploadProgress (event) {
       this.isUploading = true
@@ -253,7 +263,7 @@ export default {
     onlybtnUploadProgress (percent) {
       this.btnText = `${percent}%`
       this.$refs.btnProgress.style.cssText = `width:${percent}%`
-      if (percent === PERCENT_HUNDRED) { this.btnText = `处理中` }
+      if (percent === PERCENT_HUNDRED) { this.btnText = this.$t("iot_plat_processing") }
     },
     onlybtnUploadSuccess () {
       this.btnText = this.buttonText
@@ -374,7 +384,7 @@ export default {
 
 .el-upload .preview-btn {
   height: 8rem;
-  width: 3rem;
+  width: 5rem;
 }
 .el-upload .only-btn {
   height: 2.5rem;

@@ -2,7 +2,7 @@
   <div class="device-model-admin">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">订单管理</p>
+        <p class="title-cn">{{$t("iot_plat_order_manage")}}</p>
         <p class="title-en">THE ORDER MANAGEMENT</p>
       </el-col>
     </el-row>
@@ -17,26 +17,26 @@
                 type="daterange"
                 value-format="yyyy-MM-dd"
                 :editable="false"
-                range-separator="至"
-                start-placeholder="支付时间"
+                :range-separator="$t('iot_plat_to')"
+                :start-placeholder="$t('iot_plat_pay_time')"
               ></el-date-picker>
             </el-form-item>
             <el-form-item label>
-              <el-select v-model="searchForm.networkNode" placeholder="请选择">
-                <el-option v-for="item in networkNodes" :key="item.value" :label="item.label" :value="item.value"></el-option>
+              <el-select v-model="searchForm.networkNode" :placeholder="$t('iot_plat_select_please')">
+                <el-option v-for="item in networkNodes" :key="item.value" :label="$t(item.label)" :value="item.value"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label>
-              <el-select v-model="searchForm.company" placeholder="请选择">
-                <el-option label="全部" value=""></el-option>
+              <el-select v-model="searchForm.company" :placeholder="$t('iot_plat_select_please')">
+                <el-option :label="$t('iot_plat_all')" value=""></el-option>
                 <el-option v-for="item in companyLists" :key="item.company_code" :label="item.name" :value="item.company_code"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label>
-              <el-input v-model="searchForm.key" placeholder="请输入订单号或用户名"></el-input>
+              <el-input v-model="searchForm.key" :placeholder="$t('iot_plat_input_order_number_or_username')"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button class="btn-search" type="primary" @click="getOrderLists">查询</el-button>
+              <el-button class="btn-search" type="primary" @click="getOrderLists">{{$t("iot_plat_query")}}</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -96,62 +96,62 @@ export default {
         },
         columns: [
           {
-            label: "订单号",
+            label: this.$t("iot_plat_order_number"),
             prop : "order_id",
             width: 220
           },
           {
             prop : "class_desc",
-            label: "商品类型"
+            label: this.$t("iot_plat_goods_type")
           },
           {
             prop : "goods_name",
-            label: "商品名称",
+            label: this.$t("iot_plat_goods_name"),
             width: 100
           },
           {
             prop  : "goods_lasteddate",
-            label : "持续时间",
+            label : this.$t("iot_plat_duration"),
             render: value => {
-              const result = value >= MONTH_DAY ? `${value / MONTH_DAY}月` : `${value}天`
+              const result = value >= MONTH_DAY ? `${value / MONTH_DAY}${this.$t("iot_plat_month")}` : `${value}${this.$t("iot_plat_day")}`
               return result
             }
           },
           {
             prop  : "pay_type",
-            label : "支付类型",
+            label : this.$t("iot_plat_pay_type"),
             width : 100,
-            render: value => this.payType[value]
+            render: value => this.$t(this.payType[value])
           },
           {
             prop : "unit",
-            label: "货币类型"
+            label: this.$t("iot_plat_currency_type")
           },
           {
             prop  : "pay_amount",
-            label : "支付金额",
+            label : this.$t("iot_plat_payment_amount"),
             render: value => `${value / PRICE}`
           },
           {
             prop : "payment_time",
-            label: "支付时间",
+            label: this.$t("iot_plat_pay_time"),
             width: 150
           },
           {
             prop : "user_name",
-            label: "用户名",
+            label: this.$t("iot_plat_user_name"),
             width: 140
           },
           {
             prop : "device_id",
-            label: "设备ID",
+            label: this.$t("iot_plat_device_id"),
             width: 240
           },
           {
             prop  : "refund_status",
-            label : "退款状态",
+            label : this.$t("iot_plat_refund_state"),
             render: value => {
-              const result = value === 1 ? "已退款" : ""
+              const result = value === 1 ? this.$t("iot_plat_already_refund") : ""
               return result
             }
             
@@ -190,14 +190,14 @@ export default {
         this.tableOptions.loading = false;
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data.data
-          this.tableData.map(value => { value.user_name = this.encryptUserName(value.user_name) })
+          this.tableData.map(value => { value.user_name = this.encryptUserName(value.user_name, true) })
           this.tableOptions.pageOptions.total = res.data.total;
           // TODO: 是否是每一次获取订单列表都重新渲染公司下拉选择框
           this.companyLists = res.data.company
         }
       } catch (e) {
         this.tableOptions.loading = false;
-        this.vmMsgError("程序错误");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME)
   }

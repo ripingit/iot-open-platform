@@ -6,51 +6,53 @@
           <el-col :span="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
           <el-col :span="20">
             <p class="brand">
-              <i class="iconfont icon-wulianwang logo"></i><span>注册</span>
+              <i class="iconfont icon-wulianwang logo"></i><span>{{$t("iot_plat_registered")}}</span>
             </p>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-form :model="formData" status-icon ref="signUpForm" :rules="rules" label-position="right" label-width="80px">
-              <el-form-item label="账号" prop="user_name" class="row">
+            <el-form :model="formData" status-icon ref="signUpForm" :rules="rules" label-position="right" label-width="150px">
+              <el-form-item :label="$t('iot_plat_account')" prop="user_name" class="row">
                 <el-input
-                  placeholder="请输入手机号/邮箱"
+                  :placeholder="$t('iot_plat_input_phone_emial')"
                   v-model="formData.user_name"
                   clearable>
                 </el-input>
               </el-form-item>
-              <el-form-item label="验证码" prop="vcode" class="code-panel row">
+              <el-form-item :label="$t('iot_plat_vertification_code')" prop="vcode" class="code-panel row">
                 <el-input
-                  placeholder="请输入验证码"
+                  :placeholder="$t('iot_plat_input_vertification_code')"
                   v-model="formData.vcode">
                 </el-input>
                 <CheckCodeComponent :isReset="toResetBtnCode" v-on:emit-statu="getVerificationCode"></CheckCodeComponent>
               </el-form-item>
-              <el-form-item label="输入密码" prop="text_pass" class="row">
+              <el-form-item :label="$t('iot_plat_password')" prop="text_pass" class="row">
                 <el-input
                   type="password"
-                  placeholder="请输入密码"
+                  :placeholder="$t('iot_plat_input_pwd_please')"
                   v-model="formData.text_pass">
                   <i slot="suffix" class="iconfont icon-chakanmima_guan"></i>
                 </el-input>
               </el-form-item>
-              <el-form-item label="确认密码" prop="confirmPassword">
+              <el-form-item :label="$t('iot_plat_confirm_password')" prop="confirmPassword">
                 <el-input
                   type="password"
-                  placeholder="请再次输入密码"
+                  :placeholder="$t('iot_plat_input_password_again')"
                   v-model="formData.confirmPassword">
                   <i slot="suffix" class="iconfont icon-chakanmima_guan"></i>
                 </el-input>
               </el-form-item>
               <el-form-item class="forgot" prop="protocolChecked">
-                <el-checkbox v-model="formData.protocolChecked">同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a></el-checkbox>
+                <el-checkbox v-model="formData.protocolChecked">{{$t("iot_plat_agree_mktech_protocol")}}
+                  <!-- 同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a> -->
+                </el-checkbox>
               </el-form-item>
               <el-form-item>
-                <el-button class="btn-signup" type="primary" @click="signUp">注册</el-button>
+                <el-button class="btn-signup" type="primary" @click="signUp">{{$t("iot_plat_registered")}}</el-button>
               </el-form-item>
               <el-form-item>
-                <router-link to="/signin" class="sign-up">已有账号？去登录</router-link>
+                <router-link to="/signin" class="sign-up">{{$t("iot_plat_have_account_and_login")}}</router-link>
               </el-form-item>
             </el-form>
           </el-col>
@@ -70,12 +72,12 @@ export default {
   data () {
     const validateAccount = (rule, value, callback) => {
       if (value === "") {
-        callback(new Error("请输入账号"))
+        callback(new Error(this.$t("iot_plat_input_account")))
       } else {
         const isEmail = validateEmail(value)
         const isPhone = validatePhone(value)
         if (!isEmail && !isPhone) {
-          callback(new Error("请输入正确的账号"))
+          callback(new Error(this.$t("iot_plat_input_corret_account")))
         }
         callback()
       }
@@ -84,9 +86,9 @@ export default {
     const validateIsEmpty = (rule, value, callback) => {
       if (value === "") {
         if (rule.field === "vcode") {
-          callback(new Error("请输入验证码"))
+          callback(new Error(this.$t("iot_plat_input_vertification_code")))
         } else if (rule.field === "text_pass") {
-          callback(new Error("请输入密码"))
+          callback(new Error(this.$t("iot_plat_input_pwd_please")))
         }
       }
       callback()
@@ -94,16 +96,16 @@ export default {
 
     const validatePassPass = (rule, value, callback) => {
       if (value === "") {
-        callback(new Error("请再次输入密码"))
+        callback(new Error(this.$t("iot_plat_input_password_again")))
       } else if (value !== this.formData.text_pass) {
-        callback(new Error("两次输入密码不一致!"))
+        callback(new Error(this.$t("iot_plat_twice_input_not_same")))
       } else {
         callback()
       }
     }
     const validateProtocol = (rule, value, callback) => {
       if (!value) {
-        callback(new Error("请勾选同意《迈科智能用户协议》"))
+        callback(new Error(this.$t("iot_plat_agree_mktech_protocol_please")))
       } else {
         callback()
       }
@@ -123,7 +125,7 @@ export default {
           { validator: validateAccount, trigger: "blur" }
         ],
         text_pass: [
-          { validator: validateIsEmpty, trigger: "blur" }, { min: 8, max: 30, message: "长度在 8 到 30 个字符", trigger: "blur" }
+          { validator: validateIsEmpty, trigger: "blur" }, { min: 8, max: 50, message: this.$t("iot_plat_str_length_limit"), trigger: "blur" }
         ],
         confirmPassword: [
           { validator: validatePassPass, trigger: "blur" }
@@ -153,7 +155,7 @@ export default {
     getVerificationCode: _.debounce(async function () {
       if (!this.formData.user_name) {
         this.toResetBtnCode = !this.toResetBtnCode
-        return this.vmMsgWarning("请填写手机号或邮箱"); 
+        return this.vmMsgWarning(this.$t("iot_plat_input_phone_emial")); 
       }
       try {
         const data = this.createFormData({
@@ -162,12 +164,12 @@ export default {
         })
         const res = await this.$http.post(CODE_POST, data)
         if (this.vmResponseHandler(res)) {
-          this.vmMsgSuccess("验证码已发送！")
+          this.vmMsgSuccess(this.$t("iot_plat_vertification_code_sended"))
         } else {
           this.toResetBtnCode = !this.toResetBtnCode
         }  
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
         this.toResetBtnCode = !this.toResetBtnCode
       }
     }, this.DEBOUNCE_TIME),
@@ -177,13 +179,13 @@ export default {
           if (valid) {
             const res = await this.$http.post(SIGNUP_POST, this.createFormData(this.formData))
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("注册成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_registered_success"))
               this.$router.push("/signin")
             }
           }
         })
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME)
   }
@@ -202,7 +204,7 @@ export default {
   .container {
     height: 100%;
     position: relative;
-    background: url('../../assets/img/bg.jpg') no-repeat;
+    background: url('../assets/img/bg.jpg') no-repeat;
     background-size: cover;
   }
   .panel {

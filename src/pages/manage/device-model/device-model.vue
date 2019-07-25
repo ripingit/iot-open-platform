@@ -2,13 +2,14 @@
   <div class="device-model-admin">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">设备型号</p>
+        <p class="title-cn">{{$t("iot_plat_device_model")}}</p>
         <p class="title-en">UNIT TYPE</p>
       </el-col>
     </el-row>
     <el-row class="table">
       <el-row>
         <el-col :span="24">
+          <!-- 搜索栏开始 -->
           <el-form :inline="true" :model="formInline" class="demo-form-inline">
             <el-form-item label>
               <el-date-picker
@@ -17,25 +18,28 @@
                 type="daterange"
                 value-format="yyyy-MM-dd"
                 :editable="false"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
+                :range-separator="$t('iot_plat_to')"
+                :start-placeholder="$t('iot_plat_start_date')"
+                :end-placeholder="$t('iot_plat_end_date')"
               ></el-date-picker>
             </el-form-item>
             <el-form-item label>
               <el-input v-model="formInline.query_by_name"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="onSubmit">查询</el-button>
+              <el-button type="primary" @click="onSubmit">{{$t("iot_plat_query")}}</el-button>
             </el-form-item>
             <el-form-item>
               <el-button
                 type="primary"
                 @click="onModelTransfer"
                 v-if="vmHasAuth(AdminPermissionsLib.TRANS_DEVICE, resData.res)"
-              >转移</el-button>
+              >{{$t("iot_plat_transfer")}}</el-button>
             </el-form-item>
           </el-form>
+          <!-- 搜索栏结束 -->
+
+          <!-- 右上角添加删除开始 -->
           <el-button
             icon="el-icon-delete"
             type="danger"
@@ -44,17 +48,19 @@
             v-if="vmHasAuth(AdminPermissionsLib.DEL_DEVICE_MODEL, resData.res)"
             @click="Delete()"
           ></el-button>
+          <!-- 右上角添加删除结束 -->
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="24">
+          <!-- 表格开始 -->
           <TableComponent
             :options="tableOptions"
             :data="tableData"
             v-on:page-change="onSubmit"
             v-on:selection="handleSelectionChange"
           >
-            <el-table-column prop label="操作" slot="handler">
+            <el-table-column prop :label="$t('iot_plat_operate')" slot="handler">
               <template slot-scope="scope">
                 <el-button
                   class="btn-circle"
@@ -77,30 +83,34 @@
               <ScaleImgComponent
                 :path="typeof scope.row.pic1_fileid === 'string' ? scope.row.pic1_fileid : scope.row.pic1_fileid.thumb"
                 style="width:6rem;height:6rem"
-                alt="缩略图"
+                :alt="$t('iot_plat_thumb')"
               ></ScaleImgComponent>
             </template>
           </TableComponent>
+          <!-- 表格结束 -->
         </el-col>
       </el-row>
     </el-row>
 
+    <!-- 型号配置 -->
     <ModelConfigComponent :isVisible="isConfigModalVisible" :data="dialogData" @close="modelConfigDialogClose"></ModelConfigComponent>
 
+    <!-- 型号编辑 -->
     <EditModelComponent
       :isVisible="dialogVisible"
       :formData="editFormData"
       :nbiCode="nbi_code_options"
+      :resetCode="resetCode"
       :productCode="prodt_code_options"
       @close="editModelDialogClose"></EditModelComponent>
 
-    <ModelTransferComponent :isVisible="isTransferVisible"></ModelTransferComponent>
+    <!-- 转移 -->
+    <ModelTransferComponent :isVisible="isTransferVisible" @close="isTransferVisible = false"></ModelTransferComponent>
   </div>
 </template>
 <script>
 import "@/assets/css/content.css";
 import _ from "lodash";
-import { validateProductCode } from "@/lib/validate.js";
 import ScaleImgComponent from "@/components/preview-img/scale-img.vue";
 import TableComponent from "@/components/table/table.vue";
 import EditModelComponent from "./component/edit-model.vue";
@@ -109,46 +119,10 @@ import ModelTransferComponent from "./component/mode-transfer.vue";
 import {
   EQUIPMENT_MODEL_QUERY,
   EQUIPMENT_MODEL_DELETE
-} from "../../../lib/api.js";
+} from "@/lib/api.js";
 export default {
   components: { ScaleImgComponent, TableComponent, EditModelComponent, ModelConfigComponent, ModelTransferComponent },
   data() {
-    const validateIsEmpty = (rule, value, callback) => {
-      if (value === "") {
-        if (rule.field === "product_name") {
-          callback(new Error("请输入型号名称"));
-        } else if (rule.field === "product_code") {
-          callback(new Error("请输入型号代码"));
-        } else if (rule.field === "nbi_code") {
-          callback(new Error("请选择连接方式"));
-        } else if (rule.field === "prodt_code") {
-          callback(new Error("请选择设备类别"));
-        } else if (rule.field === "pic1_fileid") {
-          callback(new Error("请上传图1"));
-        } else if (rule.field === "pic2_fileid") {
-          callback(new Error("请上传图2"));
-        } else if (rule.field === "class0") {
-          callback(new Error("请选择设备分类"));
-        } else if (rule.field === "dec") {
-          callback(new Error("请选择解码方式"));
-        } else if (rule.field === "chans") {
-          callback(new Error("请输入设备通道数"));
-        } else if (rule.field === "pipc_dv") {
-          callback(new Error("请选择设备通道数"));
-        } else if (rule.field === "audio") {
-          callback(new Error("请选择音频模式"));
-        } else if (rule.field === "num") {
-          callback(new Error("请输入按钮数量"));
-        } else if (rule.field === "num2") {
-          callback(new Error("请输入开关数量"));
-        }
-      } else if (rule.field === "product_code") {
-        if (!validateProductCode(value)) {
-          callback(new Error("最大长度不超过6位字符，且只能包含字母和数字"));
-        }
-      }
-      callback();
-    };
     return {
       editFormData: {
         product_name: "",
@@ -161,17 +135,6 @@ export default {
           reset : "",
           thumb : ""
         }
-      },
-      rules: {
-        pic1_fileid: [ { validator: validateIsEmpty, trigger: "blur" } ],
-        pic2_fileid: [ { validator: validateIsEmpty, trigger: "blur" } ],
-        class0     : [ { validator: validateIsEmpty, trigger: "change" } ],
-        dec        : [ { validator: validateIsEmpty, trigger: "change" } ],
-        chans      : [ { validator: validateIsEmpty, trigger: "blur" } ],
-        pipc_dv    : [ { validator: validateIsEmpty, trigger: "change" } ],
-        audio      : [ { validator: validateIsEmpty, trigger: "change" } ],
-        num        : [ { validator: validateIsEmpty, trigger: "blur" } ],
-        num2       : [ { validator: validateIsEmpty, trigger: "blur" } ]
       },
 
       dialogVisible    : false,
@@ -201,6 +164,7 @@ export default {
       loading             : false,
       multipleSelection   : [],
       nbi_code_options    : [],
+      resetCode           : [],
       prodt_code_options  : [],
       tableOptions        : {
         loading     : true,
@@ -213,33 +177,33 @@ export default {
         },
         columns: [
           {
-            label: "型号名称",
+            label: this.$t("iot_plat_model_name"),
             prop : "product_name"
           },
           {
             prop : "product_code",
-            label: "型号代码"
+            label: this.$t("iot_plat_model_code")
           },
           {
             prop : "nbi_code",
-            label: "连接方式"
+            label: this.$t("iot_plat_connection_way")
           },
           {
             prop    : "pic1_fileid",
-            label   : "缩略图",
+            label   : this.$t("iot_plat_thumb"),
             slotName: "pic1_fileid"
           },
           {
             prop : "rom_ver",
-            label: "固件版本"
+            label: this.$t("iot_plat_fireware_version")
           },
           {
             prop : "upgrade_time",
-            label: "添加时间"
+            label: this.$t("iot_plat_add_time")
           },
           {
             prop : "company_name",
-            label: "所属公司",
+            label: this.$t("iot_plat_own_company"),
             width: 200
           }
         ]
@@ -302,6 +266,7 @@ export default {
               codeObj[subval.nbi_code] = subval.nbi_code_name;
             });
           });
+          this.resetCode = res.data.Reset
           res.data.prodtList.forEach(val => {
             this.prodt_code_options = val;
           });
@@ -324,12 +289,12 @@ export default {
         }
       } catch (error) {
         this.tableOptions.loading = false;
-        this.vmMsgError("程序错误");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
     Delete() {
       if (!this.multipleSelection.length) {
-        return this.vmMsgWarning("请选择记录");
+        return this.vmMsgWarning(this.$t("iot_plat_select_value_please"));
       }
       const loading = this.vmLoadingFull();
       try {
@@ -339,24 +304,27 @@ export default {
         });
         const param = this.createFormData({ product_code: JSON.stringify(codeArr) });
         this.vmConfirm({
-          msg            : "确定删除该记录？",
+          msg            : this.$t("iot_plat_confirm_delete_data"),
           confirmCallback: async () => {
             const res = await this.$http.post(EQUIPMENT_MODEL_DELETE, param)
             loading.close();
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("删除成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_delete_success"));
               this.onSubmit();
             }
+          },
+          cancelCallback: () => {
+            loading.close()
           }
         }); 
       } catch (error) {
         loading.close();
-        this.vmMsgError("程序错误");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     editDevice(row) {
       if (row.is_review !== 1) {
-        return this.vmMsgWarning("只有通过审核才能进行型号配置！");
+        return this.vmMsgWarning(this.$t("iot_plat_only_review_to_model_config"));
       }
       this.dialogData = row;
       this.isConfigModalVisible = true

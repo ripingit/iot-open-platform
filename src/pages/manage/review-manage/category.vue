@@ -2,7 +2,7 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-          <p class="title-cn">审核管理-类别</p>
+          <p class="title-cn">{{$t("iot_plat_review_manage_category")}}</p>
           <p class="title-en">AUDIT MANAGEMENT</p>
       </el-col>
     </el-row>
@@ -45,48 +45,48 @@
                 </el-table-column>
                 <el-table-column
                   type="index"
-                  label="编号"
-                  min-width="100">
+                  :label="$t('iot_plat_number')"
+                  width="80">
                 </el-table-column>
                 <el-table-column
                   prop="prodt_name"
-                  label="类别名称">
+                  :label="$t('iot_plat_class_name')">
                 </el-table-column>
                 <el-table-column
                   prop="user_name"
-                  label="提交用户">
+                  :label="$t('iot_plat_submit_user')">
                 </el-table-column>
                 <el-table-column
                   prop="create_time"
-                  label="提交时间">
+                  :label="$t('iot_plat_submit_time')">
                 </el-table-column>
                 <el-table-column
-                  label="状态">
+                  :label="$t('iot_plat_state')">
                   <template slot-scope="scope">
                     <span :class="scope.row.is_review === 0 ? 'wait'
                     : scope.row.is_review === 1 ? 'pass'
                     : scope.row.is_review === 2 ? 'reject' : ''">
-                    {{scope.row.is_review === 0 ? '待审核'
-                    : scope.row.is_review === 1 ? '已通过'
-                    : scope.row.is_review === 2 ? '已驳回' : ''}}
+                    {{scope.row.is_review === 0 ? $t("iot_plat_wating_review")
+                    : scope.row.is_review === 1 ? $t("iot_plat_already_pass")
+                    : scope.row.is_review === 2 ? $t("iot_plat_already_reject") : ''}}
                     </span>
                   </template>
                 </el-table-column>
                 <el-table-column
                   prop="review_mark"
-                  label="备注">
+                  :label="$t('iot_plat_marks')">
                 </el-table-column>
                 <el-table-column
                   prop="review_uid"
-                  label="审核人">
+                  :label="$t('iot_plat_reviewer')">
                 </el-table-column>
                 <el-table-column
                   prop="review_time"
-                  label="审核时间">
+                  :label="$t('iot_plat_review_time')">
                 </el-table-column>
                 <el-table-column
                   min-width="120"
-                  label="操作">
+                  :label="$t('iot_plat_operate')">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"
@@ -119,16 +119,16 @@
         </div>
       </el-col>
     </el-row>
-    <el-dialog title="类别详情" :visible.sync="isDetailDialogVisible" center>
+    <el-dialog :title="$t('iot_plat_category_detail')" :visible.sync="isDetailDialogVisible" center>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">类别名称</el-col>
-        <el-col :span="22" :sm="21" class="label-value">
+        <el-col :span="6" class="label-name">{{$t("iot_plat_class_name")}}</el-col>
+        <el-col :span="18" class="label-value">
           {{detailData.prodt_name}}
         </el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">类别代码</el-col>
-        <el-col :span="22" :sm="21" class="label-value">
+        <el-col :span="6" class="label-name">{{$t("iot_plat_class_code")}}</el-col>
+        <el-col :span="18" class="label-value">
           {{detailData.prodt_code}}
         </el-col>
       </el-row>
@@ -145,18 +145,18 @@
             resize="none"
             :readonly="detailData.is_review!==0"
             :rows="4"
-            placeholder="请说明"
+            :placeholder="$t('iot_plat_explaine_please')"
             v-model="detailData.review_mark">
           </el-input>
         </el-col>
       </el-row>
       <el-row class="label-sug" v-show="detailData.is_review===0">
         <el-col :span="11">
-          <el-button class="btn-reject" type="danger" @click="reviewCategory(2)">驳回</el-button>
+          <el-button class="btn-reject" type="danger" @click="reviewCategory(2)">{{$t("iot_plat_reject")}}</el-button>
         </el-col>
         <el-col :span="2">&nbsp;</el-col>
         <el-col :span="11">
-          <el-button class="btn-pass" type="success" @click="reviewCategory(1)">通过</el-button>
+          <el-button class="btn-pass" type="success" @click="reviewCategory(1)">{{$t("iot_plat_pass")}}</el-button>
         </el-col>
       </el-row>
     </el-dialog>
@@ -207,26 +207,29 @@ export default {
           loading = this.vmLoadingFull()
           const data = this.createFormData({ prodt_code: JSON.stringify(this.selectedData.map(o => o.prodt_code)) })
           this.vmConfirm({
-            msg            : "确定删除该记录？",
+            msg            : this.$t("iot_plat_confirm_delete_data"),
             confirmCallback: async () => {
               const res = await this.$http.post(REVIEW_AUDIT_CATEGORY_DEL, data)
               loading.close()
               if (this.vmResponseHandler(res)) {
-                this.vmMsgSuccess("删除成功！")
+                this.vmMsgSuccess(this.$t("iot_plat_delete_success"))
                 this.loadData()
               }
+            },
+            cancelCallback: () => {
+              loading.close()
             }
           })
         }
       } catch (error) {
         loading.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     async reviewCategory (index) {
       const INDEX = 2
       if (index === INDEX && this.detailData.review_mark === "") {
-        return this.vmMsgWarning("驳回时说明为必填项！")
+        return this.vmMsgWarning(this.$t("iot_plat_reject_explaine_required"))
       }
       const loading = this.vmLoadingFull()
       try {      
@@ -244,7 +247,7 @@ export default {
         }
       } catch (error) {
         loading.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     handleCurrentChange (val) {
@@ -265,7 +268,7 @@ export default {
         this.loading = false
       } catch (error) {
         this.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }
   }

@@ -2,6 +2,9 @@
 import Vue from "vue"
 import Router from "vue-router"
 import store from "@/store/index"
+import i18n from "@/lang/index"
+
+const vm = new Vue({ i18n })
 
 Vue.use(Router)
 const router = new Router({
@@ -12,13 +15,13 @@ const router = new Router({
     },
     {
       path     : "/signin",
-      component: resolve => require([ "@/pages/user/sign-in" ], resolve),
-      meta     : { title: "登录" }
+      component: resolve => require([ "@/pages/sign-in" ], resolve),
+      meta     : { title: vm.$t("iot_plat_login") }
     },
     {
       path     : "/signup",
-      component: resolve => require([ "@/pages/user/sign-up" ], resolve),
-      meta     : { title: "注册" }
+      component: resolve => require([ "@/pages/sign-up" ], resolve),
+      meta     : { title: vm.$t("iot_plat_registered") }
     }
   ]
 })

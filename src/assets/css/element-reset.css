@@ -146,6 +146,29 @@
 .el-picker-panel .el-picker-panel__icon-btn{
   color: #fff;
 }
+
+.el-picker-panel .el-date-range-picker__editor {
+  background: rgba(95, 95, 95, 0.2);
+}
+
+.el-picker-panel .el-picker-panel__footer {
+  background: #292c31;
+  border-top: solid 1px #606266;
+}
+
+.el-picker-panel .el-picker-panel__footer .el-button {
+  width: auto;
+  background: transparent;
+  color: #66b1ff
+}
+
+.el-picker-panel .el-picker-panel__footer .el-button.is-plain:hover {
+  background: transparent;
+  color: #66b1ff;
+}
+
+
+
 .el-picker-panel .el-date-table th {
   border-bottom: solid 1px #606266;
 }
@@ -295,7 +318,8 @@ padding: 25px 66px;
 }
 .el-dialog .label-value {
   padding-left: 1.92rem;
-  color: #ffffff
+  color: #ffffff;
+  word-break: break-all;
 }
 .el-dialog .label-sug {
   padding: 0 3rem;

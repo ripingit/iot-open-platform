@@ -2,7 +2,7 @@
   <div class="device-model-admin">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">设备绑定</p>
+        <p class="title-cn">{{$t("iot_plat_device_bind")}}</p>
         <p class="title-en">THE DEVICE BINDING</p>
       </el-col>
     </el-row>
@@ -27,8 +27,8 @@
               </el-select>
             </el-form-item> -->
             <el-form-item>
-              <el-select v-model="searchForm.userId" placeholder="请选择用户">
-                <el-option value="">全部</el-option>
+              <el-select v-model="searchForm.userId" :placeholder="$t('iot_plat_select_user')">
+                <el-option value="">{{$t("iot_plat_all")}}</el-option>
                 <el-option
                   v-for="item in bindManagers"
                   :key="item.user_id"
@@ -38,10 +38,10 @@
               </el-select>
             </el-form-item>
             <el-form-item>
-              <el-input v-model="searchForm.deviceId" placeholder="请输入设备ID"></el-input>
+              <el-input v-model="searchForm.deviceId" :placeholder="$t('iot_plat_input_device_id')"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button class="btn-search" type="primary" @click="getBindLists">查询</el-button>
+              <el-button class="btn-search" type="primary" @click="getBindLists">{{$t("iot_plat_query")}}</el-button>
             </el-form-item>
           </el-form>
           <el-button
@@ -68,10 +68,10 @@
             v-on:page-change="getBindLists"
           >
             <el-table-column 
-                label="操作" 
+                :label="$t('iot_plat_operate')" 
                 slot="handler" 
-                width="80px" 
-                v-if="vmHasAuth(CoopPermissionsLib.DEL_DEVICE_BIND, tableData.res)">
+                width="120px"
+                v-if="vmHasAuth(CoopPermissionsLib.DEL_DEVICE_BIND, tableData.res) || vmHasAuth(CoopPermissionsLib.DEVICE_LOG_REPORT, tableData.res)">
               <template slot-scope="scope">
                 <el-button
                   class="btn-circle"
@@ -80,12 +80,24 @@
                   circle
                   @click="untied(scope.row)"
                 ></el-button>
+                <el-button
+                  v-if="vmHasAuth(CoopPermissionsLib.DEVICE_LOG_REPORT, tableData.res)"
+                  class="btn-circle"
+                  icon="iconfont icon-rizhi"
+                  size="mini"
+                  circle
+                  @click="logReport(scope.row)"
+                ></el-button>
               </template>
             </el-table-column>
           </TableComponent>
         </el-col>
       </el-row>
     </el-row>
+
+    <el-dialog :title="$t('iot_plat_log_report')" width="50rem" :visible.sync="isLogReportVisible" center>
+      <LogReportComponent :deviceId="deviceId" :data="LogData" @close="onCloseLogReport"></LogReportComponent>
+    </el-dialog>
 
     <AddDeviceBindComponent 
       :isVisible="isAddDeviceBindVisible" 
@@ -97,10 +109,11 @@
 </template>
 <script>
 import "@/assets/css/content.css";
+import { logLevels, protocols } from "@/lib/mixins"
 import _ from "lodash";
 import TableComponent from "@/components/table/table.vue";
 import AddDeviceBindComponent from "./component/add-device-bind"
-
+import LogReportComponent from "./component/log-report-setting"
 import {
   COOP_DEVICE_BIND_QUERY,
   COOP_DEL_DEVICE_BIND,
@@ -111,12 +124,15 @@ import {
 const MILL_SECOND = 1000
 
 export default {
-  components: { TableComponent, AddDeviceBindComponent },
+  components: { TableComponent, AddDeviceBindComponent, LogReportComponent },
   data() {
     return {
       isAddDeviceBindVisible: false,
+      isLogReportVisible    : false,
       bindManagers          : [],
       bindModel             : 0,
+      deviceId              : "",
+      LogData               : {},
       searchForm            : {
         userId  : "",
         deviceId: ""
@@ -136,23 +152,39 @@ export default {
         },
         columns: [
           {
-            label: "设备ID",
+            label: this.$t("iot_plat_device_id"),
             prop : "device_id",
             width: 280
           },
           {
             prop  : "create_time",
-            label : "绑定时间",
+            label : this.$t("iot_plat_bind_time"),
             render: value => {
               if (value !== 0) {
-                return this.dateFormat(new Date(value * MILL_SECOND), "yyyy-MM-dd hh:mm:ss")
+                return this.formatDate(new Date(value * MILL_SECOND), "yyyy-MM-dd hh:mm:ss")
               }
             }
           },
           {
             prop : "user_name",
-            label: "绑定",
+            label: this.$t("iot_plat_bind"),
             width: 150
+          },
+          {
+            prop  : "log_level",
+            label : this.$t("iot_plat_log_report_level"),
+            render: val => {
+              const level = logLevels.find(o => o.id === val)
+              return level ? this.$t(level.label) : ""
+            }
+          },
+          {
+            prop  : "transfer_proto",
+            label : this.$t("iot_plat_log_report_way"),
+            render: val => {
+              const protocol = protocols.find(o => o.id === val)
+              return protocol ? this.$t(protocol.label) : ""
+            }
           }
         ]
       }
@@ -190,6 +222,19 @@ export default {
       this.isAddDeviceBindVisible = false
     },
 
+    onCloseLogReport (isToRefresh) {
+      if (isToRefresh) {
+        this.getBindLists()
+      }
+      this.isLogReportVisible = false 
+    },
+
+    logReport (row) {
+      this.isLogReportVisible = true
+      this.deviceId = row.device_id
+      this.LogData = row
+    },
+
     async getBindManger () {
       try {
         const res = await this.$http.post(COOP_MANAGER_QUERY)
@@ -197,14 +242,14 @@ export default {
           this.bindManagers = res.data.data
         }
       } catch (error) {
-        this.vmMsgError("程序错误");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
 
     getBindLists: _.debounce(async function() {
       // const MILL_SECOND = 1000
       if (this.searchForm.userId && this.searchForm.deviceId) {
-        return this.vmMsgWarning("无法同时通过用户和设备ID查询！");
+        return this.vmMsgWarning(this.$t("iot_plat_unable_query_user_and_deviceid"));
       }
       try {
         const param = this.createFormData({
@@ -227,18 +272,18 @@ export default {
         }
       } catch (e) {
         this.tableOptions.loading = false;
-        this.vmMsgError("程序错误");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
 
     untied: _.debounce(function (row) {
       if (row.create_time === 0) {
-        return this.vmMsgWarning("该设备未被绑定！")
+        return this.vmMsgWarning(this.$t("iot_plat_device_not_bind"))
       }
       const loading = this.vmLoadingFull()
       try {
         this.vmConfirm({
-          msg            : "确认解绑设备吗？",
+          msg            : this.$t("iot_plat_confirm_unbind_device"),
           confirmCallback: async () => {
             const data = this.createFormData({
               user_id   : row.user_id,
@@ -248,7 +293,7 @@ export default {
             const res = await this.$http.post(COOP_DEL_DEVICE_BIND, data)
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("解绑成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_unbind_success"))
               this.getBindLists()
             }
           },
@@ -258,7 +303,7 @@ export default {
         })
       } catch (error) {
         loading.close();
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME)
   }

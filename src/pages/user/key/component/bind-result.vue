@@ -1,16 +1,16 @@
 <template>
-  <el-dialog title="创建管理" :visible.sync="isVisible" width="50rem" center class="dialog">
+  <el-dialog :title="$t('iot_plat_create_manage')" :visible.sync="isVisible" width="50rem" center class="dialog">
     <el-row class="row">
-      <el-col :span="4" class="label-left">用户名：</el-col>
+      <el-col :span="4" class="label-left">{{$t('iot_plat_user_name')}}：</el-col>
       <el-col :span="20">{{data.user_name}}</el-col>
     </el-row>
     <el-row class="row">
-      <el-col :span="4" class="label-left">密码：</el-col>
+      <el-col :span="4" class="label-left">{{$t("iot_plat_password")}}：</el-col>
       <el-col :span="20">{{data.password}}</el-col>
     </el-row>
     <el-row class="row">
       <el-col :span="24" class="btn-container">
-        <el-button type="primary" class="btn" @click="isVisible = false">确 定</el-button>
+        <el-button type="primary" class="btn" @click="isVisible = false">{{$t("iot_plat_confirm")}}</el-button>
       </el-col>
     </el-row>
   </el-dialog>
@@ -34,7 +34,7 @@ export default {
       const loading = this.vmLoadingFull()
       try {
         this.vmConfirm({
-          msg            : "该操作将生成一个新的账号，确认继续吗？",
+          msg            : this.$t("iot_plat_confirm_create_new_account"),
           confirmCallback: async () => {
             const data = this.createFormData({ client_id: clientId })
             const res = await this.$http.post(COOP_DEVICE_BIND_MANAGE, data)
@@ -44,14 +44,14 @@ export default {
               this.$emit("refresh")
               this.data.user_name = res.data.user_name
               this.data.password = res.data.password
-              this.vmMsgSuccess("创建成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_create_success"))
             }
           },
           cancelCallback: () => loading.close()
         })
       } catch (error) {
         loading.close();
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }
   }

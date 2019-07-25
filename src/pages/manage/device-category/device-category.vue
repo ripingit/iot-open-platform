@@ -2,13 +2,14 @@
   <div class="device-category">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">设备类别</p>
+        <p class="title-cn">{{$t("iot_plat_device_class")}}</p>
         <p class="title-en">EQUIPMENT CATEGORY</p>
       </el-col>
     </el-row>
     <el-row class="table">
      <el-row>
        <el-col :span="24">
+         <!-- 搜索栏开始 -->
          <el-form :inline="true" :model="formInline" class="demo-form-inline">
            <el-form-item label="">
              <el-date-picker
@@ -17,18 +18,21 @@
                type="daterange"
                value-format="yyyy-MM-dd"
                :editable="false"
-               range-separator="至"
-               start-placeholder="开始日期"
-               end-placeholder="结束日期">
+               :range-separator="$t('iot_plat_to')"
+               :start-placeholder="$t('iot_plat_start_date')"
+               :end-placeholder="$t('iot_plat_end_date')">
              </el-date-picker>
            </el-form-item>
            <el-form-item label="">
              <el-input v-model="formInline.query_by_name"></el-input>
            </el-form-item>
            <el-form-item>
-             <el-button type="primary" @click="onSubmit">查询</el-button>
+             <el-button type="primary" @click="onSubmit">{{$t("iot_plat_query")}}</el-button>
            </el-form-item>
          </el-form>
+         <!-- 搜索栏结束 -->
+
+         <!-- 右上角添加删除按钮开始 -->
          <el-button
            icon="el-icon-plus"
            type="primary"
@@ -43,12 +47,15 @@
            class="btn-circle-delete btn-circle-right"
            v-if="vmHasAuth(AdminPermissionsLib.DEL_DEVICE_CATE, tableData.res)"
            @click="Delete()"></el-button>
+          <!-- 右上角添加删除按钮结束 -->
        </el-col>
      </el-row>
+
+     <!-- 表格开始 -->
       <el-row>
         <TableComponent :options="tableOptions" :data="tableData.data" v-on:page-change="onSubmit" v-on:selection="handleSelectionChange">
           <el-table-column
-            label="操作"
+            :label="$t('iot_plat_operate')"
             width="120" slot="handler">
             <template slot-scope="scope">
               <el-button
@@ -62,8 +69,10 @@
           </el-table-column>
         </TableComponent>
       </el-row>
+      <!-- 表格结束 -->
     </el-row>
 
+    <!-- 编辑添加分类 -->
     <AddEditCategoryComponent
       :title="dialogTitle"
       :isVisible="dialogVisible"
@@ -106,25 +115,25 @@ export default {
         },
         columns: [
           {
-            label: "类别名称",
+            label: this.$t("iot_plat_class_name"),
             prop : "prodt_name"
           },
           {
             prop : "prodt_code",
-            label: "类别代码",
+            label: this.$t("iot_plat_class_code"),
             width: "180"
           },
           {
             prop : "create_time",
-            label: "添加时间"
+            label: this.$t("iot_plat_add_time")
           },
           {
             prop : "user_name",
-            label: "提交人"
+            label: this.$t("iot_plat_submitter")
           },
           {
             prop : "review_name",
-            label: "审核人"
+            label: this.$t("iot_plat_reviewer")
           }
         ]
       },
@@ -182,13 +191,13 @@ export default {
         }
       } catch (error) {
         this.tableOptions.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
 
     Delete () {
       if (!this.multipleSelection.length) {
-        return this.vmMsgWarning("请选择记录")
+        return this.vmMsgWarning(this.$t("iot_plat_select_value_please"))
       }
       const loading = this.vmLoadingFull()
       try {
@@ -198,19 +207,22 @@ export default {
         })
         const param = this.createFormData({ prodt_code: JSON.stringify(codeArr) })
         this.vmConfirm({
-          msg            : "确定删除该记录？",
+          msg            : this.$t("iot_plat_confirm_delete_data"),
           confirmCallback: async () => {
             const res = await this.$http.post(EQUIPMENT_CATEGORY_DELETE, param)
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("删除成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_delete_success"))
               this.onSubmit()
             }
+          },
+          cancelCallback: () => {
+            loading.close()
           }
         })
       } catch (error) {
         loading.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     handleSelectionChange (val) {

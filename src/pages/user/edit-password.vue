@@ -2,32 +2,32 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">修改密码</p>
+        <p class="title-cn">{{$t("iot_plat_change_pwd")}}</p>
         <p class="title-en">CHANGE PASSWORD</p>
       </el-col>
     </el-row>
     <div class="panel">
-      <el-form :model="formData" status-icon ref="editForm" :rules="rules" label-position="right" label-width="100px">
-        <el-form-item label="旧密码" prop="old_password">
+      <el-form :model="formData" status-icon ref="editForm" :rules="rules" label-position="right" label-width="160px">
+        <el-form-item :label="$t('iot_plat_old_password')" prop="old_password">
           <el-input
             type="password"
-            placeholder="请输入旧密码"
+            :placeholder="$t('iot_plat_input_old_password')"
             v-model="formData.old_password"
             clearable>
           </el-input>
         </el-form-item>
-        <el-form-item label="新密码" prop="new_pass">
+        <el-form-item :label="$t('iot_plat_new_password')" prop="new_pass">
           <el-input
             type="password"
-            placeholder="请输入新密码"
+            :placeholder="$t('iot_plat_input_new_password')"
             v-model="formData.new_pass"
             clearable>
           </el-input>
         </el-form-item>
-        <el-form-item label="确认新密码" prop="confirmNewPass">
+        <el-form-item :label="$t('iot_plat_confirm_new_password')" prop="confirmNewPass">
           <el-input
             type="password"
-            placeholder="请再次输入新密码"
+            :placeholder="$t('iot_plat_input_new_password_again')"
             v-model="formData.confirmNewPass"
             clearable>
           </el-input>
@@ -42,7 +42,7 @@
           <CheckCodeComponent style="width: 39.7%;height: 3.33rem;" :isReset="toResetBtnCode" v-on:emit-statu="getCheckCode"></CheckCodeComponent>
         </el-form-item> -->
         <el-form-item class="form-row" style="margin-top: 2rem">
-          <el-button type="primary" class="btn-submit" @click="changePass">确定</el-button>
+          <el-button type="primary" class="btn-submit" @click="changePass">{{$t("iot_plat_confirm")}}</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -58,9 +58,9 @@ export default {
   data () {
     const validatePass = (rule, value, callback) => {
       if (value === "") {
-        callback(new Error("请再次输入密码"))
+        callback(new Error(this.$t("iot_plat_input_password_again")))
       } else if (value !== this.formData.new_pass) {
-        callback(new Error("两次输入密码不一致!"))
+        callback(new Error(this.$t("iot_plat_twice_input_not_same")))
       } else {
         callback()
       }
@@ -68,9 +68,9 @@ export default {
     const validateIsEmpty = (rule, value, callback) => {
       if (value === "") {
         if (rule.field === "new_pass" || rule.field === "confirmNewPass") {
-          callback(new Error("请输入密码"))
+          callback(new Error(this.$t("iot_plat_input_pwd_please")))
         } else if (rule.field === "old_password") {
-          callback(new Error("请输入旧密码"))
+          callback(new Error(this.$t("iot_plat_input_old_password")))
         }
       }
       callback()
@@ -84,7 +84,7 @@ export default {
       toResetBtnCode: false,
       rules         : {
         new_pass: [
-          { validator: validateIsEmpty, trigger: "blur" }, { min: 8, max: 30, message: "长度在 8 到 30 个字符", trigger: "blur" }
+          { validator: validateIsEmpty, trigger: "blur" }, { min: 8, max: 50, message: this.$t("iot_plat_str_length_limit"), trigger: "blur" }
         ],
         confirmNewPass: [
           { validator: validatePass, trigger: "blur" }
@@ -113,12 +113,12 @@ export default {
         const data = this.createFormData({ type: 2 })
         const res = await this.$http.post(CODE_POST, data)
         if (this.vmResponseHandler(res)) {
-          this.vmMsgSuccess("验证码已发送！")
+          this.vmMsgSuccess(this.$t("iot_plat_vertification_code_sended"))
         } else {
           this.toResetBtnCode = true
         }
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
         this.toResetBtnCode = true
       }
     }, this.DEBOUNCE_TIME),
@@ -128,13 +128,13 @@ export default {
           if (valid) {
             const res = await this.$http.post(CHANGE_PASS_POST, this.createFormData(this.formData))
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("修改成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_edit_success"))
               this.$router.push("/manage/user/home/1")
             }
           }
         })
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME)
   }
@@ -146,7 +146,7 @@ export default {
      background: #949494 !important;
   }
   .panel {
-    width: 35rem;
+    width: 38rem;
     margin: 10rem auto;
   }
 </style>

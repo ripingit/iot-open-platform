@@ -2,7 +2,7 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">设备管理</p>
+        <p class="title-cn">{{$t("iot_plat_device_manage")}}</p>
         <p class="title-en">THE EQUIPMENT MANAGEMENT</p>
       </el-col>
     </el-row>
@@ -13,11 +13,11 @@
           <el-row>
             <el-col :span="24">
               <el-input
-                placeholder="请输入设备ID"
+                :placeholder="$t('iot_plat_input_device_id')"
                 v-model="searchKeyWord"
                 clearable>
               </el-input>
-              <el-button class="btn-search" type="primary" @click="getEquipmentLists(1)">查询</el-button>
+              <el-button class="btn-search" type="primary" @click="getEquipmentLists(1)">{{$t("iot_plat_query")}}</el-button>
               <!--<el-button class="btn-circle-delete el-button--primary is-circle" type="primary" icon="el-icon-plus" circle @click="addEquipment"></el-button>-->
             </el-col>
           </el-row>
@@ -29,46 +29,46 @@
                 style="width: 100%">
                 <el-table-column
                   type="index"
-                  label="编号"
+                  :label="$t('iot_plat_number')"
                   width="80">
                 </el-table-column>
                 <el-table-column
                   prop="device_id"
-                  label="设备ID"
+                  :label="$t('iot_plat_device_id')"
                   width="240">
                 </el-table-column>
                 <el-table-column
                   prop="production_time"
-                  label="生产日期">
+                  :label="$t('iot_plat_produce_date')">
                 </el-table-column>
                 <el-table-column
                   prop="put_time"
-                  label="入库日期">
+                  :label="$t('iot_plat_storage_date')">
                 </el-table-column>
                 <el-table-column
                   prop="out_time"
-                  label="出库日期">
+                  :label="$t('iot_plat_out_lib_date')">
                 </el-table-column>
                 <el-table-column
                   prop="delivery_time"
-                  label="收货时间">
+                  :label="$t('iot_plat_harvest_time')">
                 </el-table-column>
                 <el-table-column
                   prop="box_number"
-                  label="批次编码"
+                  :label="$t('iot_plat_batch_code')"
                   width="200">
-                  <!--<template slot-scope="scope">{{ dateFormat(new Date(scope.row.goods_adddate * 1000), 'yyyy-MM-dd hh:mm:ss')  }}</template>-->
+                  <!--<template slot-scope="scope">{{ formatDate(new Date(scope.row.goods_adddate * 1000), 'yyyy-MM-dd hh:mm:ss')  }}</template>-->
                 </el-table-column>
                 <el-table-column
                   prop="untie_status"
                   v-if="vmHasAuth(CoopPermissionsLib.QUERY_REWORK_DEALER, tableData.res)"
-                  label="返修状况">
+                  :label="$t('iot_plat_return_status')">
                   <template slot-scope="scope">
-                    <span v-if="scope.row.untie_status === 0">无</span>
-                    <span v-else @click="showReworkList(scope.row.device_id)" style="cursor:pointer;color:#38a0f8">查看</span>
+                    <span v-if="scope.row.untie_status === 0">{{$t("iot_plat_none")}}</span>
+                    <span v-else @click="showReworkList(scope.row.device_id)" style="cursor:pointer;color:#38a0f8">{{$t("iot_plat_view")}}</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作"
+                <el-table-column :label="$t('iot_plat_operate')"
                                  width="120"
                                  v-if="vmHasAuth(CoopPermissionsLib.ADD_REWORK_DEALER, tableData.res)">
                   <template slot-scope="scope">
@@ -99,59 +99,59 @@
       </el-col>
     </el-row>
 
-    <el-dialog title="返修记录" width="85rem" :visible.sync="isShowReworkList" center>
+    <el-dialog :title="$t('iot_plat_return_record')" width="85rem" :visible.sync="isShowReworkList" center>
       <el-table
         :data="reworkData"
         v-loading="reloading"
         style="width: 100%;height: 41.67rem;overflow: auto;">
         <el-table-column
           prop="repair_time"
-          label="返修时间"
+          :label="$t('iot_plat_return_time')"
           width="180">
         </el-table-column>
         <el-table-column
           prop="results_reason"
-          label="返修原因"
+          :label="$t('iot_plat_return_reason')"
           width="180">
         </el-table-column>
         <el-table-column
           prop="results_of_repair"
-          label="返修方式">
-          <template slot-scope="scope">{{ repairWayCode[scope.row.results_of_repair] }}</template>
+          :label="$t('iot_plat_return_way')">
+          <template slot-scope="scope">{{ $t(repairWayCode[scope.row.results_of_repair]) }}</template>
         </el-table-column>
         <el-table-column
           prop="pic"
-          label="返修图片">
+          :label="$t('iot_plat_return_picture')">
           <template slot-scope="scope">
-            <ScaleImgComponent :path="scope.row.pic" style="width:5rem;height:5rem" alt="返修图片"></ScaleImgComponent>
+            <ScaleImgComponent :path="scope.row.pic" style="width:5rem;height:5rem" :alt="$t('iot_plat_return_picture')"></ScaleImgComponent>
           </template>
         </el-table-column>
         <el-table-column
           prop="untie"
-          label="解绑状态">
-          <template slot-scope="scope">{{ untieCode[scope.row.untie] }}</template>
+          :label="$t('iot_plat_unbind_status')">
+          <template slot-scope="scope">{{ $t(untieCode[scope.row.untie]) }}</template>
         </el-table-column>
         <el-table-column
           prop="untie_time"
-          label="解绑时间">
+          :label="$t('iot_plat_unbind_time')">
         </el-table-column>
         <el-table-column
           prop="user_name"
-          label="处理人">
+          :label="$t('iot_plat_processing_staff')">
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog title="返修" :visible.sync="isDialogVisibleAdd" center>
-      <el-form label-position="right" status-icon label-width="100px" :model="reworkForm" :rules="rules" ref="reworkForm">
-        <el-form-item class="form-row" label="设备ID"><span style="color:#fff">{{ reworkForm.device_id }}</span></el-form-item>
-        <el-form-item class="form-row" label="处理方式" prop="results_of_repair">
-          <el-select v-model="reworkForm.results_of_repair" placeholder="请选择处理方式" no-data-text="无数据">
-            <el-option :key="1" label="更换" value="1"></el-option>
-            <el-option :key="2" label="维修" value="2"></el-option>
+    <el-dialog :title="$t('iot_plat_rework')" :visible.sync="isDialogVisibleAdd" center>
+      <el-form label-position="right" status-icon label-width="140px" :model="reworkForm" :rules="rules" ref="reworkForm">
+        <el-form-item class="form-row" :label="$t('iot_plat_device_id')"><span style="color:#fff">{{ reworkForm.device_id }}</span></el-form-item>
+        <el-form-item class="form-row" :label="$t('iot_plat_processing_method')" prop="results_of_repair">
+          <el-select v-model="reworkForm.results_of_repair" :placeholder="$t('iot_plat_select_processing_method')" :no-data-text="$t('iot_plat_none_data')">
+            <el-option :key="1" :label="$t('iot_plat_replace')" value="1"></el-option>
+            <el-option :key="2" :label="$t('iot_plat_repair')" value="2"></el-option>
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="设备图片" prop="pic">
+        <el-form-item class="form-row" :label="$t('iot_plat_device_picture')" prop="pic">
           <div class="form-btn-upload">
             <span class="form-img-cert" v-if="isUploading">
               {{uploadProgress || picTip}}
@@ -167,19 +167,19 @@
                 :on-progress="onUploadProgress"
                 :on-error="onUploadError"
                 :show-file-list="false">
-                <el-button class="btn-upload" size="small" type="primary">上传</el-button>
+                <el-button class="btn-upload" size="small" type="primary">{{$t("iot_plat_upload")}}</el-button>
               </el-upload>
             </div>
           </div>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="返修原因" prop="results_reason">
-          <el-input type="textarea" :rows="6" v-model="reworkForm.results_reason" placeholder="请输入返修原因"></el-input>
+        <el-form-item class="form-row" :label="$t('iot_plat_return_reason')" prop="results_reason">
+          <el-input type="textarea" :rows="6" v-model="reworkForm.results_reason" :placeholder="$t('iot_plat_input_rework_reason')"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-checkbox style="margin-top: 20px" v-model="reworkForm.untie">发起返修将向用户发送解绑设备信息，如用户拒绝后将30天内不能再次发起返修</el-checkbox>
+        <el-checkbox style="margin-top: 20px" v-model="reworkForm.untie">{{$t("iot_plat_rework_explaine")}}</el-checkbox>
         <el-form-item class="form-row">
-          <el-button class="btn-submit" type="primary" @click="submit">提交</el-button>
+          <el-button class="btn-submit" type="primary" @click="submit">{{$t("iot_plat_submit")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -197,11 +197,11 @@ export default {
     const validateIsEmpty = (rule, value, callback) => {
       if (value === "") {
         if (rule.field === "results_reason") {
-          callback(new Error("请输入返修原因"))
+          callback(new Error(this.$t("iot_plat_input_rework_reason")))
         } else if (rule.field === "results_of_repair") {
-          callback(new Error("请选择返修方式"))
+          callback(new Error(this.$t("iot_plat_select_rework_way")))
         } else if (rule.field === "pic") {
-          callback(new Error("请上传返修图片"))
+          callback(new Error(this.$t("iot_plat_upload_rework_picture")))
         }
       }
       callback()
@@ -217,7 +217,7 @@ export default {
       uploadPath         : COOP_DEVICE_UPLOAD_PIC,
       isUploading        : true,
       uploadProgress     : "",
-      picTip             : "格式为 jpg 且小于2M",
+      picTip             : this.$t("iot_plat_picture_desc_04"),
       picPath            : "",
       tableData          : {
         data   : [],
@@ -287,7 +287,7 @@ export default {
         this.loading = false  
       } catch (error) {
         this.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
 
@@ -302,7 +302,7 @@ export default {
         this.reloading = false
       } catch (error) {
         this.reloading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
 
@@ -317,7 +317,7 @@ export default {
       const sizeM = file.size / BYTE / BYTE
       const imgArr = [ "image/png", "image/jpeg", "image/jpg" ]
       if (!imgArr.includes(file.type) || sizeM > MAX_SIZE) {
-        this.vmMsgError(`请上传后缀为.jpg或.png或.jpeg且小于${MAX_SIZE}M的图片`)
+        this.vmMsgError(this.$t("iot_plat_picture_desc_05", [ MAX_SIZE ]))
         return false
       }
     },
@@ -344,14 +344,14 @@ export default {
       this.vmMsgError(err)
     },
     submit: _.debounce(function () {
-      if (!this.reworkForm.untie) { return this.vmMsgError("请勾选同意解绑协议！") }
+      if (!this.reworkForm.untie) { return this.vmMsgError(this.$t("iot_plat_agree_unbind_protocol")) }
       const wait = this.vmLoadingFull()
       try {
         this.$refs.reworkForm.validate(async valid => {
           if (valid) {
             const res = await this.$http.post(COOP_DEVICE_RETIRE_ADD, this.createFormData(this.reworkForm))
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("提交成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_submit_success"))
               this.isDialogVisibleAdd = false
               this.getEquipmentLists(this.tableData.page)
               this.$refs.reworkForm.resetFields()
@@ -361,7 +361,7 @@ export default {
         })
       } catch (error) {
         wait.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME)
   }
@@ -387,7 +387,7 @@ export default {
   }
   .el-dialog .form-btn-upload .btn-upload {
     height: 8rem;
-    width: 3rem;
+    width: 5rem;
     border-radius: 0;
     padding: 0;
     font-size: 1.2rem;

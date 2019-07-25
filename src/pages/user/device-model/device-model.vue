@@ -3,7 +3,7 @@
     <div class="device-model">
       <el-row>
         <el-col :span="24">
-          <p class="title-cn">设备型号</p>
+          <p class="title-cn">{{$t("iot_plat_device_model")}}</p>
           <p class="title-en">UNIT TYPE</p>
         </el-col>
       </el-row>
@@ -27,40 +27,41 @@
         </el-row>
         <el-row>
           <el-table v-loading="loading" :data="tableData" style="width: 100%;">
-            <el-table-column type="index" width="100" label="编号"></el-table-column>
-            <el-table-column prop="product_name" label="型号名称"></el-table-column>
-            <el-table-column prop="product_code" label="型号代码"></el-table-column>
-            <el-table-column prop="prodt_code2" label="设备类别" width="200"></el-table-column>
-            <el-table-column prop="nbi_code" label="连接方式"></el-table-column>
-            <el-table-column prop="pic1_fileid" label="缩略图">
+            <el-table-column type="index" width="100" :label="$t('iot_plat_number')"></el-table-column>
+            <el-table-column prop="product_name" :label="$t('iot_plat_model_name')"></el-table-column>
+            <el-table-column prop="product_code" :label="$t('iot_plat_model_code')"></el-table-column>
+            <el-table-column prop="prodt_code2" :label="$t('iot_plat_device_class')" width="200"></el-table-column>
+            <el-table-column prop="nbi_code" :label="$t('iot_plat_connection_way')"></el-table-column>
+            <el-table-column prop="pic1_fileid" :label="$t('iot_plat_thumb')">
               <template slot-scope="scope">
                 <div>
                   <ScaleImgComponent
                     :path="typeof scope.row.pic1_fileid === 'string' ? scope.row.pic1_fileid : scope.row.pic1_fileid.thumb"
                     style="width:6rem;height:6rem"
-                    alt="缩略图"
+                    :alt="$t('iot_plat_thumb')"
                   ></ScaleImgComponent>
                 </div>
               </template>
             </el-table-column>
-            <el-table-column prop="is_review" label="审核状态">
+            <el-table-column prop="is_review" :label="$t('iot_plat_review_state')">
               <template slot-scope="scope">
-                <span v-if="scope.row.is_review===0">待审核</span>
-                <span v-if="scope.row.is_review===1" style="color: #2acba7">已通过</span>
-                <span v-if="scope.row.is_review===2" style="color: #ff5d66">已驳回</span>
+                <span v-if="scope.row.is_review===0">{{$t("iot_plat_wating_review")}}</span>
+                <span v-if="scope.row.is_review===1" style="color: #2acba7">{{$t("iot_plat_already_pass")}}</span>
+                <span v-if="scope.row.is_review===2" style="color: #ff5d66">{{$t("iot_plat_already_reject")}}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="config_status" label="配置状态">
+            <el-table-column prop="review_time" :label="$t('iot_plat_add_time')"></el-table-column>
+            <el-table-column prop="config_status" :label="$t('iot_plat_config_state')">
               <template slot-scope="scope">
-                <span v-if="scope.row.config_status" style="color: #2acba7">已配置</span>
-                <span v-if="!scope.row.config_status" style="color: #ff5d66">未配置</span>
+                <span v-if="scope.row.config_status" style="color: #2acba7">{{$t("iot_plat_already_config")}}</span>
+                <span v-if="!scope.row.config_status" style="color: #ff5d66">{{$t("iot_plat_none_config")}}</span>
               </template>
             </el-table-column>
             <el-table-column
               prop
-              label="操作"
+              :label="$t('iot_plat_operate')"
               v-if="vmHasAuth(CoopPermissionsLib.SET_DEVICE_MODEL, res) || vmHasAuth(CoopPermissionsLib.DEL_DEVICE_MODEL, res)"
-              width="180"
+              width="150"
             >
               <template slot-scope="scope">
                 <el-button
@@ -106,6 +107,7 @@
       <ModelAddComponent
         :isVisible="isDialogAddVisible"
         :nbiCode="nbi_code_options"
+        :resetCode="resetCode"
         :productCode="prodt_code_options"
         @close="modelAddDialogClose"></ModelAddComponent>
 
@@ -136,6 +138,7 @@ export default {
       isDialogConfigVisible: false,
       query_by_name        : "",
       nbi_code_options     : [],
+      resetCode            : [],
       prodt_code_options   : [],
       tableData            : [],
       dialogData           : {},
@@ -188,6 +191,7 @@ export default {
               codeObj[subval.nbi_code] = subval.nbi_code_name;
             });
           });
+          this.resetCode = res.data.Reset
           this.tableData = res.data.data.map(val => {
             if (Array.isArray(val.nbi_code)) {
               val.nbi_code = val.nbi_code
@@ -210,7 +214,7 @@ export default {
         }
       } catch (error) {
         this.loading = false;
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
     addDevice() {
@@ -219,7 +223,7 @@ export default {
 
     editDevice(row) {
       if (row.is_review !== 1) {
-        return this.vmMsgWarning("只有通过审核才能进行型号配置！");
+        return this.vmMsgWarning(this.$t("iot_plat_only_review_to_model_config"));
       }
       this.isDialogConfigVisible = true;
       this.dialogData = row;
@@ -233,12 +237,12 @@ export default {
         const codeArr = [ row.product_code ];
         const param = this.createFormData({ product_code: JSON.stringify(codeArr) });
         this.vmConfirm({
-          msg            : "确定删除该记录？",
+          msg            : this.$t("iot_plat_confirm_delete_data"),
           confirmCallback: async () => {
             const res = await this.$http.post(USER_EQUIPMENT_MODEL_DEL, param)
             loading.close();
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("删除成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_delete_success"));
               this.onSubmit();
             }
           },
@@ -248,26 +252,26 @@ export default {
         });
       } catch (error) {
         loading.close();
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
       
     },
 
     generateDeviceID: _.debounce(function(row) {
       if (row.is_review !== 1) {
-        this.vmMsgWarning("只有通过审核才能生成设备ID！");
+        this.vmMsgWarning(this.$t("iot_plat_only_pass_review_genereate_device_id"));
         return;
       }
       const MILL_SECOND = 1000
       this.vmPormpt({
-        msg              : "请输入下载条数",
-        title            : "下载设备ID和key",
+        msg              : this.$t("iot_plat_input_download_number"),
+        title            : this.$t("iot_plat_download_device_id_and_key"),
         inputPattern     : /^([1-9]|([1-4][0-9])|(50))$/,
-        inputErrorMessage: "请输入1-50的整数",
-        inputPlaceholder : "请输入1-50的整数",
+        inputErrorMessage: this.$t("iot_plat_input_integer_limit"),
+        inputPlaceholder : this.$t("iot_plat_input_integer_limit"),
         confirmCallback  : value => {
           this.vmConfirm({
-            msg            : `确定进行下载吗？`,
+            msg            : this.$t("iot_plat_confirm_download"),
             confirmCallback: async () => {
               const loading = this.vmLoadingFull();
               try {
@@ -283,7 +287,7 @@ export default {
                 }
               } catch (error) {
                 loading.close();
-                this.vmMsgError("程序错误！");
+                this.vmMsgError(this.$t("iot_plat_program_error"));
               }
             }
           });

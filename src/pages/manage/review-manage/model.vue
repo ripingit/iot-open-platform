@@ -2,7 +2,7 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-          <p class="title-cn">审核管理-型号</p>
+          <p class="title-cn">{{$t("iot_plat_review_manage_model")}}</p>
           <p class="title-en">AUDIT MANAGEMENT</p>
       </el-col>
     </el-row>
@@ -47,53 +47,53 @@
                 </el-table-column>
                 <el-table-column
                   type="index"
-                  label="编号"
+                  :label="$t('iot_plat_number')"
                   width="80">
                 </el-table-column>
                 <el-table-column
                   prop="product_name"
-                  label="型号名称"
+                  :label="$t('iot_plat_model_name')"
                   width="120">
                 </el-table-column>
                 <el-table-column
                   prop="product_code"
-                  label="型号代码"
+                  :label="$t('iot_plat_model_code')"
                   width="150">
                 </el-table-column>
                 <el-table-column
                   prop="company_name"
-                  label="归属公司">
+                  :label="$t('iot_plat_belong_company')">
                 </el-table-column>
                 <el-table-column
                   prop="upgrade_time"
-                  label="提交时间">
+                  :label="$t('iot_plat_submit_time')">
                 </el-table-column>
                 <el-table-column
                   prop="is_review"
-                  label="状态">
+                  :label="$t('iot_plat_state')">
                   <template slot-scope="scope">
                     <span :class="scope.row.is_review === 0 ? 'wait'
                     : scope.row.is_review === 1 ? 'pass'
                     : scope.row.is_review === 2 ? 'reject' : ''">
-                    {{scope.row.is_review === 0 ? '待审核'
-                    : scope.row.is_review === 1 ? '已通过'
-                    : scope.row.is_review === 2 ? '已驳回' : ''}}
+                    {{scope.row.is_review === 0 ? $t("iot_plat_wating_review")
+                    : scope.row.is_review === 1 ? $t("iot_plat_already_pass")
+                    : scope.row.is_review === 2 ? $t("iot_plat_already_reject") : ''}}
                     </span>
                   </template>
                 </el-table-column>
                 <el-table-column
                   prop="review_mark"
-                  label="备注">
+                  :label="$t('iot_plat_marks')">
                 </el-table-column>
                 <el-table-column
                   prop="review_name"
-                  label="审核人">
+                  :label="$t('iot_plat_reviewer')">
                 </el-table-column>
                 <el-table-column
                   prop="review_time"
-                  label="审核时间">
+                  :label="$t('iot_plat_review_time')">
                 </el-table-column>
-                <el-table-column label="操作"  v-if="vmHasAuth(AdminPermissionsLib.REVIEW_AUDIT_MODEL, tableData.res)">
+                <el-table-column :label="$t('iot_plat_operate')"  v-if="vmHasAuth(AdminPermissionsLib.REVIEW_AUDIT_MODEL, tableData.res)">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"
@@ -122,35 +122,41 @@
       </el-col>
     </el-row>
 
-    <el-dialog title="型号审核" :visible.sync="isDetailDialogVisible" center>
+    <el-dialog :title="$t('iot_plat_model_review')" :visible.sync="isDetailDialogVisible" center>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">型号名称</el-col>
-        <el-col :span="22" :sm="21" class="label-value">
+        <el-col :span="4" class="label-name">{{$t("iot_plat_model_name")}}:</el-col>
+        <el-col :span="20" class="label-value">
           {{reviewData.product_name}}
         </el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">型号代码</el-col>
-        <el-col :span="22" :sm="21" class="label-value">
+        <el-col :span="4" class="label-name">{{$t("iot_plat_model_code")}}:</el-col>
+        <el-col :span="20" class="label-value">
           {{reviewData.product_code}}
         </el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">连接方式</el-col>
-        <el-col :span="22" :sm="21" class="label-value">
+        <el-col :span="4" class="label-name">{{$t("iot_plat_connection_way")}}:</el-col>
+        <el-col :span="20" class="label-value">
           {{reviewData.nbi_code}}
         </el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">设备类别</el-col>
-        <el-col :span="22" :sm="21" class="label-value">
+        <el-col :span="4" class="label-name">{{$t("iot_plat_device_class")}}:</el-col>
+        <el-col :span="20" class="label-value">
           {{reviewData.prodt_code}}
         </el-col>
       </el-row>
       <el-row class="label-row">
-        <el-col :span="2" :sm="3" class="label-name">效果图</el-col>
-        <el-col :span="22" :sm="21" class="label-value">
-          <ScaleImgComponent v-for="(item, index) in reviewData.filePaths" :key="index" :path="item" class="cert" alt="效果图"></ScaleImgComponent>
+        <el-col :span="4" class="label-name">{{$t("iot_plat_reset_note")}}:</el-col>
+        <el-col :span="20" class="label-value">
+          <pre>{{reviewData.reset_code}}</pre>
+        </el-col>
+      </el-row>
+      <el-row class="label-row">
+        <el-col :span="4" class="label-name">{{$t("iot_plat_rendering")}}:</el-col>
+        <el-col :span="20" class="label-value">
+          <ScaleImgComponent v-for="(item, index) in reviewData.filePaths" :key="index" :path="item || noPicturePath" class="cert" :alt="$t('iot_plat_rendering')"></ScaleImgComponent>
         </el-col>
       </el-row>
       <el-row class="label-sug">
@@ -158,18 +164,18 @@
         <el-input
             type="textarea"
             :rows="4"
-            placeholder="请说明"
+            :placeholder="$t('iot_plat_explaine_please')"
             v-model="reviewData.review_mark">
           </el-input>
         </el-col>
       </el-row>
       <el-row class="label-sug">
         <el-col :span="11">
-          <el-button class="btn-reject" type="danger" @click="reviewAudit(2)">驳回</el-button>
+          <el-button class="btn-reject" type="danger" @click="reviewAudit(2)">{{$t("iot_plat_reject")}}</el-button>
         </el-col>
         <el-col :span="2">&nbsp;</el-col>
         <el-col :span="11">
-          <el-button class="btn-pass" type="success" @click="reviewAudit(1)">通过</el-button>
+          <el-button class="btn-pass" type="success" @click="reviewAudit(1)">{{$t("iot_plat_pass")}}</el-button>
         </el-col>
       </el-row>
     </el-dialog>
@@ -178,6 +184,7 @@
 
 <script>
 import "@/assets/css/content.css"
+import { noPicture } from "@/lib/const"
 import ScaleImgComponent from "@/components/preview-img/scale-img.vue"
 import { ADMIN_MODEL_AUDIT_QUERY, ADMIN_MODEL_AUDIT_DEL, ADMIN_MODEL_REVIEW } from "@/lib/api"
 
@@ -185,6 +192,7 @@ export default {
   components: { ScaleImgComponent },
   data () {
     return {
+      noPicturePath        : noPicture,
       loading              : false,
       isDetailDialogVisible: false,
       options              : [],
@@ -198,11 +206,13 @@ export default {
       reviewData: {
         product_name: "",
         product_code: "",
+        reset_code  : "",
         nbi_code    : "",
         prodt_code  : "",
         review_mark : "",
         filePaths   : []
       },
+      reset         : [],
       connectionMode: [],
       deviceCategory: [],
       selectedData  : []
@@ -218,9 +228,16 @@ export default {
     showDetailDialog (index, row) {
       const connect = row.nbi_code && row.nbi_code.reduce((accumulator, currentValue) => `${accumulator + this.connectionMode.find(o => o.nbi_code === currentValue).nbi_code_name}；`, "")
       const deviceCate = row.prodt_code && row.prodt_code.reduce((accumulator, currentValue) => `${accumulator + currentValue}；`, "")
+      const resetName = []
+      this.reset.forEach(item => {
+        if (row.reset_code.includes(Number(item.str_id.replace("Resetcode_value", "")))) {
+          resetName.push(JSON.parse(item.str_translation)[localStorage.getItem("lang") || "CN"])
+        }
+      });
       const tempPic = JSON.parse(row.pic1_fileid)
       this.reviewData.product_name = row.product_name
       this.reviewData.product_code = row.product_code
+      this.reviewData.reset_code = resetName.join("\n")
       this.reviewData.nbi_code = connect
       this.reviewData.prodt_code = deviceCate
       this.reviewData.review_mark = ""
@@ -237,36 +254,37 @@ export default {
         const res = await this.$http.post(ADMIN_MODEL_AUDIT_QUERY, data)
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
+          this.reset = res.data.Reset
           this.connectionMode = res.data.Nbi
           this.deviceCategory = res.data.prodtList
         }
         this.loading = false  
       } catch (error) {
         this.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     deleteAudit () {
       if (this.selectedData.length <= 0) {
-        this.vmMsgError("请选择需要删除的型号！"); return
+        this.vmMsgError(this.$t("iot_plat_select_ready_delete_model")); return
       }
       const wait = this.vmLoadingFull()
       try {
         const data = this.createFormData({ product_code: JSON.stringify(this.selectedData.map(o => o.product_code)) })
         this.vmConfirm({
-          msg            : "确认要删除选中记录吗？",
+          msg            : this.$t("iot_plat_confirm_delete_select_record"),
           confirmCallback: async () => {
             const res = await this.$http.post(ADMIN_MODEL_AUDIT_DEL, data)
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page)
-              this.vmMsgSuccess("删除成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_delete_success"))
             }
             wait.close()
           }
         })
       } catch (error) {
         wait.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     reviewAudit (review) {
@@ -276,23 +294,23 @@ export default {
         const data = this.createFormData({
           product_code: this.reviewData.product_code,
           is_review   : review,
-          review_mark : this.reviewData.review_mark || "无"
+          review_mark : this.reviewData.review_mark || this.$t("iot_plat_none")
         })
         this.vmConfirm({
-          msg            : review === 1 ? "确认通过该设备型号的审核？" : "确认驳回该设备型号的审核？",
+          msg            : review === 1 ? this.$t("iot_plat_confrim_pass_model_review") : this.$t("iot_plat_confirm_reject_model_review"),
           confirmCallback: async () => {
             const res = await this.$http.post(ADMIN_MODEL_REVIEW, data)
             if (this.vmResponseHandler(res)) {
               this.getAuditList(this.tableData.page)
               this.isDetailDialogVisible = false
-              this.vmMsgSuccess("提交成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_submit_success"))
             }
             wait.close()
           }
         })  
       } catch (error) {
         wait.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }
   }

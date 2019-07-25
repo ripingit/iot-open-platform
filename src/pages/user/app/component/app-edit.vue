@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-dialog
-      title="app编辑"
+      :title="$t('iot_plat_app_edit')"
       center
       :visible.sync="isVisible"
       :close-on-click-modal="false"
@@ -13,34 +13,40 @@
         :rules="rules"
         ref="ruleForm"
         label-position="right"
-        label-width="120px"
+        label-width="150px"
         :hide-required-asterisk="true"
       >
-        <el-form-item label="APP名称" class="form-row" prop="app_name">
-          <el-input v-model="formData.app_name" placeholder="请输入APP名称"></el-input>
+        <el-form-item :label="$t('iot_plat_app_name')" class="form-row" prop="app_name">
+          <el-input v-model="formData.app_name" :placeholder="$t('iot_plat_input_app_name')"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="APP英文名称" class="form-row" prop="en_app_name">
-          <el-input v-model="formData.en_app_name" placeholder="请输入APP英文名称"></el-input>
+        <el-form-item :label="$t('iot_plat_app_english_name')" class="form-row" prop="en_app_name">
+          <el-input v-model="formData.en_app_name" :placeholder="$t('iot_plat_input_app_english_name')"></el-input>
         </el-form-item>
-
-        <el-form-item label="下载地址" prop class="form-row code-panel">
+        <el-form-item class="form-row" :label="$t('iot_plat_update_type')" prop="is_force_upd">
+          <el-select v-model="formData.is_force_upd" :placeholder="$t('iot_plat_select_update_type')" :no-data-text="$t('iot_plat_none_data')">
+            <el-option :label="$t('iot_plat_force_update')" :value="1"></el-option>
+            <el-option :label="$t('iot_plat_not_force_update')" :value="0"></el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item :label="$t('iot_plat_download_address')" prop class="form-row code-panel">
           <el-select
             v-model="storeName"
-            placeholder="请选择应用商店"
-            no-data-text="无数据"
+            :placeholder="$t('iot_plat_select_app_store')"
+            :no-data-text="$t('iot_plat_none_data')"
             @change="appStoreChange"
           >
             <el-option
               v-for="(item, index) in appStore"
               :key="index"
-              :label="item.name"
+              :label="$t(item.name)"
               :value="item.id"
             ></el-option>
           </el-select>
-          <el-button @click="loadDownloadDialog" size="medium" type="primary">更多</el-button>
+          <el-button @click="loadDownloadDialog" size="medium" type="primary">{{$t("iot_plat_more")}}</el-button>
           <div class="split-line"></div>
-          <el-input v-model="storeUrl" placeholder="请输入app下载地址" @change="downloadUrlSet($event)"></el-input>
+          <el-input v-model="storeUrl" :placeholder="$t('iot_plat_input_app_store')" @change="downloadUrlSet($event)"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
 
@@ -50,88 +56,88 @@
               class="logo-pic"
               :path="uploadPathLogo"
               :previewPath="formData.app_logo_url"
-              :accept="['.jpg', '.jpeg', '.png']"
+              :accept="['image/jpeg', 'image/png']"
               :size="2"
               :data="{name: 'app_logo_url'}"
               model="preview"
-              condition="格式为 jpg\jpeg\png 且小于2M"
+              :condition="$t('iot_plat_image_file_limit_desc')"
               @response="getLogoUploadResult"
             ></UploadComponent>
           </div>
           <span class="form-tip">*</span>
         </el-form-item>
 
-        <el-form-item class="form-row start-boot" label="宣传图1">
+        <el-form-item class="form-row start-boot" :label="$t('iot_plat_promotional_map') + '1'">
           <div class="form-btn-upload">
             <UploadComponent
               class="logo-pic"
               :path="uploadPathLogo"
               :previewPath="bootAnimations.pic1"
-              :accept="['.png','.jpg','.jpeg','.bmp','.apng','.gif']"
+              :accept="['image/jpeg', 'image/png', 'image/bmp', 'image/gif']"
               :size="5"
               :data="{name: 'boot_logo_url'}"
               model="preview"
-              condition="小于5M的jpg/gif图片"
+              :condition="$t('iot_plat_picture_desc_03')"
               @response="getAnimationUploadResult1"
             ></UploadComponent>
           </div>
           <div class="animation-oper">
-            <el-input class="url" v-model="bootAnimations.url1" placeholder="请输入跳转地址"></el-input>
+            <el-input class="url" v-model="bootAnimations.url1" :placeholder="$t('iot_plat_input_jump_address')"></el-input>
             <el-button
               type="primary"
               @click="delBootAnimation('url1', 'pic1')"
               class="animation-del-btn"
-            >删除</el-button>
+            >{{$t('iot_plat_delete')}}</el-button>
           </div>
         </el-form-item>
-        <el-form-item class="form-row start-boot" label="宣传图2">
+        <el-form-item class="form-row start-boot" :label="$t('iot_plat_promotional_map') + '2'">
           <div class="form-btn-upload">
             <UploadComponent
               class="logo-pic"
               :path="uploadPathLogo"
               :previewPath="bootAnimations.pic2"
-              :accept="['.png','.jpg','.jpeg','.bmp','.apng','.gif']"
+              :accept="['image/jpeg', 'image/png', 'image/bmp', 'image/gif']"
               :size="5"
               :data="{name: 'boot_logo_url'}"
               model="preview"
-              condition="小于5M的jpg/gif图片"
+              :condition="$t('iot_plat_picture_desc_03')"
               @response="getAnimationUploadResult2"
             ></UploadComponent>
           </div>
           <div class="animation-oper">
-            <el-input class="url" v-model="bootAnimations.url2" placeholder="请输入跳转地址"></el-input>
+            <el-input class="url" v-model="bootAnimations.url2" :placeholder="$t('iot_plat_input_jump_address')"></el-input>
             <el-button
               type="primary"
               @click="delBootAnimation('url2', 'pic2')"
               class="animation-del-btn"
-            >删除</el-button>
+            >{{$t('iot_plat_delete')}}</el-button>
           </div>
         </el-form-item>
-        <el-form-item class="form-row start-boot" label="宣传图3">
+        <el-form-item class="form-row start-boot" :label="$t('iot_plat_promotional_map') + '3'">
           <div class="form-btn-upload">
             <UploadComponent
               class="logo-pic"
               :path="uploadPathLogo"
               :previewPath="bootAnimations.pic3"
-              :accept="['.png','.jpg','.jpeg','.bmp','.apng','.gif']"
+              :accept="['image/jpeg', 'image/png', 'image/bmp', 'image/gif']"
               :size="5"
               :data="{name: 'boot_logo_url'}"
               model="preview"
-              condition="小于5M的jpg/gif图片"
+              :condition="$t('iot_plat_picture_desc_03')"
               @response="getAnimationUploadResult3"
             ></UploadComponent>
           </div>
           <div class="animation-oper">
-            <el-input class="url" v-model="bootAnimations.url3" placeholder="请输入跳转地址"></el-input>
+            <el-input class="url" v-model="bootAnimations.url3" :placeholder="$t('iot_plat_input_jump_address')"></el-input>
             <el-button
               type="primary"
               @click="delBootAnimation('url3', 'pic3')"
               class="animation-del-btn"
-            >删除</el-button>
+            >{{$t('iot_plat_delete')}}</el-button>
           </div>
         </el-form-item>
         <el-form-item class="form-row">
-          <el-button type="primary" @click="submitForm" class="btn-submit">提交</el-button>
+          <el-button type="primary" @click="submitForm" class="btn-submit">{{$t("iot_plat_submit")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -176,8 +182,8 @@ export default {
       isAppUrlSettingVisible: false,
       urlOld                : [],
       rules                 : {
-        app_name    : [ { required: true, message: "请输入APP名称", trigger: "change" } ],
-        app_logo_url: [ { required: true, message: "请设置APP的logo", trigger: "change" } ]
+        app_name    : [ { required: true, message: this.$t("iot_plat_input_app_name"), trigger: "change" } ],
+        app_logo_url: [ { required: true, message: this.$t("iot_plat_set_app_logo"), trigger: "change" } ]
       },
       bootAnimations: {
         pic1: "",
@@ -242,7 +248,7 @@ export default {
 
     submitForm() {
       if (!this.formData.url[0].url) {
-        this.vmMsgError("安卓通用下载地址为必填！");
+        this.vmMsgError(this.$t("iot_plat_android_universal_download_addr_required"));
         return;
       }
       this.$refs.ruleForm.validate(async valid => { 
@@ -258,13 +264,13 @@ export default {
             const res = await this.$http.post(COOP_APP_UPDATE_POST, postData);
             loading.close();
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("更新成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_update_success"));
               // true 告诉父组件获取新数据
               this.$emit("close", true);
             }
           } catch (e) {
             loading.close();
-            this.vmMsgError("程序错误！");
+            this.vmMsgError(this.$t("iot_plat_program_error"));
           }
         }
       })
@@ -309,7 +315,7 @@ export default {
   position: absolute;
   width: 5rem;
   height: 2.17rem;
-  right: 12.5rem;
+  right: 8.5rem;
   top: 0.5rem;
   font-size: 1rem;
   background: #1f7ecf;

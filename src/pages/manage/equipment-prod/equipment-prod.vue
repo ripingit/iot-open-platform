@@ -2,7 +2,7 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-          <p class="title-cn">设备生产</p>
+          <p class="title-cn">{{$t("iot_plat_device_produce")}}</p>
           <p class="title-en">THE EQUIPMENT PRODUCTION</p>
       </el-col>
     </el-row>
@@ -28,66 +28,66 @@
                 style="width: 100%">
                 <el-table-column
                   type="index"
-                  label="编号"
+                  :label="$t('iot_plat_number')"
                   width="50">
                 </el-table-column>
                 <el-table-column
                   prop="device_id"
-                  label="设备ID"
+                  :label="$t('iot_plat_device_id')"
                   width="220">
                 </el-table-column>
                 <el-table-column
                   prop="production_time"
-                  label="生产日期"
+                  :label="$t('iot_plat_produce_date')"
                   width="100">
                 </el-table-column>
                 <el-table-column
                   prop="put_time"
-                  label="入库日期"
+                  :label="$t('iot_plat_storage_date')"
                   width="100">
                 </el-table-column>
                 <el-table-column
                   prop="out_time"
-                  label="出库日期"
+                  :label="$t('iot_plat_out_lib_date')"
                   width="100">
                 </el-table-column>
                 <el-table-column
                   prop="company_code"
-                  label="合作方"
+                  :label="$t('iot_plat_coop_partner')"
                   width="250">
                 </el-table-column>
                 <el-table-column
                   prop="dealer_name"
-                  label="经销商"
+                  :label="$t('iot_plat_dealer')"
                   width="250">
                 </el-table-column>
                 <el-table-column
                   prop="out_bound"
-                  label="地区">
+                  :label="$t('iot_plat_area')">
                 </el-table-column>
                 <el-table-column
                   prop="delivery_time"
-                  label="收货时间"
+                  :label="$t('iot_plat_harvest_time')"
                   width="100">
                 </el-table-column>
                 <el-table-column
                   prop="box_number"
-                  label="箱号"
+                  :label="$t('iot_plat_case_number')"
                   width="80">
-                  <!--<template slot-scope="scope">{{ dateFormat(new Date(scope.row.goods_adddate * 1000), 'yyyy-MM-dd hh:mm:ss')  }}</template>-->
+                  <!--<template slot-scope="scope">{{ formatDate(new Date(scope.row.goods_adddate * 1000), 'yyyy-MM-dd hh:mm:ss')  }}</template>-->
                 </el-table-column>
                 <el-table-column
                   prop="activation_time"
-                  label="激活时间"
+                  :label="$t('iot_plat_activation_time')"
                   width="100">
                 </el-table-column>
                 <el-table-column
                   v-if="vmHasAuth(AdminPermissionsLib.REWORK_EQUIPMENT, tableData.res)"
                   prop="untie_status"
-                  label="返修状况">
+                  :label="$t('iot_plat_return_status')">
                   <template slot-scope="scope">
-                    <span v-if="scope.row.untie_status === 0">无</span>
-                    <span v-else @click="showReworkList(scope.row.device_id)" style="cursor:pointer;color:#38a0f8">查看</span>
+                    <span v-if="scope.row.untie_status === 0">{{$t("iot_plat_none")}}</span>
+                    <span v-else @click="showReworkList(scope.row.device_id)" style="cursor:pointer;color:#38a0f8">{{$t("iot_plat_view")}}</span>
                   </template>
                 </el-table-column>
               </el-table>
@@ -109,45 +109,45 @@
       </el-col>
     </el-row>
 
-    <el-dialog title="返修记录" width="85rem" :visible.sync="isShowReworkList" center>
+    <el-dialog :title="$t('iot_plat_return_record')" width="85rem" :visible.sync="isShowReworkList" center>
       <el-table
         :data="reworkData"
         v-loading="reloading"
         style="width: 100%;height: 41.67rem;overflow: auto;">
         <el-table-column
           prop="repair_time"
-          label="返修时间"
+          :label="$t('iot_plat_return_time')"
           width="180">
         </el-table-column>
         <el-table-column
           prop="results_reason"
-          label="返修原因"
+          :label="$t('iot_plat_return_reason')"
           width="180">
         </el-table-column>
         <el-table-column
           prop="results_of_repair"
-          label="返修方式">
-          <template slot-scope="scope">{{ repairWayCode[scope.row.results_of_repair] }}</template>
+          :label="$t('iot_plat_return_way')">
+          <template slot-scope="scope">{{ $t(repairWayCode[scope.row.results_of_repair]) }}</template>
         </el-table-column>
         <el-table-column
           prop="pic"
-          label="返修图片">
+          :label="$t('iot_plat_return_picture')">
           <template slot-scope="scope">
-            <ScaleImgComponent :path="scope.row.pic" style="width:5rem;height:5rem" alt="返修图片"></ScaleImgComponent>
+            <ScaleImgComponent :path="scope.row.pic" style="width:5rem;height:5rem" :alt="$t('iot_plat_return_picture')"></ScaleImgComponent>
           </template>
         </el-table-column>
         <el-table-column
           prop="untie"
-          label="解绑状态">
-          <template slot-scope="scope">{{ untieCode[scope.row.untie] }}</template>
+          :label="$t('iot_plat_unbind_status')">
+          <template slot-scope="scope">{{ $t(untieCode[scope.row.untie]) }}</template>
         </el-table-column>
         <el-table-column
           prop="untie_time"
-          label="解绑时间">
+          :label="$t('iot_plat_unbind_time')">
         </el-table-column>
         <el-table-column
           prop="user_name"
-          label="处理人">
+          :label="$t('iot_plat_processing_staff')">
         </el-table-column>
       </el-table>
     </el-dialog>
@@ -205,7 +205,7 @@ export default {
         this.loading = false  
       } catch (error) {
         this.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
 
@@ -220,7 +220,7 @@ export default {
         this.reloading = false
       } catch (error) {
         this.reloading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
 

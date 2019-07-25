@@ -1,15 +1,15 @@
 <template>
-  <el-dialog :title="title" :visible.sync="isVisible" width="50rem" center :before-close="close">
-    <el-form label-width="120px" status-icon :model="i18nForm" ref="i18nForm" :rules="rules" :hide-required-asterisk="true">
-      <el-form-item label="变量名" class="form-row" prop="str_id">
-        <el-input v-model="i18nForm.str_id" placeholder="请输入变量名" :disabled="model !== 0"></el-input>
+  <el-dialog :title="title" :visible.sync="isVisible" width="51rem" center :before-close="close">
+    <el-form label-width="150px" status-icon :model="i18nForm" ref="i18nForm" :rules="rules" :hide-required-asterisk="true">
+      <el-form-item :label="$t('iot_plat_variable')" class="form-row" prop="str_id">
+        <el-input v-model="i18nForm.str_id" :placeholder="$t('iot_plat_input_variable')" :disabled="model !== 0"></el-input>
         <span class="form-tip">*</span>
       </el-form-item>
-      <el-form-item v-for="(item, index) in multiLanguage" :key="index" :label="item.name" class="form-row" :prop="item.id">
-        <el-input v-model="translation[item.id]" placeholder="请输入翻译语言"></el-input>
+      <el-form-item v-for="(item, index) in multiLanguage" :key="index" :label="item.language_desc" class="form-row" :prop="item.language">
+        <el-input v-model="translation[item.language]" :placeholder="$t('iot_plat_input_translate_language')"></el-input>
       </el-form-item>
       <el-form-item label style="margin-top: 4.33rem;">
-        <el-button type="primary" class="btn-submit" @click="submit()">确 定</el-button>
+        <el-button type="primary" class="btn-submit" @click="submit()">{{$t("iot_plat_confirm")}}</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -17,12 +17,11 @@
 
 <script>
 import { COOP_I18N_ADD, COOP_I18N_UPDATE } from "@/lib/api";
-import { multiLanguage } from "@/lib/const";
 import _ from "lodash";
 
 const TITLE = {
-  add   : "添加",
-  update: "修改"
+  add   : "iot_plat_add",
+  update: "iot_plat_modify"
 }
 
 export default {
@@ -55,17 +54,17 @@ export default {
     model(newVal) {
       if (newVal || newVal === 0) {
         if (newVal === 0) {
-          this.title = TITLE.add
+          this.title = this.$t(TITLE.add)
         } else {
-          this.title = TITLE.update
+          this.title = this.$t(TITLE.update)
         }
       }
     }
   },
   data () {
     return {
-      title        : TITLE.add,
-      multiLanguage: multiLanguage,
+      title        : this.$t(TITLE.add),
+      multiLanguage: this.$store.getters.getLanguages,
       i18nForm     : {
         str_id         : "",
         str_translation: ""
@@ -74,13 +73,13 @@ export default {
 
       rules: {
         str_id: [
-          { required: true, message: "请输入变量名", trigger: "change" }
+          { required: true, message: this.$t("iot_plat_input_variable"), trigger: "change" }
         ]
       }
     }
   },
   created () {
-    multiLanguage.map(o => o.id).forEach(item => {
+    this.multiLanguage.map(o => o.language).forEach(item => {
       this.$set(this.translation, item, "")
     })
   },
@@ -110,7 +109,7 @@ export default {
       }
 
       if (!flag) {
-        return this.vmMsgError("请至少填写一种语言翻译！")
+        return this.vmMsgError(this.$t("iot_plat_atleast_input_one_translate"))
       } 
 
       const loading = this.vmLoadingFull();
@@ -123,7 +122,7 @@ export default {
             const res = await this.$http.post(url, param)
             if (this.vmResponseHandler(res)) {
               this.resetFormData()
-              this.vmMsgSuccess(this.model === 0 ? "添加成功！" : "修改成功！");
+              this.vmMsgSuccess(this.model === 0 ? this.$t("iot_plat_add_success") : this.$t("iot_plat_edit_success"));
               this.$refs.i18nForm.resetFields();
               this.$emit("close", true)
             }
@@ -132,7 +131,7 @@ export default {
         });
       } catch (error) {
         loading.close();
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME)
   }

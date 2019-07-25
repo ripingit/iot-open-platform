@@ -2,7 +2,7 @@
   <div class="VisitPower">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">权限管理-访问授权</p>
+        <p class="title-cn">{{$t("iot_plat_permission_visit_auth")}}</p>
         <p class="title-en">ADMIN POWER MANAGE</p>
       </el-col>
     </el-row>
@@ -17,12 +17,12 @@
           <el-button
             type="primary"
             v-if="vmHasAuth(CoopPermissionsLib.EDIT_USER_GROUP_AUTH, resData.res)"
-            @click="confirm()">确 定</el-button>
+            @click="confirm()">{{$t("iot_plat_confirm")}}</el-button>
         </el-col>
         <el-col :span="2">
           <el-button type="danger"
                      style="background-color: #f56c6c;border-color: #f56c6c;margin-left: 1rem"
-                     @click="goBack()">返 回</el-button>
+                     @click="goBack()">{{$t("iot_plat_return")}}</el-button>
         </el-col>
       </el-col>
     </el-row>
@@ -85,7 +85,7 @@ export default {
         }
       } catch (error) {
         this.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     goBack () {
@@ -110,19 +110,19 @@ export default {
           group_id: this.group_id
         })
         this.vmConfirm({
-          msg            : "确定修改此用户授权？",
+          msg            : this.$t("iot_plat_confirm_edit_user_auth"),
           confirmCallback: async () => {
             const res = await this.$http.post(COOP_USERGROUP_AUTH_SET, param)
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("操作成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_operating_success"))
               this.onSubmit()
             }
           }
         })  
       } catch (error) {
         loading.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     CheckAll (row) {

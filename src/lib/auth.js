@@ -41,7 +41,10 @@ export default {
       PROMOTION_ADD        : { id: 13008, name: "商品促销信息添加" },
       REWORK_EQUIPMENT     : { id: 14002, name: "查看设备返修" },
       PERMISSION_COOP      : { id: 4003, name: "查看合作商Key" },
-      COOP_AUTH_SELECT     : { id: 20002, name: "编辑合作商权限列表" }
+      COOP_AUTH_SELECT     : { id: 20002, name: "编辑合作商权限列表" },
+      LANGUAGE_ADD         : { id: 25003, name: "多语种添加" },
+      LANGUAGE_DELETE      : { id: 25002, name: "多语种删除" },
+      LANGUAGE_UPDATE      : { id: 25004, name: "多语种修改" }
     }
 
     /** 合作商 */
@@ -81,7 +84,10 @@ export default {
       DEL_DEVICE_BIND        : { id: 23002, name: "解除设备绑定" },
       ADD_MULTI_LANGUAGE     : { id: 24003, name: "多语言添加" },
       EDIT_MULTI_LANGUAGE    : { id: 24002, name: "多语言修改" },
-      DEL_MULTI_LANGUAGE     : { id: 24004, name: "多语言删除" }
+      DEL_MULTI_LANGUAGE     : { id: 24004, name: "多语言删除" },
+      EXPORT_MULTI_LANGUAGE  : { id: 24005, name: "多语言导出" },
+      IMPORT_MULTI_LANGUAGE  : { id: 24006, name: "多语言导入" },
+      DEVICE_LOG_REPORT      : { id: 23005, name: "设备日志上报设置" }
     }
   }
 }

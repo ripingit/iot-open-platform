@@ -47,87 +47,119 @@ export default {
 
     /** 固件类型 */
     Vue.prototype.firmwareTypeCode = {
-      1: "正式",
-      2: "临时",
-      3: "灰度"
+      // 正式
+      1: "iot_plat_formal",
+      // 临时
+      2: "iot_plat_temporary",
+      // 灰度
+      3: "iot_plat_grayscale"
     }
 
     /** 固件版本 */
-    Vue.prototype.firmwareVerCode = {
-      1: "正式版本",
-      2: "临时版本",
-      3: "测试版本"
-    }
+    /*
+     * Vue.prototype.firmwareVerCode = {
+     *   1: "正式版本",
+     *   2: "临时版本",
+     *   3: "测试版本"
+     * }
+     */
 
     /** 商品类型 */
-    Vue.prototype.goodTypeCode = { css: "云储存服务" }
+    /* Vue.prototype.goodTypeCode = { css: "云储存服务" } */
 
     /** 商品上下架状态 */
     Vue.prototype.goodSaleCode = {
-      1: "已上架",
-      2: "已下架"
+      // 已上架
+      1: "iot_plat_already_shelf",
+      // 已下架
+      2: "iot_plat_already_obtained"
     }
 
     /** 商品促销状态 */
     Vue.prototype.goodPromotionCode = {
-      1: "未促销",
-      2: "促销中",
-      3: "免费"
+      // 未促销
+      1: "iot_plat_not_promoted",
+      // 促销中
+      2: "iot_plat_on_sale",
+      // 免费
+      3: "iot_plat_free"
     }
 
     /** 设备解绑状态 */
     Vue.prototype.untieCode = {
-      1: "成功",
-      2: "失败",
-      3: "解绑中"
+      // 成功
+      1: "iot_plat_success",
+      // 失败
+      2: "iot_plat_fail",
+      // 解绑中
+      3: "iot_plat_unbinding"
     }
 
     /** 设备返修方式 */
     Vue.prototype.repairWayCode = {
-      1: "更换",
-      2: "维修"
+      // 更换
+      1: "iot_plat_replace",
+      // 维修
+      2: "iot_plat_repair"
     }
 
     /** 短信、邮件设置模板语言类型 */
     Vue.prototype.langTemplateType = {
-      1: "中文模板",
-      2: "英文模板"
+      // 中文模板
+      1: "iot_plat_chinese_template",
+      // 英文模板
+      2: "iot_plat_english_template"
     }
 
     /** 短信、邮件设置模板类型 */
     Vue.prototype.smsTemplateType = {
-      1: "注册",
-      2: "找回密码",
-      3: "更换账号"
+      // 注册
+      1: "iot_plat_registered",
+      // 找回密码
+      2: "iot_plat_retrieve_pwd",
+      // 更换账号
+      3: "iot_plat_change_account"
     }
 
     /** 协议设置语言 */
-    Vue.prototype.protocolLangTemplateType = {
-      zh: "中文",
-      en: "英语",
-      pt: "葡萄牙语"
-    }
+    /*
+     * Vue.prototype.protocolLangTemplateType = {
+     * zh: "中文",
+     * en: "英语",
+     * pt: "葡萄牙语"
+     *} 
+     */
 
     /** 协议设置类型 */
     Vue.prototype.protocolTemplateType = {
-      1: "用户协议",
-      2: "隐私协议",
-      3: "云存储协议",
-      4: "使用说明"
+      // 用户协议
+      1: "iot_plat_user_agreement",
+      // 隐私协议
+      2: "iot_plat_privacy_agreement",
+      // 云存储协议
+      3: "iot_plat_lloud_storage_protocol",
+      // 使用说明
+      4: "iot_plat_instruction_use"
     }
 
     /** 是否使用邮件TLS */
     Vue.prototype.tlsCode = {
-      0: "未使用",
-      1: "使用"
+      // 未使用
+      0: "iot_plat_not_use",
+      // 使用
+      1: "iot_plat_use"
     }
 
     /** 支付类型 */
     Vue.prototype.payType = {
-      1: "支付宝",
-      2: "微信",
-      3: "PayPal",
-      9: "新用户专享"
+      // 支付宝
+      1: "iot_plat_alipay",
+      // 微信
+      2: "iot_plat_wechat",
+      // PayPal
+      3: "iot_plat_paypal",
+      // 新用户专享
+      9: "iot_plat_new_user_exclusive"
     }
   }
 }

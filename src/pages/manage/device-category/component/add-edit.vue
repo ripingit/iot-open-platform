@@ -1,19 +1,19 @@
 <template>
   <el-dialog :title="title" :visible.sync="isVisible" center :before-close="handleClose">
-    <el-form label-width="100px" status-icon :model="formData" ref="form" :rules="rules">
-      <el-form-item label="类别名称" class="form-row" prop="prodt_name">
+    <el-form label-width="150px" status-icon :model="formData" ref="form" :rules="rules">
+      <el-form-item :label="$t('iot_plat_class_name')" class="form-row" prop="prodt_name">
         <el-input v-model="formData.prodt_name" v-bind:disabled="model === types.edit"></el-input>
       </el-form-item>
-      <el-form-item label="类别代码" class="form-row" prop="prodt_code">
+      <el-form-item :label="$t('iot_plat_class_code')" class="form-row" prop="prodt_code">
         <el-input v-model="formData.prodt_code" v-bind:disabled="model === types.edit"></el-input>
       </el-form-item>
-      <el-form-item label="安防" class="form-row" prop="sec_type">
-        <el-radio v-model="formData.sec_type" label="1">非安防设备</el-radio>
-        <el-radio v-model="formData.sec_type" label="2">默认安防设备</el-radio>
-        <el-radio v-model="formData.sec_type" label="3">普通安防设备</el-radio>
+      <el-form-item :label="$t('iot_plat_security')" class="form-row" prop="sec_type">
+        <el-radio v-model="formData.sec_type" label="1">{{$t("iot_plat_non_security_devie")}}</el-radio>
+        <el-radio v-model="formData.sec_type" label="2">{{$t("iot_plat_default_serurity_device")}}</el-radio>
+        <el-radio v-model="formData.sec_type" label="3">{{$t("iot_plat_ordinary_security_device")}}</el-radio>
       </el-form-item>
       <el-form-item style="margin-top: 4rem;" class="form-row">
-        <el-button type="primary" class="btn-submit" @click="submit()">确 定</el-button>
+        <el-button type="primary" class="btn-submit" @click="submit()">{{$t("iot_plat_confirm")}}</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -59,9 +59,9 @@ export default {
     const validateIsEmpty = (rule, value, callback) => {
       if (value === "") {
         if (rule.field === "prodt_name") {
-          callback(new Error("请输入类别名称"));
+          callback(new Error(this.$t("iot_plat_input_class_name")));
         } else if (rule.field === "prodt_code") {
-          callback(new Error("请输入类别代码"));
+          callback(new Error(this.$t("iot_plat_input_class_code")));
         }
       }
       callback();
@@ -96,13 +96,13 @@ export default {
 
             loading.close();
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("操作成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_operating_success"))
               this.$refs.form.resetFields();
               this.$emit("close", true);
             }
           } catch (e) {
             loading.close();
-            this.vmMsgError("程序错误！");
+            this.vmMsgError(this.$t("iot_plat_program_error"));
           }
         }
       });

@@ -2,7 +2,7 @@
   <div class="device-model-admin">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">多语言</p>
+        <p class="title-cn">{{$t("iot_plat_multi_language")}}</p>
         <p class="title-en">MULTI-LANGUAGE</p>
       </el-col>
     </el-row>
@@ -11,10 +11,27 @@
         <el-col :span="24">
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
             <el-form-item label>
-              <el-input v-model="searchForm.variableName" placeholder="请输入变量名"></el-input>
+              <el-input v-model="searchForm.variableName" :placeholder="$t('iot_plat_input_variable')"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button class="btn-search" type="primary" @click="getLanguage">查询</el-button>
+              <el-button class="btn-search" type="primary" @click="getLanguage(1)">{{$t("iot_plat_query")}}</el-button>
+            </el-form-item>
+            <el-form-item>
+              <el-button 
+                v-if="vmHasAuth(CoopPermissionsLib.IMPORT_MULTI_LANGUAGE, tableData.res)"
+                class="btn-search" type="primary" @click="exportLanguage">{{$t("iot_plat_export")}}</el-button>
+            </el-form-item>
+            <el-form-item>
+              <UploadComponent
+                v-if="vmHasAuth(CoopPermissionsLib.EXPORT_MULTI_LANGUAGE, tableData.res)"
+                class="uploader"
+                ref="uploaderExcel"
+                name="file"
+                :path="uploadPath"
+                :buttonText="$t('iot_plat_import')"
+                :accept="['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']"
+                model="btn"
+                :condition="$t('iot_plat_upload_excel_file')" @response="getUploadResult"></UploadComponent>
             </el-form-item>
           </el-form>
           <el-button
@@ -29,10 +46,10 @@
         <el-col :span="24">
           <TableComponent :options="tableOptions" :data="tableData.data" v-on:page-change="getLanguage">
             <template slot-scope="scope" v-for="(item, index) in tableSlots" :slot="item">
-              <a class="success" v-if="item != 'CN'" :key="index" href="javascript:void(0)" @click="viewDetail(scope.row, item)">查看</a>
+              <a class="success" v-if="item != 'CN'" :key="index" href="javascript:void(0)" @click="viewDetail(scope.row, item)">{{$t("iot_plat_view")}}</a>
               <template v-else slot-scope="scope">{{scope.row.str_translation.CN}}</template>
             </template>
-            <el-table-column label="操作" width="120" slot="handler" >
+            <el-table-column :label="$t('iot_plat_operate')" width="120" slot="handler" >
               <template slot-scope="scope" v-if="vmHasAuth(CoopPermissionsLib.EDIT_MULTI_LANGUAGE, tableData.res) || vmHasAuth(CoopPermissionsLib.DEL_MULTI_LANGUAGE, tableData.res)">
                 <el-button
                   v-if="vmHasAuth(CoopPermissionsLib.EDIT_MULTI_LANGUAGE, tableData.res)"
@@ -63,16 +80,16 @@
     <!-- 除中文外的其他翻译 -->
     <el-dialog :visible.sync="isDetailVisible" width="50rem" center class="dialog">
       <el-row class="row">
-        <el-col :span="4" class="label-left">变量名：</el-col>
-        <el-col :span="20">{{langDetail.variableName}}</el-col>
+        <el-col :span="6" class="label-left">{{$t("iot_plat_variable")}}：</el-col>
+        <el-col :span="18">{{langDetail.variableName}}</el-col>
       </el-row>
       <el-row class="row">
-        <el-col :span="4" class="label-left">{{langDetail.label}}：</el-col>
-        <el-col :span="20">{{langDetail.translation}}</el-col>
+        <el-col :span="6" class="label-left">{{langDetail.label}}：</el-col>
+        <el-col :span="18">{{langDetail.translation}}</el-col>
       </el-row>
       <el-row class="row">
         <el-col :span="24" class="btn-container">
-          <el-button type="primary" class="btn" @click="isDetailVisible = false">确 定</el-button>
+          <el-button type="primary" class="btn" @click="isDetailVisible = false">{{$t("iot_plat_confirm")}}</el-button>
         </el-col>
       </el-row>
     </el-dialog>
@@ -82,15 +99,17 @@
 import "@/assets/css/content.css";
 import TableComponent from "@/components/table/table.vue";
 import AddUpdateComponent from "./component/add-update.vue";
-import { multiLanguage } from "@/lib/const";
-import { COOP_I18N_QUERY, COOP_I18N_DELETE } from "@/lib/api.js";
+import UploadComponent from "@/components/uploader/upload.vue"
+import { COOP_I18N_QUERY, COOP_I18N_DELETE, COOP_I18N_EXPORT, COOP_I18N_IMPORT } from "@/lib/api.js";
 
 export default {
-  components: { TableComponent, AddUpdateComponent },
+  components: { TableComponent, AddUpdateComponent, UploadComponent },
   data() {
     return {
+      multiLanguage           : this.$store.getters.getLanguages,
       isAddUpdateDialogVisible: false,
       isDetailVisible         : false,
+      uploadPath              : COOP_I18N_IMPORT,
       tableSlots              : [],
       searchForm              : { variableName: "" },
       tableData               : {
@@ -112,7 +131,7 @@ export default {
         },
         columns: [
           {
-            label: "变量名",
+            label: this.$t("iot_plat_variable"),
             prop : "str_id"
           }
         ]
@@ -127,12 +146,12 @@ export default {
     };
   },
   created() {
-    this.tableSlots = multiLanguage.map(o => o.id)
-    multiLanguage.forEach(item => {
+    this.tableSlots = this.multiLanguage.map(o => o.language)
+    this.multiLanguage.forEach(item => {
       this.tableOptions.columns.push({
-        label   : item.name,
-        prop    : item.id,
-        slotName: item.id
+        label   : item.language_desc,
+        prop    : item.language,
+        slotName: item.language
       })
     })
     this.getLanguage()
@@ -151,7 +170,7 @@ export default {
     },
 
     viewDetail (row, lang) {
-      this.langDetail.label = multiLanguage.find(o => o.id === lang).name
+      this.langDetail.label = this.multiLanguage.find(o => o.language === lang).language_desc
       this.langDetail.variableName = row.str_id
       this.langDetail.translation = row.str_translation[lang]
       this.isDetailVisible = true
@@ -162,18 +181,41 @@ export default {
       this.isAddUpdateDialogVisible = true
       this.addUpdateModel = 1
     },
-    
+
+    exportLanguage () {
+      try {
+        this.vmConfirm({
+          msg            : this.$t("iot_plat_confirm_export_translate"),
+          confirmCallback: () => {
+            const aAnchor = document.createElement("a");
+            aAnchor.href = COOP_I18N_EXPORT;
+
+            document.body.appendChild(aAnchor)
+            aAnchor.click();
+          }
+        });
+      } catch (error) {
+        this.vmMsgError(this.$t("iot_plat_program_error"));
+      }
+    },
+
+    getUploadResult (res) {
+      if (res && res.status) {
+        this.getLanguage()
+      }
+    },
+
     deleteLanguage (row) {
       const loading = this.vmLoadingFull();
       try {
         const param = this.createFormData({ str_id: row.str_id });
         this.vmConfirm({
-          msg            : "确定删除该记录？",
+          msg            : this.$t("iot_plat_confirm_delete_data"),
           confirmCallback: async () => {
             const res = await this.$http.post(COOP_I18N_DELETE, param)
             loading.close();
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("删除成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_delete_success"));
               this.getLanguage();
             }
           },
@@ -183,11 +225,14 @@ export default {
         });
       } catch (error) {
         loading.close();
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
-    async getLanguage () {
+    async getLanguage (isSearch) {
       try {
+        if (isSearch) {
+          this.tableOptions.pageOptions.currentPage = "1"
+        }
         const param = this.createFormData({
           page     : parseInt(this.tableOptions.pageOptions.currentPage),
           page_size: parseInt(this.tableOptions.pageOptions.pageSize),
@@ -208,7 +253,7 @@ export default {
         }
       } catch (e) {
         this.tableOptions.loading = false;
-        this.vmMsgError("程序错误");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }
   }
@@ -233,5 +278,9 @@ export default {
 }
 .btn-container {
   text-align: center
+}
+.uploader /deep/ .el-button {
+  border-radius: 4px !important;
+  height: 3.2rem !important;
 }
 </style>

@@ -1,20 +1,19 @@
 <template>
   <div>
-    <el-dialog :title="model === 0 ? '设备绑定' : '解除绑定'" width="50rem" :visible.sync="isVisible" center :before-close="dialogClose">
-      <el-form label-width="100px" status-icon :model="formData" :rules="rules" ref="bindForm" :hide-required-asterisk="true">
-        <el-form-item label="设备ID" class="form-row">
-          <el-button type="primary" class="btn-import" @click="showDeviceIdCopyDialog()">复制导入</el-button>
+    <el-dialog :title="model === 0 ? $t('iot_plat_device_bind') : $t('iot_plat_unbind')" width="55rem" :visible.sync="isVisible" center :before-close="dialogClose">
+      <el-form label-width="160px" status-icon :model="formData" :rules="rules" ref="bindForm" :hide-required-asterisk="true">
+        <el-form-item :label="$t('iot_plat_device_id')" class="form-row">
+          <el-button type="primary" class="btn-import" @click="showDeviceIdCopyDialog()">{{$t("iot_plat_copy_import")}}</el-button>
           <UploadComponent
               class="xls-uploader"
               :path="uploadPath"
               :data="{name: 'online'}"
-              :accept="['.xls', '.xlsx']"
+              :accept="['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']"
               :size="2"
               model="btn"
-              buttonText="Excel导入"
+              :buttonText="$t('iot_plat_excel_import')"
               @response="getUploadResult"
             ></UploadComponent>
-          <a class="success" href="javascript:void(0)" @click="downloadTemplate">下载excel模板</a>
           <span class="form-tip">*</span>
         </el-form-item>
         <!-- <el-form-item label="KEY" class="form-row">
@@ -28,8 +27,8 @@
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item> -->
-        <el-form-item label="绑定管理" class="form-row" prop="user_id" v-if="model === 0">
-          <el-select v-model="formData.user_id" placeholder="请选择">
+        <el-form-item :label="$t('iot_plat_bind_manage')" class="form-row" prop="user_id" v-if="model === 0">
+          <el-select v-model="formData.user_id" :placeholder="$t('iot_plat_select_please')">
             <el-option
               v-for="item in bindManagers"
               :key="item.user_id"
@@ -40,42 +39,45 @@
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" class="btn-submit" @click="submit()">提 交</el-button>
+          <a class="success" href="javascript:void(0)" @click="downloadTemplate">{{$t("iot_plat_download_excel_template")}}</a>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" class="btn-submit" @click="submit()">{{$t("iot_plat_submit")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
 
     <!-- 复制设备ID -->
-    <el-dialog title="复制UID" :visible.sync="isCopyBoardVisible" center width="50rem" :close-on-click-modal="false">
-      <el-form label-width="80px" status-icon :model="formData" ref="form">
-        <el-form-item label="设备ID" class="form-row">
+    <el-dialog :title="$t('iot_plat_copy_uid')" :visible.sync="isCopyBoardVisible" center width="50rem" :close-on-click-modal="false">
+      <el-form label-width="100px" status-icon :model="formData" ref="form">
+        <el-form-item :label="$t('iot_plat_device_id')" class="form-row">
           <el-input
             class="ipt-area"
             type="textarea"
             :autosize="{ minRows: 15, maxRows: 15}"
-            placeholder="请输入设备ID，一行输入一个设备ID"
+            :placeholder="$t('iot_plat_input_device_id_one_line')"
             v-model="formData.device_ids"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" class="btn-confirm" @click="copyDeviceID()">确定</el-button>
+          <el-button type="primary" class="btn-confirm" @click="copyDeviceID()">{{$t("iot_plat_confirm")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
 
     <!-- 绑定结果 -->
-    <el-dialog title="添加结果" :visible.sync="isBindResultVisible" center width="50rem" :close-on-click-modal="false">
+    <el-dialog :title="$t('iot_plat_add_result')" :visible.sync="isBindResultVisible" center width="50rem" :close-on-click-modal="false">
       <el-form label-width="100px" status-icon>
-        <el-form-item label="失败设备" class="form-row">
+        <el-form-item :label="$t('iot_plat_fail_result')" class="form-row">
           <el-input
             disabled
             class="ipt-area"
             type="textarea"
             :autosize="{ minRows: 15, maxRows: 15}"
-            placeholder="请输入"
+            :placeholder="$t('iot_plat_input_value_please')"
             v-model="bindFailedResults"></el-input>
         </el-form-item>
         <el-form-item>
-          <a class="success" href="javascript:void(0)" @click="downloadBindFailedRes">下载txt</a>
+          <a class="success" href="javascript:void(0)" @click="downloadBindFailedRes">{{$t("iot_plat_download_txt")}}</a>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -134,7 +136,7 @@ export default {
       },
       rules: {
         user_id: [
-          { required: true, message: "请选择管理员", trigger: "change" }
+          { required: true, message: this.$t("iot_plat_select_admin"), trigger: "change" }
         ]
       }
     }
@@ -173,7 +175,7 @@ export default {
     downloadBindFailedRes () {
       const aTag = document.createElement("a");
       const blob = new Blob([ this.bindFailedResults ]);
-      aTag.download = "绑定失败设备.txt";
+      aTag.download = `${this.$t("iot_plat_fail_bind_device_txt")}`;
       aTag.href = URL.createObjectURL(blob);
       aTag.click();
       URL.revokeObjectURL(blob);
@@ -187,14 +189,14 @@ export default {
 
     untied: _.debounce(function () {
       if (!this.formData.device_ids && !this.formData.path) {
-        return this.vmMsgError("请设置设备ID！")
+        return this.vmMsgError(this.$t("iot_plat_set_device_id"))
       }
       
       this.$refs.bindForm.validate(valid => {
         if (valid) {
           const loading = this.vmLoadingFull()
           this.vmConfirm({
-            msg            : "确认解绑设备吗？",
+            msg            : this.$t("iot_plat_confirm_unbind_device"),
             confirmCallback: async () => {
               try {
                 const data = this.createFormData({
@@ -207,11 +209,11 @@ export default {
                   this.$emit("close", true)
                   this.resetBindForm()
                   this.$refs.bindForm.resetFields()
-                  this.vmMsgSuccess("解绑成功！")
+                  this.vmMsgSuccess(this.$t("iot_plat_unbind_success"))
                 }
               } catch (error) {
                 loading.close()
-                this.vmMsgError("程序错误")
+                this.vmMsgError(this.$t("iot_plat_program_error"));
               }  
             },
             cancelCallback: () => {
@@ -232,7 +234,7 @@ export default {
 
     bind: _.debounce(function () {
       if (!this.formData.device_ids && !this.formData.path) {
-        return this.vmMsgError("请设置设备ID！")
+        return this.vmMsgError(this.$t("iot_plat_set_device_id"))
       }
       
       this.$refs.bindForm.validate(async valid => {
@@ -263,7 +265,7 @@ export default {
               this.resetBindForm()
               this.$refs.bindForm.resetFields()
               if (res.data.total === 0) {
-                this.vmMsgSuccess("全部绑定成功！")
+                this.vmMsgSuccess(this.$t("iot_plat_bind_success_all"))
               } else {
                 this.isBindResultVisible = true
                 this.bindFailedResults = res.data.device_ids.join("\n")
@@ -271,7 +273,7 @@ export default {
             }
           } catch (error) {
             loading.close()
-            this.vmMsgError("程序错误")
+            this.vmMsgError(this.$t("iot_plat_program_error"));
           }
         }
       });

@@ -2,7 +2,7 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-          <p class="title-cn">固件管理</p>
+          <p class="title-cn">{{$t("iot_plat_fireware_manage")}}</p>
           <p class="title-en">THE FRIMWARE MANAGEMENT</p>
       </el-col>
     </el-row>
@@ -10,84 +10,35 @@
     <el-row>
       <el-col :span="24">
         <div class="table">
+          <!-- 搜索栏开始 -->
           <el-row>
             <el-col :span="24">
               <el-date-picker
                 v-model="searchDate"
                 type="daterange"
                 value-format="yyyy-MM-dd"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期">
+                :range-separator="$t('iot_plat_to')"
+                :start-placeholder="$t('iot_plat_start_date')"
+                :end-placeholder="$t('iot_plat_end_date')">
               </el-date-picker>
               <el-input
-                placeholder="请输入查询关键字"
+                :placeholder="$t('iot_plat_key_value_of_query')"
                 v-model="searchKeyWord"
                 clearable>
               </el-input>
-              <el-button class="btn-search" type="primary" @click="getFirmwareLists(1)">查询</el-button>
+              <el-button class="btn-search" type="primary" @click="getFirmwareLists(1)">{{$t('iot_plat_query')}}</el-button>
             </el-col>
           </el-row>
+          <!-- 搜索栏结束 -->
+          
           <el-row>
             <el-col :span="24">
-              <el-table
-                v-loading="loading"
-                :data="tableData.data"
-                style="width: 100%">
+              <TableComponent :options="tableOptions" :data="tableData.data" v-on:page-change="getFirmwareLists">
                 <el-table-column
-                  type="index"
-                  label="编号"
-                  width="80">
-                </el-table-column>
-                <el-table-column
-                  prop="product_name"
-                  label="型号名称"
-                  width="200">
-                </el-table-column>
-                <el-table-column
-                  prop="product_code"
-                  label="型号代码"
-                  width="150">
-                </el-table-column>
-                <el-table-column
-                  prop="rom_ver"
-                  label="固件版本">
-                </el-table-column>
-                <el-table-column
-                  prop="rom_type"
-                  label="固件类型">
-                  <template slot-scope="scope">
-                    {{scope.row.rom_type === 1 ? '正式'
-                    : scope.row.rom_type === 2 ? '临时'
-                    : scope.row.rom_type === 3 ? '灰度' : ''}}
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  prop="upgrade_time"
-                  label="更新时间">
-                </el-table-column>
-                <el-table-column
-                  prop="company_name"
-                  label="提交公司"
-                  width="200">
-                </el-table-column>
-                <el-table-column
-                  prop="file_id"
-                  label="下载">
-                  <template slot-scope="scope">
-                    <a :href="scope.row.file_id" target="_blank" class="download">下载</a>
-                  </template>
-                </el-table-column>
-                <!-- <el-table-column
-                  prop="upload_status"
-                  label="分发状态">
-                  <template slot-scope="scope">
-                    <span :class="scope.row.upload_status.join('') === '' ? 'wait' : scope.row.upload_status.join('') === 'success' ? 'pass' : 'reject'">
-                       {{ scope.row.upload_status.join('') === '' ? '分发中' : scope.row.upload_status.join('') === 'success' ? '成功' : '失败' }}
-                    </span>
-                  </template>
-                </el-table-column> -->
-                <el-table-column label="操作" v-if="vmHasAuth(AdminPermissionsLib.FIRMWARE_HISTORY, tableData.res)">
+                  :label="$t('iot_plat_operate')"
+                  width="120"
+                  slot="handler"
+                  v-if="vmHasAuth(AdminPermissionsLib.FIRMWARE_HISTORY, tableData.res)">
                   <template slot-scope="scope">
                     <el-button
                       class="btn-circle"
@@ -97,26 +48,18 @@
                       @click="showListDialog(scope.$index, scope.row)"></el-button>
                   </template>
                 </el-table-column>
-              </el-table>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col>
-              <el-pagination
-                v-if="tableData.data.length !== 0"
-                @size-change="getFirmwareLists"
-                @current-change="getFirmwareLists"
-                :page-size="20"
-                layout="prev, pager, next, jumper"
-                :total="tableData.total">
-              </el-pagination>
+                <template slot-scope="scope" slot="download">
+                  <a :href="scope.row.file_id" target="_blank" class="download">{{$t('iot_plat_download')}}</a>
+                </template>
+              </TableComponent>
             </el-col>
           </el-row>
         </div>
       </el-col>
     </el-row>
 
-    <el-dialog title="固件升级记录" :visible.sync="isDialogVisibleList" center>
+    <!-- 固件升级记录 -->
+    <el-dialog :title="$t('iot_plat_fireware_upgrade_record')" :visible.sync="isDialogVisibleList" center>
       <TimeLineComponent :data="historyRecord" :loading="isGetHistory"></TimeLineComponent>
     </el-dialog>
   </div>
@@ -124,14 +67,14 @@
 <script>
 import "@/assets/css/content.css"
 import TimeLineComponent from "@/components/time-line/time-line.vue"
+import TableComponent from "@/components/table/table.vue"
 import { GET_ADMIN_FIRMWARES_POST, ADMIN_FIRE_HISTORY_QUERY } from "@/lib/api"
 import _ from "lodash"
 
 export default {
-  components: { TimeLineComponent },
+  components: { TimeLineComponent, TableComponent },
   data () {
     return {
-      loading            : false,
       isDialogVisibleList: false,
       isGetHistory       : false,
       historyRecord      : [],
@@ -139,16 +82,58 @@ export default {
       searchKeyWord      : "",
       tableData          : {
         data   : [],
-        page   : "1",
         res    : [],
-        pageAll: 1,
-        product: [],
-        total  : 1
+        product: []
+      },
+      tableOptions: {
+        loading     : true,
+        hasSelection: false,
+        hasNumber   : true,
+        pageOptions : {
+          pageSize   : 20,
+          total      : 0,
+          currentPage: 1
+        },
+        columns: [
+          {
+            label: this.$t("iot_plat_model_name"),
+            prop : "product_name",
+            width: 200
+          },
+          {
+            prop : "product_code",
+            label: this.$t("iot_plat_model_code"),
+            width: "150"
+          },
+          {
+            prop : "rom_ver",
+            label: this.$t("iot_plat_fireware_version")
+          },
+          {
+            prop  : "rom_type",
+            label : this.$t("iot_plat_fireware_class"),
+            render: value => this.$t(this.firmwareTypeCode[value])
+          },
+          {
+            prop : "upgrade_time",
+            label: this.$t("iot_plat_upgrade_time")
+          },
+          {
+            prop : "company_name",
+            label: this.$t("iot_plat_submit_company"),
+            width: 200
+          },
+          {
+            prop    : "file_id",
+            label   : this.$t("iot_plat_download"),
+            slotName: "download"
+          }
+        ]
       }
     }
   },
   created () {
-    this.getFirmwareLists(1)
+    this.getFirmwareLists()
     document.body.addEventListener("keydown", this.keyCodeDown, false)
   },
   beforeDestroy () {
@@ -157,7 +142,7 @@ export default {
   methods: {
     keyCodeDown (e) {
       if (e.keyCode === this.ENTER_KEY_CODE) {
-        this.getFirmwareLists(1)
+        this.getFirmwareLists()
       }
     },
     async showListDialog (index, row) {
@@ -172,27 +157,28 @@ export default {
         }
       } catch (error) {
         this.isGetHistory = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
-    getFirmwareLists: _.debounce(async function (currentPage) {
+    getFirmwareLists: _.debounce(async function () {
       try {
         const data = this.createFormData({
-          page         : currentPage,
-          page_size    : 20,
+          page         : this.tableOptions.pageOptions.currentPage,
+          page_size    : this.tableOptions.pageOptions.pageSize,
           query_by_name: this.searchKeyWord,
           start_time   : this.searchDate ? this.searchDate[0] : "",
           end_time     : this.searchDate ? this.searchDate[1] : ""
         })
-        this.loading = true
+        this.tableOptions.loading = true
         const res = await this.$http.post(GET_ADMIN_FIRMWARES_POST, data)
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
+          this.tableOptions.pageOptions.total = res.data.total
         }
-        this.loading = false
+        this.tableOptions.loading = false
       } catch (error) {
-        this.loading = false
-        this.vmMsgError("程序错误！")
+        this.tableOptions.loading = false
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME)
   }

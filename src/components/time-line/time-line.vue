@@ -10,9 +10,9 @@
             <p class="date">{{item.upgrade_time}}</p>
             <p class="state" :class="item.is_review === 0 ? 'state-wait-pass'
                         : item.is_review === 1 ? 'state-pass'
-                        : item.is_review === 2 ? 'state-no-pass' : ''">{{item.is_review === 0 ? '待审核'
-                        : item.is_review === 1 ? '已通过'
-                        : item.is_review === 2 ? '已驳回' : ''}}</p>
+                        : item.is_review === 2 ? 'state-no-pass' : ''">{{item.is_review === 0 ? $t('iot_plat_wating_review')
+                        : item.is_review === 1 ? $t('iot_plat_already_pass')
+                        : item.is_review === 2 ? $t('iot_plat_already_reject') : ''}}</p>
           </el-col>
           <el-col :span="1">
             <div class="spot">
@@ -21,11 +21,11 @@
             </div>
           </el-col>
           <el-col :span="18">
-            <p class="log">版本：{{item.rom_ver}}</p>
-            <p class="log">MD5值：{{item.rom_md5}}</p>
+            <p class="log">{{$t('iot_plat_version')}}：{{item.rom_ver}}</p>
+            <p class="log">{{$t('iot_plat_md5_value')}}：{{item.rom_md5}}</p>
             <p class="log log-pre mt20">{{isJsonString(item.change_log) ? JSON.parse(item.change_log).CN : item.change_log}}</p>
 
-            <p class="log mt20 mb3"><a :href="item.file_id" target="_blank" class="download">下载测试</a></p>
+            <p class="log mt20 mb3"><a :href="item.file_id" target="_blank" class="download">{{$t('iot_plat_download_test')}}</a></p>
           </el-col>
         </el-row>
       </div>

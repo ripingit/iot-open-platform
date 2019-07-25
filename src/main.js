@@ -4,7 +4,6 @@
  */
 import Vue from "vue"
 import ECharts from "vue-echarts/components/ECharts.vue"
-import axios from "axios"
 import ElementUI from "element-ui"
 
 import "element-ui/lib/theme-chalk/index.css"
@@ -13,9 +12,11 @@ import "reset-css/reset.css"
 import App from "./App"
 import router from "./router"
 import store from "./store/index"
+import i18n from "./lang/index"
 import CommonApi from "./lib/common-api"
 import StatuCode from "./lib/statu"
 import PermissionLib from "./lib/auth"
+import axios from "@/lib/axios"
 
 /*
  * 提交代码到仓库或者打包发布时请注释
@@ -24,20 +25,6 @@ import PermissionLib from "./lib/auth"
 
 Vue.prototype.DEBOUNCE_TIME = 300
 Vue.prototype.ENTER_KEY_CODE = 13
-
-// 拦截接口响应
-axios.interceptors.response.use(res => {
-  if (res.data.statu === 0) {
-    res.data.msg = "请重新登录！"
-    router.push("/signin")
-  }
-  return res
-})
-
-axios.interceptors.request.use(req => {
-  req.url = `../${req.url}`
-  return req
-})
 
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
@@ -51,6 +38,7 @@ Vue.use(PermissionLib)
 /* eslint-disable no-new */
 new Vue({
   el        : "#app",
+  i18n,
   router,
   store,
   components: { App },

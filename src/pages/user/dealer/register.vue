@@ -4,49 +4,51 @@
       <div class="panel">
         <div class="panel-pos">
           <el-row>
-            <el-col :span="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
-            <el-col :span="20">
+            <el-col :span="6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
+            <el-col :span="18">
               <p class="brand">
-                <span>迈科智能开放平台注册</span>
+                <span>{{$t("iot_plat_mktech_registered")}}</span>
               </p>
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
-            <el-col :span="20">
-              <p class="tips">您正在注册成为经销商（权限：设备管理等）</p>
+            <el-col :span="6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
+            <el-col :span="18">
+              <p class="tips">{{$t("iot_plat_registering_dealer")}}</p>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="24">
-              <el-form :model="formData" status-icon ref="signUpForm" :rules="rules" label-position="right" label-width="80px">
-                <el-form-item label="名称" prop="name" class="row">
+              <el-form :model="formData" status-icon ref="signUpForm" :rules="rules" label-position="right" label-width="140px">
+                <el-form-item :label="$t('iot_plat_name')" prop="name" class="row">
                   <el-input
-                    placeholder="请输入公司或者商铺名称"
+                    :placeholder="$t('iot_plat_input_company_name')"
                     v-model="formData.name"
                     :disabled="isUpdateForm"
                     clearable>
                   </el-input>
                 </el-form-item>
-                <el-form-item label="联系电话" prop="tel" class="row">
+                <el-form-item :label="$t('iot_plat_contact_number')" prop="tel" class="row">
                   <el-input
-                    placeholder="请输入联系电话"
+                    :placeholder="$t('iot_plat_input_contact_number')"
                     v-model="formData.tel"
                     :disabled="isUpdateForm">
                   </el-input>
                 </el-form-item>
-                <el-form-item label="通讯地址" prop="addr" class="row">
+                <el-form-item :label="$t('iot_plat_mailing_address')" prop="addr" class="row">
                   <el-input
-                    placeholder="请输入通讯地址"
+                    :placeholder="$t('iot_plat_input_mailing_address')"
                     v-model="formData.addr"
                     :disabled="isUpdateForm">
                   </el-input>
                 </el-form-item>
                 <el-form-item class="forgot" prop="protocolChecked" v-if='isShowBtn'>
-                  <el-checkbox v-model="formData.protocolChecked">同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a></el-checkbox>
+                  <el-checkbox v-model="formData.protocolChecked">{{$t("iot_plat_agree_mktech_protocol")}}
+                    <!-- 同意 <a style="color: #3193e6">《迈科智能用户协议》</a> -->
+                  </el-checkbox>
                 </el-form-item>
                 <el-form-item v-if='isShowBtn'>
-                  <el-button class="btn-signup" type="primary" @click="signUp">注册</el-button>
+                  <el-button class="btn-signup" type="primary" @click="signUp">{{$t("iot_plat_registered")}}</el-button>
                 </el-form-item>
               </el-form>
             </el-col>
@@ -71,28 +73,28 @@ export default {
     const validateIsEmpty = (rule, value, callback) => {
       if (value === "") {
         if (rule.field === "name") {
-          callback(new Error("请输入公司或商铺名称"))
+          callback(new Error(this.$t("iot_plat_input_company_name")))
         } else if (rule.field === "addr") {
-          callback(new Error("请输入通讯地址"))
+          callback(new Error(this.$t("iot_plat_input_mailing_address")))
         }
       }
       callback()
     }
     const validateAPhone = (rule, value, callback) => {
       if (value === "") {
-        callback(new Error("请输入联系电话"))
+        callback(new Error(this.$t("iot_plat_input_contact_number")))
       } else {
         const isFixPhone = validateFixPhone(value)
         const isPhone = validatePhone(value)
         if (!isFixPhone && !isPhone) {
-          callback(new Error("请输入正确的联系电话"))
+          callback(new Error(this.$t("iot_plat_input_correct_contact_number")))
         }
         callback()
       }
     }
     const validateProtocol = (rule, value, callback) => {
       if (!value) {
-        callback(new Error("请勾选同意《迈科智能用户协议》"))
+        callback(new Error(this.$t("iot_plat_agree_mktech_protocol_please")))
       } else {
         callback()
       }
@@ -145,7 +147,7 @@ export default {
           if (valid) {
             const res = await this.$http.post(PARTNER_AUTH_POST, this.createFormData(this.formData))
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("注册成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_registered_success"))
 
               Promise.all([ this.getState(this.merchantCode.coop), this.getState(this.merchantCode.dealer) ]).then(response => {
                 // 未提交认证且未注册经销商
@@ -155,14 +157,14 @@ export default {
           }
         }) 
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
 
     async resoveState (response) {
       if (response[0] && response[0].data.company_status === this.authCode.NO_SUBMIT && (response[1] && !response[1].data.DealerAndCompanys)) {
         this.$router.push("/manage/coopApply")
-        this.vmMsgError("身份不明")
+        this.vmMsgError(this.$t("iot_plat_unknow_identity"))
       } else {
         if (response[1].data.DealerAndCompanys) {
           const res = await this.$http.post(COOP_AUTH_GET)
@@ -233,7 +235,7 @@ export default {
   display: flex;
   align-items: center;
   margin: 10rem auto;
-  width: 31.67rem;
+  width: 35.67rem;
 }
 .panel-pos {
   width: 100%;

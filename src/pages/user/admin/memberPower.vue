@@ -2,7 +2,7 @@
   <div class="memberPower">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">权限管理-成员授权</p>
+        <p class="title-cn">{{$t("iot_plat_permission_auth")}}</p>
         <p class="title-en">ADMIN POWER MANAGE</p>
       </el-col>
     </el-row>
@@ -15,22 +15,23 @@
           <el-table-column
             type="index"
             align="center"
-            label="编号">
+            width="80"
+            :label="$t('iot_plat_number')">
           </el-table-column>
           <el-table-column
             prop="user_name"
             align="center"
-            label="用户名">
+            :label="$t('iot_plat_user_name')">
           </el-table-column>
           <el-table-column
             prop=""
             align="center"
-            label="操作"
+            :label="$t('iot_plat_operate')"
             width="180">
             <template slot-scope="scope">
               <span class="memberPower-power"
                     v-if="vmHasAuth(CoopPermissionsLib.REMOVE_USER_FROM, resData.res)"
-                    @click="removePower(scope.row)">解除授权</span>
+                    @click="removePower(scope.row)">{{$t("iot_plat_release_auth")}}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -39,7 +40,7 @@
         <el-col :span="2">
           <el-button type="danger"
                      style="background-color: #f56c6c;border-color: #f56c6c;"
-                     @click="goBack()">返 回</el-button>
+                     @click="goBack()">{{$t("iot_plat_return")}}</el-button>
         </el-col>
       </el-col>
     </el-row>
@@ -73,7 +74,7 @@ export default{
         }
       } catch (error) {
         this.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
       
     },
@@ -85,19 +86,22 @@ export default{
           group_id: this.group_id
         })
         this.vmConfirm({
-          msg            : "确定解除该用户授权？",
+          msg            : this.$t("iot_plat_confirm_release_auth"),
           confirmCallback: async () => {
             const res = await this.$http.post(SET_USERGROUP_LIST_POST, param)
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("解除成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_release_success"))
               this.onSubmit()
             }
+          },
+          cancelCallback: () => {
+            loading.close()
           }
         })
       } catch (error) {
         loading.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     goBack () {

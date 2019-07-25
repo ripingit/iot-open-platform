@@ -13,7 +13,7 @@ export default {
   ],
   data () {
     return {
-      codeBtnText: "获取验证码",
+      codeBtnText: this.$t("iot_plat_get_vertify_code"),
       isSendCode : false,
       timer      : null
     }
@@ -26,7 +26,7 @@ export default {
   methods: {
     reset () {
       this.isSendCode = false
-      this.codeBtnText = "获取验证码"
+      this.codeBtnText = this.$t("iot_plat_get_vertify_code")
       clearInterval(this.timer)
     },
     getCheckCode () {
@@ -34,11 +34,11 @@ export default {
       const TIME = 59
       let time = TIME
       this.isSendCode = true
-      this.codeBtnText = `${time}秒后可重发`
+      this.codeBtnText = this.$t("iot_plat_resend_after", [ time ])
       this.timer = setInterval(() => {
         if (time <= 1) { this.reset(); return }
         time -= 1
-        this.codeBtnText = `${time}秒后可重发`
+        this.codeBtnText = this.$t("iot_plat_resend_after", [ time ])
       }, SECOND)
 
       this.$emit("emit-statu")

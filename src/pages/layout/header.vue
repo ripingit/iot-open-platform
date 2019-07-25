@@ -7,7 +7,7 @@
         </div>
       </el-col>
       <el-col :span="8">
-        <el-input placeholder="请输入关键字进行搜索" v-model="keyword">
+        <el-input :placeholder="$t('iot_plat_input_key_value')" v-model="keyword">
           <i slot="prefix" class="iconfont icon-sousuo"></i>
         </el-input>
       </el-col>
@@ -19,9 +19,9 @@
             <p v-on:click.stop="showSetPanel">{{userAccount}}</p>
             <transition name="slide">
               <ul class="control-panel" v-show="isPanelShow">
-                <li v-if="identity === identityCode.COOP || identity === identityCode.DEALER" @click="routeGo('/manage/coopApply')">合作</li>
-                <li @click="routeGo(resetPassPath)">修改密码</li>
-                <li @click="signOut">退出</li>
+                <li v-if="identity === identityCode.COOP || identity === identityCode.DEALER" @click="routeGo('/manage/coopApply')">{{$t("iot_plat_coop")}}</li>
+                <li @click="routeGo(resetPassPath)">{{$t("iot_plat_change_pwd")}}</li>
+                <li @click="signOut">{{$t("iot_plat_logout")}}</li>
               </ul>
             </transition>
           </div>
@@ -32,8 +32,8 @@
 </template>
 
 <script>
-import { ADMIN_SIGN_OUT_POST, SIGN_OUT_POST } from "../../lib/api.js";
-import { validatePhone, validateEmail } from "../../lib/validate.js";
+import { ADMIN_SIGN_OUT_POST, SIGN_OUT_POST } from "@/lib/api.js";
+import { encryptUserName } from "@/lib/mixins";
 import {
   MENU_UPDATE,
   IDENTITY_UPDATE,
@@ -42,6 +42,9 @@ import {
   MENU_TOGGLE_UPDATE
 } from "@/store/mutations-type";
 export default {
+  mixins: [
+    { methods: { encryptUserName: encryptUserName } }
+  ],
   data() {
     return {
       identity   : this.$store.getters.getUserIdentity,
@@ -62,21 +65,8 @@ export default {
       this.isPanelShow = false;
     });
 
-    const START_INDEX = 3
-    const SLICE_LENGTH = 8
     const account = localStorage.getItem("_acd");
-    const start = account.slice(0, START_INDEX);
-    if (validatePhone(account)) {
-      const end = account.slice(SLICE_LENGTH);
-      this.userAccount = `${start}****${end}`;
-    } else if (validateEmail(account)) {
-      const index = account.indexOf("@");
-      const end = account.slice(index);
-      const { length } = account.slice(START_INDEX, index + 1);
-      this.userAccount = start + "*".repeat(length) + end;
-    } else {
-      this.userAccount = account;
-    }
+    this.userAccount = this.encryptUserName(account, false)
   },
   methods: {
     toggleMenu() {
@@ -94,7 +84,7 @@ export default {
     signOut() {
       try {
         this.vmConfirm({
-          msg            : "确认要退出登录吗？",
+          msg            : this.$t("iot_plat_confirm_logout"),
           confirmCallback: async () => {
             const url
               = this.identity === this.identityCode.ADMIN
@@ -107,12 +97,12 @@ export default {
               this.$store.commit(AUTH_UPDATE, { menus: [] });
               this.$store.commit(AUTH_CHANGE, { authState: -1 });
 
-              this.vmMsgSuccess("退出成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_logout_success"));
             }
           }
         });
       } catch (error) {
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }
   }

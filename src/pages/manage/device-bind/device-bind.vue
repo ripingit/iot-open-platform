@@ -2,7 +2,7 @@
   <div class="device-model-admin">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">设备绑定</p>
+        <p class="title-cn">{{$t("iot_plat_device_bind")}}</p>
         <p class="title-en">THE DEVICE BINDING</p>
       </el-col>
     </el-row>
@@ -27,8 +27,8 @@
               </el-select>
             </el-form-item> -->
             <el-form-item>
-              <el-select v-model="searchForm.userId" placeholder="请选择用户">
-                <el-option value="">请选择</el-option>
+              <el-select v-model="searchForm.userId" :placeholder="$t('iot_plat_select_user')">
+                <el-option value="">{{$t("iot_plat_select_please")}}</el-option>
                 <el-option
                   v-for="item in bindManagers"
                   :key="item.user_id"
@@ -38,10 +38,10 @@
               </el-select>
             </el-form-item>
             <el-form-item label>
-              <el-input v-model="searchForm.deviceId" placeholder="请输入设备ID"></el-input>
+              <el-input v-model="searchForm.deviceId" :placeholder="$t('iot_plat_input_device_id')"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button class="btn-search" type="primary" @click="getBindLists">查询</el-button>
+              <el-button class="btn-search" type="primary" @click="getBindLists">{{$t("iot_plat_query")}}</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -85,21 +85,21 @@ export default {
         },
         columns: [
           {
-            label: "设备ID",
+            label: this.$t("iot_plat_device_id"),
             prop : "device_id"
           },
           {
             prop  : "create_time",
-            label : "绑定时间",
+            label : this.$t("iot_plat_bind_time"),
             render: value => {
               if (value !== 0) {
-                return this.dateFormat(new Date(value * MILL_SECOND), "yyyy-MM-dd hh:mm:ss")
+                return this.formatDate(new Date(value * MILL_SECOND), "yyyy-MM-dd hh:mm:ss")
               }
             }
           },
           {
             prop : "user_name",
-            label: "绑定"
+            label: this.$t("iot_plat_bind")
           }
         ]
       }
@@ -117,12 +117,12 @@ export default {
           this.bindManagers = res.data.data
         }
       } catch (error) {
-        this.vmMsgError("程序错误");
+        this.vmMsgError(this.$t("iot_plat_program_error")); 
       }
     },
     async getBindLists () {
       if (this.searchForm.userId && this.searchForm.deviceId) {
-        return this.vmMsgWarning("无法同时通过用户和设备ID查询！");
+        return this.vmMsgWarning(this.$t("iot_plat_unable_query_user_and_deviceid"));
       }
       try {
         const param = this.createFormData({
@@ -145,7 +145,7 @@ export default {
         }
       } catch (e) {
         this.tableOptions.loading = false;
-        this.vmMsgError("程序错误");
+        this.vmMsgError(this.$t("iot_plat_program_error")); 
       }
     }
   }

@@ -5,24 +5,24 @@
         <div class="main">
           <div class="body">
             <div class="pannel" @click="apply(coop)">
-              <p class="text-left pan">我是</p>
-              <p class="text-left pan-name">合作商</p>
+              <p class="text-left pan">{{$t("iot_plat_i_am")}}</p>
+              <p class="text-left pan-name">{{$t("iot_plat_partner")}}</p>
               <div class="icon-pannel">
                 <svg class="icon" aria-hidden="true">
                   <use xlink:href="#icon-hezuochangshang"></use>
                 </svg>
               </div>
-              <p class="prief">设备生产、型号、固件、app管理等</p>
+              <p class="prief">{{$t("iot_plat_auth_etc_partner")}}</p>
             </div>
             <div class="pannel" @click="apply(dealer)">
-              <p class="text-right pan">我是</p>
-              <p class="text-right pan-name">经销商</p>
+              <p class="text-right pan">{{$t("iot_plat_i_am")}}</p>
+              <p class="text-right pan-name">{{$t("iot_plat_dealer")}}</p>
               <div class="icon-pannel">
                 <svg class="icon" aria-hidden="true">
                   <use xlink:href="#icon-jingxiaoshang"></use>
                 </svg>
               </div>
-              <p class="prief">设备管理等</p>
+              <p class="prief">{{$t("iot_plat_auth_etc_dealer")}}</p>
             </div>
           </div>
         </div>
@@ -30,7 +30,7 @@
     </el-row>
     <el-row>
       <el-col :span="24">
-        <p class="coop-ad">更多合作请发送邮件至mktech@mk.com</p>
+        <p class="coop-ad">{{$t("iot_plat_more_coop_emial")}}</p>
       </el-col>
     </el-row>
   </div>

@@ -1,22 +1,22 @@
 <template>
-  <el-dialog title="型号转移" :visible.sync="isVisible" center>
+  <el-dialog :title="$t('iot_plat_model_transfer')" :visible.sync="isVisible" center :before-close="close">
     <el-form
-      label-width="100px"
+      label-width="120px"
       status-icon
       :model="formModelTransfer"
       ref="modelTransferForm"
       :rules="rulesTransfer"
     >
-      <el-form-item label="设备ID" class="form-row" prop="device_id">
+      <el-form-item :label="$t('iot_plat_device_id')" class="form-row" prop="device_id">
         <el-input v-model="formModelTransfer.device_id"></el-input>
         <span class="form-tip">*</span>
       </el-form-item>
-      <el-form-item label="转移方式" class="form-row" prop="change_id">
-        <el-radio v-model="formModelTransfer.change_id" label="1">正式到测试</el-radio>
-        <el-radio v-model="formModelTransfer.change_id" label="2">测试到正式</el-radio>
+      <el-form-item :label="$t('iot_plat_transfer_way')" class="form-row" prop="change_id">
+        <el-radio v-model="formModelTransfer.change_id" label="1">{{$t("iot_plat_formal_to_test")}}</el-radio>
+        <el-radio v-model="formModelTransfer.change_id" label="2">{{$t("iot_plat_test_to_formal")}}</el-radio>
       </el-form-item>
       <el-form-item style="margin-top: 4.33rem;">
-        <el-button type="primary" class="btn-submit" @click="transferSubmit()">提 交</el-button>
+        <el-button type="primary" class="btn-submit" @click="transferSubmit()">{{$t("iot_plat_submit")}}</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -41,7 +41,7 @@ export default {
       },
       rulesTransfer: {
         device_id: [
-          { required: true, message: "请输入设备ID", trigger: "blur" }
+          { required: true, message: this.$t("iot_plat_input_device_id"), trigger: "blur" }
         ]
       }
     }
@@ -52,10 +52,10 @@ export default {
         device_id: this.formModelTransfer.device_id,
         change_id: parseInt(this.formModelTransfer.change_id)
       });
-      const msgTip = `确定将设备ID为${this.formModelTransfer.device_id}的设备从${
+      const msgTip = `${this.$t("iot_plat_device_transfer_desc_01", [ this.formModelTransfer.device_id ])}${
         this.formModelTransfer.change_id === "1"
-          ? "正式环境转移到测试环境"
-          : "测试环境转移到正式环境"
+          ? this.$t("iot_plat_device_transfer_desc_02")
+          : this.$t("iot_plat_device_transfer_desc_03")
       }?`;
       this.vmConfirm({
         msg            : msgTip,
@@ -65,15 +65,19 @@ export default {
             const res = await this.$http.post(ADMIN_TRANSFER_POST, param)
             loading.close();
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("转移成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_trans_success"));
             }
           } catch (e) {
             loading.close();
-            this.vmMsgError("程序错误");
+            this.vmMsgError(this.$t("iot_plat_program_error"));
           }
         }
       });
-    })
+    }),
+    close(done) {
+      this.$emit("close")
+      done()
+    }
   }
 }
 </script>

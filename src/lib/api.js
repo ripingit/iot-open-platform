@@ -6,6 +6,9 @@ const params = {
 // eslint-disable-next-line no-undef
 const prefix = process.env.DEPLOY_ENV === "dev" ? params.dev : params.prod
 
+/** 系统语言 */
+export const SYSTEM_LANGUAGE = `${prefix}/index.php?m=Home&c=Home&a=setLang`
+
 /** 管理员获取权限数据 */
 export const ADMIN_AUTH_GET = `${prefix}/admin.php?m=Admin&c=Login&a=getRes`
 
@@ -217,10 +220,10 @@ export const ADMIN_USERS_GET = `${prefix}/admin.php?m=Admin&c=UserList&a=userLis
 export const COOP_USERS_GET = `${prefix}/index.php?m=Home&c=UserList&a=userList`
 
 /** 管理员，首页 */
-export const ADMIN_HOMEDATA_QUERY = `/${prefix}/admin.php?m=Admin&c=Index&a=homePage`
+export const ADMIN_HOMEDATA_QUERY = `${prefix}/admin.php?m=Admin&c=Index&a=homePage`
 
 /** 合作商，首页 */
-export const COOP_HOMEDATA_QUERY = `/${prefix}/index.php?m=Home&c=Index&a=homePage`
+export const COOP_HOMEDATA_QUERY = `${prefix}/index.php?m=Home&c=Index&a=homePage`
 
 /** admin商品管理, 获取商品 */
 export const GET_GOODS_POST = `${prefix}/admin.php?m=Admin&c=Goods&a=goodsquery`
@@ -464,3 +467,33 @@ export const COOP_I18N_UPDATE = `${prefix}/index.php?m=Home&c=Multilingual&a=adm
 
 /** 合作商多语言删除 */
 export const COOP_I18N_DELETE = `${prefix}/index.php?m=Home&c=Multilingual&a=adminTranslationDel`
+
+/** 合作商多语言导出 */
+export const COOP_I18N_EXPORT = `../${prefix}/index.php?m=Home&c=Multilingual&a=export`
+
+/** 合作商多语言导入 */
+export const COOP_I18N_IMPORT = `../${prefix}/index.php?m=Home&c=Multilingual&a=upload`
+
+/** admin，语种添加 */
+export const ADMIN_LANGUAGE_ADD = `${prefix}/index.php?m=Admin&c=Language&a=adminLanguageAdd`
+
+/** admin，语种查询 */
+export const ADMIN_LANGUAGE_QUERY = `${prefix}/index.php?m=Admin&c=Language&a=adminLanguageList`
+
+/** admin，语种更新 */
+export const ADMIN_LANGUAGE_UPDATE = `${prefix}/index.php?m=Admin&c=Language&a=adminLanguageEdit`
+
+/** admin，语种删除 */
+export const ADMIN_ALNGUAGE_DELETE = `${prefix}/index.php?m=Admin&c=Language&a=adminLanguageDel`
+
+/** 合作商设备日志上报设置 */
+export const COOP__DEVICE_LOG_SETTING = `/${prefix}/index.php?m=Home&c=Binding&a=logCfgSet`
+
+/** admin，操作日志查询 */
+export const ADMIN_OPERATION_LOG_QUERY = `${prefix}/index.php?m=Admin&c=Log&a=getLog`
+
+/** admin，下拉菜单语种查询 */
+export const ADMIN_LANGUAGE_LIST_QUERY = `${prefix}/admin.php?m=Admin&c=Home&a=adminLanguageList`
+
+/** 合作商语种查询 */
+export const COOP_LANGUAGE_QUERY = `${prefix}/index.php?m=Home&c=Home&a=adminLanguageList`

@@ -2,7 +2,7 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-          <p class="title-cn">固件管理</p>
+          <p class="title-cn">{{$t("iot_plat_fireware_manage")}}</p>
           <p class="title-en">THE FRIMWARE MANAGEMENT</p>
       </el-col>
     </el-row>
@@ -32,50 +32,50 @@
                 style="width: 100%">
                 <el-table-column
                   type="index"
-                  label="编号"
+                  :label="$t('iot_plat_number')"
                   width="80">
                 </el-table-column>
                 <el-table-column
                   prop="product_name"
-                  label="型号名称"
+                  :label="$t('iot_plat_model_name')"
                   width="200">
                 </el-table-column>
                 <el-table-column
                   prop="product_code"
-                  label="型号代码"
+                  :label="$t('iot_plat_model_code')"
                   width="150">
                 </el-table-column>
                 <el-table-column
                   prop="rom_ver"
-                  label="固件版本">
+                  :label="$t('iot_plat_fireware_version')">
                 </el-table-column>
                 <el-table-column
                   prop="rom_type"
-                  label="固件类型">
+                  :label="$t('iot_plat_fireware_class')">
                   <template slot-scope="scope">
-                  {{ firmwareTypeCode[scope.row.rom_type] }}
+                  {{ $t(firmwareTypeCode[scope.row.rom_type]) }}
                   </template>
                 </el-table-column>
                 <el-table-column
                   prop="upgrade_time"
-                  label="最近一次更新">
+                  :label="$t('iot_plat_latest_update')">
                 </el-table-column>
                 <el-table-column
                   prop="is_review"
-                  label="状态">
+                  :label="$t('iot_plat_state')">
                   <template slot-scope="scope">
                     <span :class="scope.row.is_review === 0 ? 'wait'
                     : scope.row.is_review === 1 ? 'pass'
                     : scope.row.is_review === 2 ? 'reject' : ''">
-                    {{scope.row.is_review === 0 ? '待审核'
-                    : scope.row.is_review === 1 ? '已通过'
-                    : scope.row.is_review === 2 ? '已驳回' : ''}}
+                    {{scope.row.is_review === 0 ? $t("iot_plat_wating_review")
+                    : scope.row.is_review === 1 ? $t("iot_plat_already_pass")
+                    : scope.row.is_review === 2 ? $t("iot_plat_already_reject") : ''}}
                     </span>
                   </template>
                 </el-table-column>
                 <el-table-column
                   prop="review_time"
-                  label="审核时间">
+                  :label="$t('iot_plat_review_time')">
                 </el-table-column>
                 <!-- <el-table-column
                   prop="upload_status"
@@ -86,7 +86,7 @@
                     </span>
                   </template>
                 </el-table-column> -->
-                <el-table-column label="操作" width="120"
+                <el-table-column :label="$t('iot_plat_operate')" width="120"
                   v-if="vmHasAuth(CoopPermissionsLib.RECORD_UPDATE_FIREWARE, tableData.res) || vmHasAuth(CoopPermissionsLib.RELEASE_FIREWARE, tableData.res)">
                   <template slot-scope="scope">
                     <el-button
@@ -124,10 +124,10 @@
       </el-col>
     </el-row>
 
-    <el-dialog title="更新版本" :visible.sync="isDialogVisible" center class="update" :before-close="closeDialog">
-      <el-form label-position="right" status-icon label-width="100px" :model="form" :rules="rules" ref="updateForm">
-        <el-form-item class="form-row" label="选择型号" prop="product_code">
-          <el-select v-model="form.product_code" placeholder="请选择固件型号" no-data-text="请先添加设备型号">
+    <el-dialog :title="$t('iot_plat_update_version')" :visible.sync="isDialogVisible" center class="update" :before-close="closeDialog">
+      <el-form label-position="right" status-icon label-width="160px" :model="form" :rules="rules" ref="updateForm">
+        <el-form-item class="form-row" :label="$t('iot_plat_select_model')" prop="product_code">
+          <el-select v-model="form.product_code" :placeholder="$t('iot_plat_select_fireware_model')" :no-data-text="$t('iot_plat_add_device_model')">
             <el-option
               v-for="item in productCodes"
               :key="item.product_code"
@@ -137,20 +137,20 @@
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="固件类型" prop="rom_type">
-          <el-select v-model="form.rom_type" placeholder="请选择固件类型" no-data-text="无数据">
-            <el-option label="正式" :value="1"></el-option>
-            <el-option label="临时" :value="2"></el-option>
-            <el-option label="灰度" :value="3"></el-option>
+        <el-form-item class="form-row" :label="$t('iot_plat_fireware_class')" prop="rom_type">
+          <el-select v-model="form.rom_type" :placeholder="$t('iot_plat_select_fireware_type')" :no-data-text="$t('iot_plat_none_data')">
+            <el-option :label="$t('iot_plat_formal')" :value="1"></el-option>
+            <el-option :label="$t('iot_plat_temporary')" :value="2"></el-option>
+            <el-option :label="$t('iot_plat_grayscale')" :value="3"></el-option>
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="固件版本" prop="rom_ver">
-          <el-input v-model="form.rom_ver" auto-complete="off" placeholder="请输入固件版本"></el-input>
+        <el-form-item class="form-row" :label="$t('iot_plat_fireware_version')" prop="rom_ver">
+          <el-input v-model="form.rom_ver" auto-complete="off" :placeholder="$t('iot_plat_input_fireware_version')"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row code-panel" label="固件上传" prop="rom">
-          <el-input v-model="form.rom" auto-complete="off" placeholder="请上传固件"></el-input>
+        <el-form-item class="form-row code-panel" :label="$t('iot_plat_fireware_upload')" prop="rom">
+          <el-input v-model="form.rom" auto-complete="off" :placeholder="$t('iot_plat_upload_fireware')"></el-input>
           <div class="form-btn-upload">
             <i class='el-icon-loading' v-if="isRomploading"></i>
             <el-upload v-else
@@ -161,42 +161,42 @@
                 :on-progress="onUploadProgress"
                 :on-error="onUploadError"
                 :show-file-list="false">
-              <el-button class="btn-upload" size="small" type="primary">上传</el-button>
+              <el-button class="btn-upload" size="small" type="primary">{{$t("iot_plat_upload")}}</el-button>
             </el-upload>
           </div>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="MD5值" prop="md5">
-          <el-input v-model="form.md5" auto-complete="off" readonly placeholder="固件上传后自动填写"></el-input>
+        <el-form-item class="form-row" :label="$t('iot_plat_md5_value')" prop="md5">
+          <el-input v-model="form.md5" auto-complete="off" readonly :placeholder="$t('iot_plat_after_fireware_upload_auto_input')"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
         
-        <el-form-item class="form-row" label="升级描述" prop="change_log">
-          <DescComponent v-model="form.change_log" placeholder="请输入升级描述"></DescComponent>
+        <el-form-item class="form-row" :label="$t('iot_plat_upgrade_desc')" prop="change_log">
+          <DescComponent v-model="form.change_log" :placeholder="$t('iot_plat_input_upgrade_desc')"></DescComponent>
           <!-- <el-input type="textarea" :rows="6" placeholder="请输入升级描述" wrap="hard" v-model="form.change_log"></el-input>
           <span class="form-tip">*</span> -->
         </el-form-item>
         <el-form-item class="form-row">
-          <el-button class="btn-submit" type="primary" @click="submitFirmware">提交</el-button>
+          <el-button class="btn-submit" type="primary" @click="submitFirmware">{{$t("iot_plat_submit")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
 
-    <el-dialog title="固件升级记录" :visible.sync="isDialogVisibleList" center>
+    <el-dialog :title="$t('iot_plat_fireware_upgrade_record')" :visible.sync="isDialogVisibleList" center>
       <TimeLineComponent :data="historyRecord" :loading="isGetHistory"></TimeLineComponent>
     </el-dialog>
 
-    <el-dialog title="发布条件" :visible.sync="isDialogVisibleRelease" center>
-      <el-form label-position="right" status-icon label-width="140px" :model="formRelease" :rules="releaseRules" ref="releaseForm">
-        <el-form-item class="form-row" label="本次版本">
+    <el-dialog :title="$t('iot_plat_publish_condition')" :visible.sync="isDialogVisibleRelease" center>
+      <el-form label-position="right" status-icon label-width="175px" :model="formRelease" :rules="releaseRules" ref="releaseForm">
+        <el-form-item class="form-row" :label="$t('iot_plat_currect_version')">
           <span class="pTxt">{{formRelease.target_rom_ver}}</span>
         </el-form-item>
-        <el-form-item class="form-row" label="升级类型">
-          <span class="pTxt">{{ firmwareTypeCode[formRelease.pub_ver_type] || '未知'}}</span>
+        <el-form-item class="form-row" :label="$t('iot_plat_upgrade_type')">
+          <span class="pTxt">{{ $t(firmwareTypeCode[formRelease.pub_ver_type]) || $t("iot_plat_unknow")}}</span>
         </el-form-item>
-        <el-form-item class="form-row" label="选择升级版本" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
-          <el-select v-model="formRelease.rom_ver" multiple collapse-tags placeholder="请选择升级版本" no-data-text="无数据" @change="selectAllRom_ver">
-            <el-option label="全选" value="all"></el-option>
+        <el-form-item class="form-row" :label="$t('iot_plat_select_upgrade_version')" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
+          <el-select v-model="formRelease.rom_ver" multiple collapse-tags :placeholder="$t('iot_plat_select_upgrade_vesion_please')" :no-data-text="$t('iot_plat_none_data')" @change="selectAllRom_ver">
+            <el-option :label="$t('iot_plat_select_all')" value="all"></el-option>
             <el-option
               v-for="item in romVersion"
               :key="item.rom_ver"
@@ -204,27 +204,27 @@
               :value="item.rom_ver"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item class="form-row code-panel" label="更新类型" prop="if_force_upd">
-          <el-select v-model="formRelease.if_force_upd" placeholder="请选择更新类型" no-data-text="无数据">
-            <el-option label="强制更新" :value="2"></el-option>
-            <el-option label="非强制更新" :value="1"></el-option>
+        <el-form-item class="form-row code-panel" :label="$t('iot_plat_update_type')" prop="if_force_upd">
+          <el-select v-model="formRelease.if_force_upd" :placeholder="$t('iot_plat_select_update_type')" :no-data-text="$t('iot_plat_none_data')">
+            <el-option :label="$t('iot_plat_force_update')" :value="2"></el-option>
+            <el-option :label="$t('iot_plat_not_force_update')" :value="1"></el-option>
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row number" prop="update_percent" :label="formRelease.pub_ver_type === firmwareTypeMap.GRAYSCALE ? '' : '升级百分比'">
+        <el-form-item class="form-row number" prop="update_percent" :label="formRelease.pub_ver_type === firmwareTypeMap.GRAYSCALE ? '' : $t('iot_plat_upgrade_percent')">
           <el-input v-model="formRelease.update_percent" auto-complete="off" :style="{width: formRelease.pub_ver_type === firmwareTypeMap.FORMAL ? '25rem' : '11rem'  }" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
             <span slot="suffix">%</span>
           </el-input>
-          <el-button @click="showDeviceID" class="btn-deviceid-add" size="medium" type="primary" v-if="formRelease.pub_ver_type !== firmwareTypeMap.FORMAL">设备ID</el-button>
-          <el-button @click="cancelRelease" class="btn-deviceid-add" size="medium" type="primary" v-if="formRelease.pub_ver_type !== firmwareTypeMap.FORMAL && vmHasAuth(CoopPermissionsLib.RELEASE_FIREWARE_CANCEL, tableData.res)" style="margin-left:0">撤销</el-button>
+          <el-button @click="showDeviceID" class="btn-deviceid-add" size="medium" type="primary" v-if="formRelease.pub_ver_type !== firmwareTypeMap.FORMAL">{{$t("iot_plat_device_id")}}</el-button>
+          <el-button @click="cancelRelease" class="btn-deviceid-add" size="medium" type="primary" v-if="formRelease.pub_ver_type !== firmwareTypeMap.FORMAL && vmHasAuth(CoopPermissionsLib.RELEASE_FIREWARE_CANCEL, tableData.res)" style="margin-left:0">{{$t("iot_plat_undo")}}</el-button>
           <!-- <span class="form-tip">*</span> -->
         </el-form-item>
-        <el-form-item class="form-row" label="升级地区" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
-          <el-select v-model="formRelease.country_id" filterable multiple collapse-tags placeholder="请选择升级地区" @change="selectAllCountry_id" no-data-text="无数据">
+        <el-form-item class="form-row" :label="$t('iot_plat_upgrade_area')" v-if="formRelease.pub_ver_type !== firmwareTypeMap.GRAYSCALE">
+          <el-select v-model="formRelease.country_id" filterable multiple collapse-tags :placeholder="$t('iot_plat_select_upgrade_area')" @change="selectAllCountry_id" :no-data-text="$t('iot_plat_none_data')">
             <el-option
               v-for="item in countrys"
               :key="item.code"
-              :label="item.name"
+              :label="$t(item.name)"
               :value="item.code"></el-option>
           </el-select>
         </el-form-item>
@@ -234,26 +234,26 @@
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>-->
-        <el-form-item class="form-row" label="上次升级完成数量">
+        <el-form-item class="form-row" :label="$t('iot_plat_upgrade_number_last_time')">
           <span class="pTxt">{{deviceIDForm.update_done_num}}</span>
         </el-form-item>
         <el-form-item class="form-row">
-          <el-button class="btn-submit" type="primary" @click="addDeviceVersion">发布条件</el-button>
+          <el-button class="btn-submit" type="primary" @click="addDeviceVersion">{{$t("iot_plat_publish_condition")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
-    <el-dialog title="设备ID" :visible.sync="deviceIdVisible" center>
+    <el-dialog :title="$t('iot_plat_device_id')" :visible.sync="deviceIdVisible" center>
       <el-form label-position="right" label-width="100px" :model="deviceIDForm" ref="deviceIDForm">
-        <el-form-item class="form-row" label="设备ID">
-          <el-input type="textarea" rows="6" resize="none" v-model="deviceIDForm.device_id" placeholder="设备ID，每行一个" @keyup.enter.native="testDeviceId" @keyup.delete.native="testDeviceId"></el-input>
+        <el-form-item class="form-row" :label="$t('iot_plat_device_id')">
+          <el-input type="textarea" rows="6" resize="none" v-model="deviceIDForm.device_id" :placeholder="$t('iot_plat_input_device_id_one_line')" @keyup.enter.native="testDeviceId" @keyup.delete.native="testDeviceId"></el-input>
         </el-form-item>
         <el-form-item class="form-row">
-          <span class="pTxt">共：{{deviceIDForm.total}}</span>
-          <span class="gap pTxt">重复：{{deviceIDForm.repeat}}</span>
-          <span class="gap pTxt">成功：{{deviceIDForm.succeed}}</span>
+          <span class="pTxt">{{$t("iot_plat_total")}}：{{deviceIDForm.total}}</span>
+          <span class="gap pTxt">{{$t("iot_plat_repeat")}}：{{deviceIDForm.repeat}}</span>
+          <span class="gap pTxt">{{$t("iot_plat_success")}}：{{deviceIDForm.succeed}}</span>
         </el-form-item>
         <el-form-item class="form-row">
-          <el-button class="btn-submit" type="primary" @click="addDeviceID">确定</el-button>
+          <el-button class="btn-submit" type="primary" @click="addDeviceID">{{$t("iot_plat_confirm")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -282,17 +282,17 @@ export default {
     const validateIsEmpty = (rule, value, callback) => {
       if (value === "") {
         if (rule.field === "product_code") {
-          callback(new Error("请选择固件型号"))
+          callback(new Error(this.$t("iot_plat_select_fireware_model")))
         } else if (rule.field === "rom_ver") {
-          callback(new Error("请输入固件版本"))
+          callback(new Error(this.$t("iot_plat_input_fireware_version")))
         } else if (rule.field === "rom") {
-          callback(new Error("请上传固件"))
+          callback(new Error(this.$t("iot_plat_upload_fireware")))
         } else if (rule.field === "md5") {
-          callback(new Error("请输入MD5值"))
+          callback(new Error(this.$t("iot_plat_input_md5_value")))
         } else if (rule.field === "change_log") {
-          callback(new Error("请输入升级描述"))
+          callback(new Error(this.$t("iot_plat_input_upgrade_desc")))
         } else if (rule.field === "rom_type") {
-          callback(new Error("请选择固件类型"))
+          callback(new Error(this.$t("iot_plat_select_fireware_type")))
         }
       }
       callback()
@@ -300,12 +300,12 @@ export default {
     const releaseIsEmpty = (rule, value, callback) => {
       if (value === "") {
         if (rule.field === "if_force_upd") {
-          callback(new Error("请选择更新类型"))
+          callback(new Error(this.$t("iot_plat_select_update_type")))
         }
       } else if (rule.field === "update_percent") {
         const MAX = 100
         if (!reg.test(value) || (parseInt(value) < 0 || parseInt(value) > MAX)) {
-          callback(new Error(`只能输入0-${MAX}的数字`))
+          callback(new Error(this.$t("iot_plat_only_number_and_length_limit")))
         }
       }
       callback()
@@ -410,7 +410,7 @@ export default {
         }
       } catch (error) {
         this.isGetHistory = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     getFirmwareLists: _.debounce(async function (currentPage) {
@@ -428,7 +428,7 @@ export default {
         this.loading = false
       } catch (error) {
         this.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
     onBeforeUpload (file) {
@@ -436,7 +436,7 @@ export default {
       const MAX_SIZE = 80
       const sizeM = file.size / BYTE / BYTE
       if (sizeM > MAX_SIZE) {
-        return this.vmMsgError(`固件大小不能超过${MAX_SIZE}M！`)
+        return this.vmMsgError(this.$t("iot_plat_fireware_size_limit", [ MAX_SIZE ]))
       }
     },
     onUploadSuccess (response, file) {
@@ -469,7 +469,7 @@ export default {
           if (valid) {
             const res = await this.$http.post(COOP_FIRMWARES_ADD_POST, this.createFormData(this.form))
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("提交成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_submit_success"))
               this.isDialogVisible = false
               this.getFirmwareLists(this.tableData.page)
               this.$refs.updateForm.resetFields()
@@ -479,7 +479,7 @@ export default {
         }) 
       } catch (error) {
         wait.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
     showReleaseDialog (row) {
@@ -506,7 +506,7 @@ export default {
           this.deviceIDForm.update_done_num = res.data.data.update_done_num
         }
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     selectAllRom_ver (val) {
@@ -557,7 +557,7 @@ export default {
           if (this.formRelease.device_id && this.formRelease.pub_ver_type === this.firmwareTypeMap.TEMP
           && (!this.formRelease.update_percent || this.formRelease.rom_ver.length === 0 || this.formRelease.country_id.length === 0)) {
             this.vmConfirm({
-              msg            : "升级条件中：升级版本、升级百分比、升级地区中填写错误或不完整，仅会升级设备ID内的设备。需要继续吗？",
+              msg            : this.$t("iot_plat_upgrrade_condition_desc"),
               confirmCallback: this.releaseVerRequest
             })
           } else {
@@ -574,14 +574,14 @@ export default {
         if (data.rom_ver.includes("all")) { data.rom_ver = [ "all" ] }
         const res = await this.$http.post(FIRMWARE_RELEASE_POST, this.createFormData(data))
         if (this.vmResponseHandler(res)) {
-          this.vmMsgSuccess("提交成功！")
+          this.vmMsgSuccess(this.$t("iot_plat_submit_success"))
           this.isDialogVisibleRelease = false
           this.getFirmwareLists(this.tableData.page)
         }
         wait.close()
       } catch (error) {
         wait.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
 
@@ -591,8 +591,8 @@ export default {
 
     // 撤销发布条件
     cancelRelease: _.debounce(async function () {
-      if (!this.formRelease.device_id) { this.vmMsgError("无发布条件，无法撤销"); return }
-      if (!this.releaseTargetVer) { this.vmMsgWarning("请稍后再试！"); return }
+      if (!this.formRelease.device_id) { this.vmMsgError(this.$t("iot_plat_not_publish_and_undo")); return }
+      if (!this.releaseTargetVer) { this.vmMsgWarning(this.$t("iot_plat_retry_after")); return }
       const wait = this.vmLoadingFull()
       try {
         const data = {
@@ -601,13 +601,13 @@ export default {
         }
         const res = await this.$http.post(COOP_CANCEL_RELEASE, this.createFormData(data))
         if (this.vmResponseHandler(res)) {
-          this.vmMsgSuccess("撤销成功！")
+          this.vmMsgSuccess(this.$t("iot_plat_undo_success"))
           this.getRomVer(this.formRelease.product_code, this.formRelease.target_rom_ver, this.formRelease.pub_ver_type)
         }
         wait.close()
       } catch (error) {
         wait.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME)
   }
@@ -617,7 +617,7 @@ export default {
 <style scoped>
 /** 本页定制 start */
 .el-dialog__wrapper /deep/ .el-dialog {
-  width: 51rem;
+  width: 53rem;
 }
 
 .el-dialog .btn-submit {
@@ -629,6 +629,7 @@ export default {
 .code-panel .form-btn-upload {
   display: inline-block;
   vertical-align: middle;
+  position: absolute;
 }
 .code-panel .el-icon-loading {
   position: absolute;
@@ -640,7 +641,7 @@ export default {
   position: absolute;
   width: 5rem;
   height: 2.17rem;
-  right: 7.5rem;
+  right: 1.5rem;
   top: 0.6rem;
   font-size: 1rem;
   background: #1f7ecf;

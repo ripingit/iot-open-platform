@@ -1,13 +1,13 @@
 <template>
   <div class="container">
     <el-row class="app_nav">
-      <h5>合作权限</h5>
+      <h5>{{$t("iot_plat_coop_permission")}}</h5>
       <p>COOPERATION RIGHTS</p>
     </el-row>
     <el-row class="table">
       <el-row>
-        <el-input v-model="selectParam.query_by_name" placeholder="请输入"></el-input>
-        <el-button class="btn-search" type="primary" @click="searchData">查询</el-button>
+        <el-input v-model="selectParam.query_by_name" :placeholder="$t('iot_plat_input_key_value')"></el-input>
+        <el-button class="btn-search" type="primary" @click="searchData">{{$t("iot_plat_query")}}</el-button>
       </el-row>
       <el-row>
         <el-table
@@ -16,36 +16,36 @@
           style="width: 100%;">
           <el-table-column
             type="index"
-            min-width="100"
-            label="编号">
+            width="80"
+            :label="$t('iot_plat_number')">
           </el-table-column>
           <el-table-column
             prop="name"
             min-width="150"
-            label="名称">
+            :label="$t('iot_plat_name')">
           </el-table-column>
           <el-table-column
             prop="tel"
             min-width="240"
-            label="联系电话">
+            :label="$t('iot_plat_contact_number')">
           </el-table-column>
           <el-table-column
             min-width="150"
-            label="身份">
+            :label="$t('iot_plat_identity')">
             <template slot-scope="scope">
-              <span v-if="scope.row.role===1">合作商</span>
-              <span v-else-if="scope.row.role===2">经销商</span>
-              <span v-else>经销商合作商</span>
+              <span v-if="scope.row.role===1">{{$t("iot_plat_partner")}}</span>
+              <span v-else-if="scope.row.role===2">{{$t("iot_plat_dealer")}}</span>
+              <span v-else>{{$t("iot_plat_partner")}}{{$t("iot_plat_dealer")}}</span>
             </template>
           </el-table-column>
           <el-table-column
             prop="create_time"
             min-width="180"
-            label="注册时间">
+            :label="$t('iot_plat_registered_time')">
           </el-table-column>
           <el-table-column
             prop=""
-            label="操作"
+            :label="$t('iot_plat_operate')"
             min-width="100">
             <template slot-scope="scope">
               <el-button
@@ -70,7 +70,7 @@
       </el-row>
     </el-row>
     <el-dialog
-      title="权限列表"
+      :title="$t('iot_plat_permission_list')"
       center
       width="70rem"
       :visible.sync="detailDialogVisible"
@@ -179,7 +179,7 @@ export default {
         }
       } catch (error) {
         this.loadingAuth = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     confirm (val) {
@@ -191,12 +191,12 @@ export default {
           checked: val.checked
         })
         this.vmConfirm({
-          msg            : "确定修改此用户权限？",
+          msg            : this.$t("iot_plat_confirm_update_user_permission"),
           confirmCallback: async () => {
             const res = await this.$http.post(COOP_AUTH_USER_EDIT, param)
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("操作成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_operating_success"))
               this.getAuthList()
             }
           },
@@ -207,7 +207,7 @@ export default {
         })
       } catch (error) {
         loading.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     loadData: _.debounce(async function () {
@@ -222,7 +222,7 @@ export default {
         this.loading = false
       } catch (error) {
         this.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME)
   }

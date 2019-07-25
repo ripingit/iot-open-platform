@@ -1,11 +1,11 @@
 <template>
   <div>
-    <el-select placeholder="请选择语言" v-model="lang">
+    <el-select :placeholder="$t('iot_plat_select_lang_please')" v-model="lang">
       <el-option
         v-for="(item, index) in multiLanguage"
         :key="index"
-        :label="item.name"
-        :value="item.id"></el-option>
+        :label="item.language_desc"
+        :value="item.language"></el-option>
     </el-select>
     <div class="split-line"></div>
     <el-input type="textarea" :rows="6" :placeholder="$attrs.placeholder" v-model="value[lang]"></el-input>
@@ -14,17 +14,9 @@
 </template>
 
 <script>
-import { multiLanguage } from "@/lib/const";
-
-const mixins = {
-  data () {
-    return { multiLanguage: multiLanguage }
-  }
-}
 
 export default {
-  mixins: [ mixins ],
-  props : {
+  props: {
     value: {
       type    : Object,
       required: true
@@ -38,7 +30,10 @@ export default {
     }
   },
   data () {
-    return { lang: "CN" }
+    return { 
+      lang         : "CN",
+      multiLanguage: this.$store.getters.getLanguages
+    }
   }
 }
 </script>

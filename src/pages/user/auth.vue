@@ -2,9 +2,9 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-        <div class="big-font">申</div>
+        <div class="big-font"></div>
         <div class="small-font">
-          <p class="cn">请资格</p><p class="en">ELIGIBILITY</p>
+          <p class="cn">{{$t("iot_plat_apply_qualifications")}}</p><p class="en">ELIGIBILITY</p>
         </div>
       </el-col>
     </el-row>
@@ -15,8 +15,8 @@
           <i class="iconfont pass icon-duihao1"></i>
         </div>
         <div class="eligi-desc">
-          <p class="name">公司资质</p>
-          <p class="note note-01">申请机构必须是工商部门注册的正规公司</p>
+          <p class="name">{{$t("iot_plat_company_qualifications")}}</p>
+          <p class="note note-01">{{$t("iot_plat_apply_condition_desc")}}</p>
         </div>
       </el-col>
       <el-col :span="8" class="eligibility center">
@@ -25,8 +25,8 @@
           <i class="iconfont pass icon-duihao1"></i>
         </div>
         <div class="eligi-desc">
-          <p class="name">硬件支持</p>
-          <p class="note note-02">拥有自主或授权硬件创新能力</p>
+          <p class="name">{{$t("iot_plat_hardware_support")}}</p>
+          <p class="note note-02">{{$t("iot_plat_have_hardware_own")}}</p>
         </div>
       </el-col>
       <el-col :span="8" class="eligibility">
@@ -35,104 +35,108 @@
           <i class="iconfont pass icon-duihao1"></i>
         </div>
         <div class="eligi-desc">
-          <p class="name">软件支持</p>
-          <p class="note note-03">具有一定的软件开发能力</p>
+          <p class="name">{{$t("iot_plat_software_support")}}</p>
+          <p class="note note-03">{{$t("iot_plat_have_develop_tech")}}</p>
         </div>
       </el-col>
     </el-row>
     <el-row class="mt30">
       <el-col :span="24">
-        <div class="big-font">认</div>
+        <div class="big-font"></div>
         <div class="small-font">
-          <p class="cn">证流程</p><p class="en">WORKFLOW</p>
+          <p class="cn">{{$t("iot_plat_certification_process")}}</p><p class="en">WORKFLOW</p>
         </div>
       </el-col>
     </el-row>
     <el-row class="panel flow">
       <el-col :span="24">
         <el-steps :active="steps" finish-status="success">
-          <el-step title="注册迈科账号" description="请牢记用户名和密码"></el-step>
-          <el-step title="申请认证" description="提交相关营业执照申请迈科智能认证"></el-step>
+          <el-step :title="$t('iot_plat_registered_mktech_account')" :description="$t('iot_plat_remember_username_password')"></el-step>
+          <el-step :title="$t('iot_plat_apply_certification')" :description="$t('iot_plat_apply_mktech_certification')"></el-step>
           <el-step :title="authResult" :status="proStatu" :description="description"></el-step>
           <!--<el-step title="申请KEY" description="认证可查看到独有的KEY请牢记"></el-step>-->
         </el-steps>
         <el-steps class="step-operation">
           <el-step></el-step>
           <el-step v-if="isShowSubmit" class="auth"></el-step>
-          <el-step v-else-if="canUpdate" @click.native="showDialog" class="edit"></el-step>
-          <el-step v-else @click.native="showDialog"></el-step>
-          <el-step v-if="isShowUpdate || isUpdateState" :class="'review'"></el-step>
-          <el-step v-else @click.native="updateReviewState(true)"></el-step>
+          <el-step v-else-if="canUpdate" @click.native="showDialog" class="edit">
+            <template v-slot:icon>{{$t("iot_plat_submit_cert")}}</template>
+          </el-step>
+          <!-- 使用if 而不是 else 是因为 $t，if会导致界面状态改变$t 无法正常渲染 -->
+          <el-step v-if="!isShowSubmit && !canUpdate" @click.native="showDialog">
+            <template v-slot:icon>{{$t("iot_plat_miodify_info")}}</template>
+          </el-step>
+          <el-step v-if="isShowUpdate || isUpdateState" class="review"></el-step>
+          <el-step v-if="!isShowUpdate && !isUpdateState" @click.native="updateReviewState(true)">
+            <template v-slot:icon>{{$t("iot_plat_refresh")}}</template>
+          </el-step>
           <!--<el-step class="key"></el-step>-->
         </el-steps>
       </el-col>
     </el-row>
 
-    <el-dialog title="提交审核" :visible.sync="isDialogVisible" center>
-      <p class="note">* 所有填写的信息要与营业执照上保持一致</p>
-      <el-form :model="form" status-icon ref="authForm" :rules="rules" label-position="right" label-width="100px">
-        <el-form-item label="公司名" prop="name" class="form-row" v-if="authStatu !== authCode.PASS">
+    <el-dialog :title="$t('iot_plat_submit_review')" :visible.sync="isDialogVisible" center>
+      <p class="note">* {{$t("iot_plat_with_business_license_same")}}</p>
+      <el-form :model="form" status-icon ref="authForm" :rules="rules" label-position="right" label-width="150px">
+        <el-form-item :label="$t('iot_plat_company_name')" prop="name" class="form-row" v-if="authStatu !== authCode.PASS">
           <el-input
-            placeholder="请输入公司全称"
+            :placeholder="$t('iot_plat_input_company_full_name')"
             v-model="form.name"
             clearable>
           </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="公司英文名" prop="en_name" class="form-row" v-if="authStatu !== authCode.PASS">
+        <el-form-item :label="$t('iot_plat_company_english_name')" prop="en_name" class="form-row" v-if="authStatu !== authCode.PASS">
           <el-input
-            placeholder="请输入公司英文名称"
+            :placeholder="$t('iot_plat_input_company_english_name')"
             v-model="form.en_name"
             clearable>
           </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="证件号码" prop="agency_code" class="form-row" v-if="authStatu !== authCode.PASS">
+        <el-form-item :label="$t('iot_plat_id_number')" prop="agency_code" class="form-row" v-if="authStatu !== authCode.PASS">
           <el-input
-            placeholder="请输入单位证件号码"
+            :placeholder="$t('iot_plat_input_company_id_number')"
             v-model="form.agency_code">
           </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="通讯地址" prop="addr" class="form-row">
+        <el-form-item :label="$t('iot_plat_mailing_address')" prop="addr" class="form-row">
           <el-input
-            placeholder="请输入通讯地址"
+            :placeholder="$t('iot_plat_input_mailing_address')"
             v-model="form.addr">
           </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="联系电话" prop="tel" class="form-row">
+        <el-form-item :label="$t('iot_plat_contact_number')" prop="tel" class="form-row">
           <el-input
-            placeholder="请输入联系电话"
+            :placeholder="$t('iot_plat_input_contact_number')"
             v-model="form.tel">
           </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="营业执照" prop="file_ids" class="form-row" v-if="authStatu !== authCode.PASS">
-          <span class="form-img-cert" v-if="isUploading">
-            {{uploadProgress || picTip}}
-          </span>
-          <img v-else class="form-img-cert" :src="picPath"/>
+        <el-form-item :label="$t('iot_plat_business_license')" prop="file_ids" class="form-row" v-if="authStatu !== authCode.PASS">
           <div class="form-btn-upload">
-            <el-upload
-              :action="uploadPath"
-              name="photo"
-              accept=".jpg,.jpeg,.png"
-              :before-upload="onBeforeUpload"
-              :on-success="onUploadSuccess"
-              :on-progress="onUploadProgress"
-              :on-error="onUploadError"
-              :show-file-list="false">
-              <el-button class="btn-upload" size="small" type="primary">上传</el-button>
-            </el-upload>
+            <UploadComponent
+              class="pic-format-2"
+              :path="uploadPath"
+              :previewPath="form.file_ids"
+              :accept="['image/jpeg', 'image/png']"
+              :size="2"
+              model="preview"
+              :condition="$t('iot_plat_picture_desc_04')"
+              @response="getUploadResult"
+            ></UploadComponent>
           </div>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item prop="protocolChecked" class="form-row" v-if="authStatu !== authCode.PASS">
-          <el-checkbox v-model="form.protocolChecked">同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a></el-checkbox>
+          <el-checkbox v-model="form.protocolChecked">{{$t("iot_plat_agree_mktech_protocol")}}
+            <!-- 同意 <a href="" style="color: #3193e6">《迈科智能用户协议》</a> -->
+          </el-checkbox>
         </el-form-item>
         <el-form-item class="form-row">
-           <el-button class="btn-submit" type="primary" @click="authenticate">提交</el-button>
+           <el-button class="btn-submit" type="primary" @click="authenticate">{{$t("iot_plat_submit")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -141,38 +145,40 @@
 
 <script>
 import "@/assets/css/content.css"
-import { CERT_UPLOAD_POST, PARTNER_AUTH_POST, UPDATE_AUTH_STATE_POST, COOP_AUTH_GET } from "../../lib/api.js"
-import { validatePhone, validateFixPhone, validateBusinessLicense } from "../../lib/validate.js"
+import { CERT_UPLOAD_POST, PARTNER_AUTH_POST, UPDATE_AUTH_STATE_POST, COOP_AUTH_GET } from "@/lib/api.js"
+import { validatePhone, validateFixPhone, validateBusinessLicense } from "@/lib/validate.js"
 import { AUTH_CHANGE, USER_ID_UPDATE, USER_KEY_UPDATE, AUTH_UPDATE } from "@/store/mutations-type"
 import { generateMenus, coopMenuRouteMap } from "@/lib/route-menu-map"
 import { createRoutes } from "@/router/routes/index"
+import UploadComponent from "@/components/uploader/upload.vue";
 export default {
+  components: { UploadComponent },
   data () {
     const validateIsEmpty = (rule, value, callback) => {
       if (rule.field === "protocolChecked") {
-        if (!value) { callback(new Error("请输入勾选同意迈科智能用户协议")) }
+        if (!value) { callback(new Error(this.$t("iot_plat_agree_mktech_protocol_please"))) }
       }
       if (value === "") {
         if (rule.field === "name") {
-          callback(new Error("请输入公司名称"))
+          callback(new Error(this.$t("iot_plat_input_company_name_please")))
         } else if (rule.field === "addr") {
-          callback(new Error("请输入通讯地址"))
+          callback(new Error(this.$t("iot_plat_input_mailing_address")))
         } else if (rule.field === "agency_code") {
-          callback(new Error("请输入证件号码"))
+          callback(new Error(this.$t("iot_plat_input_id_number")))
         } else if (rule.field === "tel") {
-          callback(new Error("请输入联系电话"))
+          callback(new Error(this.$t("iot_plat_input_contact_number")))
         } else if (rule.field === "file_ids") {
-          callback(new Error("请上传营业执照"))
+          callback(new Error(this.$t("iot_plat_upload_business_license")))
         }
       } else {
         if (rule.field === "tel") {
           if (!validatePhone(value) && !validateFixPhone(value)) {
-            callback(new Error("请输入正确的电话号码"))
+            callback(new Error(this.$t("iot_plat_input_corret_phone_number")))
           }
         }
         if (rule.field === "agency_code") {
           if (!validateBusinessLicense(value)) {
-            callback(new Error("请输入正确的营业执照号码"))
+            callback(new Error(this.$t("iot_plat_input_corret_business_license_number")))
           }
         }
       }
@@ -189,7 +195,7 @@ export default {
       isUploading     : true,
       authFailedReason: "",
       picPath         : "",
-      picTip          : "格式为 jpg 且小于2M",
+      picTip          : this.$t("iot_plat_picture_desc_04"),
       form            : {
         role           : this.merchantCode.coop,
         name           : "",
@@ -240,13 +246,13 @@ export default {
           : this.authStatu === this.authCode.PASS ? PASS : PASS
     },
     authResult () {
-      return this.authStatu === this.authCode.NO_SUBMIT ? "等待审核"
-        : this.authStatu === this.authCode.WAIT ? "审核中"
-          : this.authStatu === this.authCode.PASS ? "审核通过"
-            : this.authStatu === this.authCode.REJECT ? "审核未通过" : "状态未知"
+      return this.authStatu === this.authCode.NO_SUBMIT ? this.$t("iot_plat_waiting_review")
+        : this.authStatu === this.authCode.WAIT ? this.$t("iot_plat_reviewing")
+          : this.authStatu === this.authCode.PASS ? this.$t("iot_plat_rewiew_pass")
+            : this.authStatu === this.authCode.REJECT ? this.$t("iot_plat_review_no_pass") : this.$t("iot_plat_unknow_state")
     },
     description () {
-      return this.authStatu === this.authCode.REJECT ? this.authFailedReason : "申请将在24小时之内反馈结果"
+      return this.authStatu === this.authCode.REJECT ? this.authFailedReason : this.$t("iot_plat_24_hour_feedback")
     },
     proStatu () {
       if (this.authStatu === this.authCode.NO_SUBMIT) { return "wait" }
@@ -273,9 +279,9 @@ export default {
             if (this.vmResponseHandler(res)) {
               this.isDialogVisible = false
               if (this.authStatu === this.authCode.PASS) {
-                return this.vmMsgSuccess("修改成功！");
+                return this.vmMsgSuccess(this.$t("iot_plat_edit_success"));
               } 
-              this.vmMsgSuccess("审核提交成功，审核周期为24小时内，我们将尽快处理！")
+              this.vmMsgSuccess(this.$t("iot_plat_review_submit_success"))
               
               this.isUploading = true
               this.uploadProgress = ""
@@ -286,7 +292,7 @@ export default {
           }
         })
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     async updateReviewState (flag) {
@@ -323,40 +329,14 @@ export default {
           }
         }
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
-    onBeforeUpload (file) {
-      const BYTE = 1024
-      const MAX_SIZE = 2
-      const sizeM = file.size / BYTE / BYTE
-      const imgArr = [ "image/png", "image/jpeg", "image/jpg" ]
-      if (!imgArr.includes(file.type) || sizeM > MAX_SIZE) {
-        this.vmMsgError(`请上传后缀为.jpg或.png或.jpeg且小于${MAX_SIZE}M的图片`)
-        return false
-      }
-    },
-    onUploadSuccess (response, file) {
-      this.uploadProgress = ""
-      // 上传
-      if (response.statu === 0) {
-        this.$router.push("/signin"); return
-      }
 
-      if (!response.status) {
-        this.vmMsgError(response.msg); return
+    getUploadResult (res) {
+      if (res) {
+        this.form.file_ids = res.file_ids
       }
-      this.isUploading = false
-      this.picPath = file.url
-      this.form.file_ids = response.file_ids
-    },
-    onUploadProgress (event) {
-      this.isUploading = true
-      this.uploadProgress = `已上传${event.percent}%`
-    },
-    onUploadError (err) {
-      this.isUploading = false
-      this.vmMsgError(err)
     }
   }
 }
@@ -555,29 +535,11 @@ export default {
   border: solid 1px #3da0f4;
   border-radius: 0;
   background: transparent;
-}
-.step-operation
-  .el-step:nth-child(2)
-  /deep/
-  .el-step__head
-  .el-step__icon::after {
-  content: "提交认证";
-}
-.step-operation
-  .el-step.edit:nth-child(2)
-  /deep/
-  .el-step__head
-  .el-step__icon::after {
-  content: "修改信息";
-}
-.step-operation
-  .el-step:nth-child(2)
-  /deep/
-  .el-step__head
-  .el-step__icon::after {
   color: #3da0f4;
   font-size: 1.17rem;
+  cursor: pointer;
 }
+
 .step-operation
   .el-step:nth-child(2)
   /deep/
@@ -592,6 +554,11 @@ export default {
   .el-step__head
   .el-step__icon:active::after {
   color: #fff;
+}
+
+.step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__icon{
+  color: #2acba7;
+  cursor: pointer;
 }
 
 .step-operation .el-step:nth-child(3) /deep/ .el-step__head .el-step__icon,
@@ -620,13 +587,12 @@ export default {
   /deep/
   .el-step__head
   .el-step__icon::after {
-  content: "刷新";
   color: #ff6870;
   position: absolute;
   left: 0;
 }
 .el-dialog__wrapper /deep/ .el-dialog {
-  width: 50rem;
+  width: 51rem;
 }
 .el-dialog .note {
   position: absolute;

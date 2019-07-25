@@ -4,18 +4,20 @@
  * 该库为全局函数库，在该库定义的函数将在项目vue组件中可以直接调用而不用反复导入
  * 其他开发人员在扩展该库时注意不要将少数地方用到的函数封装到该库，避免不必要的额外资源占用
  */
+import i18n from "@/lang/index"
+
 export default {
   install: function (Vue) {
-    const vm = new Vue()
+    const vm = new Vue({ i18n })
 
     Vue.prototype.vmPormpt = function ({
-      msg = "请输入值",
-      title = "提示",
-      confirmButtonText = "确定",
-      cancelButtonText = "取消",
+      msg = vm.$t("iot_plat_input_value_please"),
+      title = vm.$t("iot_plat_prompt"),
+      confirmButtonText = vm.$t("iot_plat_confirm"),
+      cancelButtonText = vm.$t("iot_plat_cancel"),
       inputPattern = "",
-      inputErrorMessage = "请输入正确格式的值",
-      inputPlaceholder = "请输入值",
+      inputErrorMessage = vm.$t("iot_plat_input_correct_format_value"),
+      inputPlaceholder = vm.$t("iot_plat_input_value_please"),
       confirmCallback,
       cancelCallback
     }) {
@@ -47,16 +49,16 @@ export default {
      * @param { cancelCallback } 点击取消按钮后的回调函数
      */
     Vue.prototype.vmConfirm = function ({
-      msg = "确认进行该操作吗？",
-      confirmBtnText = "确定",
-      cancelBtnText = "取消",
+      msg = vm.$t("iot_plat_confirm_operating"),
+      confirmBtnText = vm.$t("iot_plat_confirm"),
+      cancelBtnText = vm.$t("iot_plat_cancel"),
       // eslint-disable-next-line no-empty-function
       confirmCallback = () => {},
       // eslint-disable-next-line no-empty-function
       cancelCallback = () => {} 
     } = {}) {
       const showConfirmBtn = typeof confirmCallback === "function"
-      vm.$confirm(msg, "提示", {
+      vm.$confirm(msg, vm.$t("iot_plat_prompt"), {
         showConfirmButton: showConfirmBtn,
         confirmButtonText: confirmBtnText,
         cancelButtonText : cancelBtnText,
@@ -76,7 +78,7 @@ export default {
      * 操作成功提示框
      * @param { msg } 提示信息
      */
-    Vue.prototype.vmMsgSuccess = function (msg = "操作成功！") {
+    Vue.prototype.vmMsgSuccess = function (msg = vm.$t("iot_plat_operating_success")) {
       vm.$message({
         showClose: true,
         message  : msg,
@@ -88,7 +90,7 @@ export default {
      * 操作告警提示框
      * @param { msg } 提示信息
      */
-    Vue.prototype.vmMsgWarning = function (msg = "操作过程中出了问题！") {
+    Vue.prototype.vmMsgWarning = function (msg = vm.$t("iot_plat_error_in_operating")) {
       vm.$message({
         showClose: true,
         message  : msg,
@@ -100,7 +102,7 @@ export default {
      * 操作错误提示框
      * @param { msg } 提示信息
      */
-    Vue.prototype.vmMsgError = function (msg = "操作出错！") {
+    Vue.prototype.vmMsgError = function (msg = vm.$t("iot_plat_operating_error")) {
       vm.$message({
         showClose: true,
         message  : msg,
@@ -112,7 +114,7 @@ export default {
      * 操作等待函数，全屏loading
      * @param { msg } 文字提示
      */
-    Vue.prototype.vmLoadingFull = function (msg = "处理中，请稍后...") {
+    Vue.prototype.vmLoadingFull = function (msg = vm.$t("iot_plat_processing_waiting")) {
       return vm.$loading({
         lock      : true,
         text      : msg,
@@ -150,16 +152,16 @@ export default {
       if (res.status === 200) {
         const { data } = res
         if (!data.status) {
-          vm.vmMsgError(data.msg)
+          data.msg ? vm.vmMsgError(data.msg) : vm.vmMsgError(vm.$t("iot_plat_server_error"))
           return false
         } else if (!data || data instanceof Array && data.length === 0 || data instanceof Object && Object.keys(data).length === 0) {
           // || (data instanceof Object && Object.keys(data).length === 0)
-          vm.vmMsgError("数据为空")
+          vm.vmMsgError(vm.$t("iot_plat_empty_data"))
           return false
         }
         return res.data
       } 
-      vm.vmMsgError("获取数据出错!")
+      vm.vmMsgError(vm.$t("iot_plat_get_data_error"))
       return false
       
     }
@@ -198,7 +200,7 @@ export default {
      * 将日期时间转换成指定格式
      * 调用：dateFormat("yyyy-MM-dd hh:mm:ss")
      */
-    Vue.prototype.dateFormat = (date, fmt) => {
+    Vue.prototype.formatDate = (date, fmt) => {
       // 一季度3个月
       const MONTHS_PER_QUARTER = 3
       const o = {
@@ -241,6 +243,16 @@ export default {
         // eslint-disable-next-line 
       }
       return false
+    }
+
+    Vue.prototype.getSystemLanguage = () => {
+      const lang = navigator.language
+      if (lang.indexOf("zh") !== -1 || lang.indexOf("ZH") !== -1 || lang.indexOf("cn") !== -1 || lang.indexOf("CN") !== -1) {
+        return "CN"
+      }
+      if (lang.indexOf("en") !== -1 || lang.indexOf("EN") !== -1) {
+        return "EN"
+      }
     }
   }
 }

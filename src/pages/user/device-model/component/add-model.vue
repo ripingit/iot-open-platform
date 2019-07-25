@@ -1,16 +1,16 @@
 <template>
-  <el-dialog title="添加型号" :visible.sync="isVisible" center :before-close="dialogClose">
-    <el-form label-width="120px" status-icon :model="formData" ref="form" :rules="rules" :hide-required-asterisk="true">
-      <el-form-item label="型号名称" class="form-row" prop="product_name">
-        <el-input v-model="formData.product_name" placeholder="请输入型号名称"></el-input>
+  <el-dialog :title="$t('iot_plat_add_model')" :visible.sync="isVisible" center :before-close="dialogClose">
+    <el-form label-width="185px" status-icon :model="formData" ref="form" :rules="rules" :hide-required-asterisk="true">
+      <el-form-item :label="$t('iot_plat_model_name')" class="form-row" prop="product_name">
+        <el-input v-model="formData.product_name" :placeholder="$t('iot_plat_input_model_name')"></el-input>
         <span class="form-tip">*</span>
       </el-form-item>
-      <el-form-item label="型号代码" class="form-row" prop="product_code">
-        <el-input v-model="formData.product_code" maxlength="6" placeholder="请输入型号代码"></el-input>
+      <el-form-item :label="$t('iot_plat_model_code')" class="form-row" prop="product_code">
+        <el-input v-model="formData.product_code" maxlength="6" :placeholder="$t('iot_plat_input_model_code')"></el-input>
         <span class="form-tip">*</span>
       </el-form-item>
-      <el-form-item label="连接方式" class="form-row" prop="nbi_code">
-        <el-select v-model="formData.nbi_code" multiple placeholder="请选择连接方式">
+      <el-form-item :label="$t('iot_plat_connection_way')" class="form-row" prop="nbi_code">
+        <el-select v-model="formData.nbi_code" multiple :placeholder="$t('iot_plat_select_connection_way')">
           <el-option
             v-for="item in nbiCode"
             :key="item.nbi_code"
@@ -20,8 +20,19 @@
         </el-select>
         <span class="form-tip">*</span>
       </el-form-item>
-      <el-form-item label="设备类别" class="form-row" prop="prodt_code">
-        <el-select v-model="formData.prodt_code" multiple placeholder="请选择设备类别">
+      <el-form-item :label="$t('iot_plat_reset_note')" class="form-row" prop="reset_code">
+        <el-select v-model="formData.reset_code" multiple :placeholder="$t('iot_plat_select_reset_note')">
+          <el-option
+            v-for="(item, index) in resetCode"
+            :key="index"
+            :label="JSON.parse(item.str_translation)[lang]"
+            :value="Number(item.str_id.replace('Resetcode_value', ''))"
+          ></el-option>
+        </el-select>
+        <span class="form-tip">*</span>
+      </el-form-item>
+      <el-form-item :label="$t('iot_plat_device_class')" class="form-row" prop="prodt_code">
+        <el-select v-model="formData.prodt_code" multiple :placeholder="$t('iot_plat_select_device_class')">
           <el-option
             v-for="item in productCode"
             :key="item.prodt_code"
@@ -31,66 +42,66 @@
         </el-select>
         <span class="form-tip">*</span>
       </el-form-item>
-      <el-form-item class="form-row" label="设备在线图" prop="pic1_fileid.online">
+      <el-form-item class="form-row" :label="$t('iot_plat_device_online_pic')" prop="pic1_fileid.online">
         <div class="form-btn-upload">
           <UploadComponent
             class="pic-format-1"
             :path="uploadPath"
             :data="{name: 'online'}"
             :previewPath="formData.pic1_fileid.online"
-            :accept="['.jpg', '.jpeg', '.png']"
+            :accept="['image/jpeg', 'image/png']"
             :size="2"
             model="preview"
-            condition="尺寸为608*470，格式为 jpg\jpeg\png 且小于2M的白底图片"
+            :condition="$t('iot_plat_picture_desc_01')"
             @response="getUploadResult"
           ></UploadComponent>
         </div>
         <span class="form-tip">*</span>
       </el-form-item>
 
-      <el-form-item class="form-row" label="设备状态图" prop="pic1_fileid.state">
+      <el-form-item class="form-row" :label="$t('iot_plat_deivce_state_pic')" prop="pic1_fileid.state">
         <div class="form-btn-upload">
           <UploadComponent
             class="pic-format-1"
             :path="uploadPath"
             :data="{name: 'state'}"
             :previewPath="formData.pic1_fileid.state"
-            :accept="['.jpg', '.jpeg', '.png']"
+            :accept="['image/jpeg', 'image/png']"
             :size="2"
             model="preview"
-            condition="尺寸为608*470，格式为 jpg\jpeg\png 且小于2M的白底图片"
+            :condition="$t('iot_plat_picture_desc_01')"
             @response="getUploadResult"
           ></UploadComponent>
         </div>
       </el-form-item>
 
-      <el-form-item class="form-row" label="设备Reset图" prop="pic1_fileid.reset">
+      <el-form-item class="form-row" :label="$t('iot_plat_device_reset_pic')" prop="pic1_fileid.reset">
         <div class="form-btn-upload">
           <UploadComponent
             class="pic-format-1"
             :path="uploadPath"
             :data="{name: 'reset'}"
             :previewPath="formData.pic1_fileid.reset"
-            :accept="['.jpg', '.jpeg', '.png']"
+            :accept="['image/jpeg', 'image/png']"
             :size="2"
             model="preview"
-            condition="尺寸为608*470，格式为 jpg\jpeg\png 且小于2M的白底图片"
+            :condition="$t('iot_plat_picture_desc_01')"
             @response="getUploadResult"
           ></UploadComponent>
         </div>
       </el-form-item>
 
-      <el-form-item class="form-row" label="设备缩略图" prop="pic1_fileid.thumb">
+      <el-form-item class="form-row" :label="$t('iot_plat_device_thumbnial_pic')" prop="pic1_fileid.thumb">
         <div class="form-btn-upload">
           <UploadComponent
             class="pic-format-2"
             :path="uploadPath"
             :data="{name: 'thumb'}"
             :previewPath="formData.pic1_fileid.thumb"
-            :accept="['.jpg', '.jpeg', '.png']"
+            :accept="['image/jpeg', 'image/png']"
             :size="2"
             model="preview"
-            condition="尺寸为144*144，格式为 jpg\jpeg\png 且小于2M的白底图片"
+            :condition="$t('iot_plat_picture_desc_02')"
             @response="getUploadResult"
           ></UploadComponent>
         </div>
@@ -98,7 +109,7 @@
       </el-form-item>
 
       <el-form-item style="margin-top: 4.33rem;">
-        <el-button type="primary" class="btn-submit" @click="submit()">提 交</el-button>
+        <el-button type="primary" class="btn-submit" @click="submit()">{{$t("iot_plat_submit")}}</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -129,6 +140,14 @@ export default {
       required : true,
       "default": () => []
     },
+    /** 
+     * Reset 提示数据
+     */
+    resetCode: {
+      type     : Array,
+      required : true,
+      "default": () => []
+    },
     /**
      * 控制弹出层的显示隐藏
      */
@@ -142,10 +161,12 @@ export default {
   data() {
     return {
       uploadPath: COOP_DEVICE_PIC_UOLOAD,
+      lang      : localStorage.getItem("lang") || "CN",
       formData  : {
         product_name: "",
         product_code: "",
         nbi_code    : [],
+        reset_code  : [],
         prodt_code  : [],
         pic1_fileid : {
           online: "",
@@ -158,42 +179,49 @@ export default {
         product_name: [
           {
             required: true,
-            message : "请输入型号名称",
+            message : this.$t("iot_plat_input_model_name"),
             trigger : "change"
           }
         ],
         product_code: [
           {
             required: true,
-            message : "请输入型号代码",
+            message : this.$t("iot_plat_input_model_code"),
             trigger : "change"
           }
         ],
         nbi_code: [
           {
             required: true,
-            message : "请选择连接方式",
+            message : this.$t("iot_plat_select_connection_way"),
+            trigger : "change"
+          }
+        ],
+        reset_code: [
+          {
+            required: true,
+            message : this.$t("iot_plat_select_reset_note"),
             trigger : "change"
           }
         ],
         prodt_code: [
           {
             required: true,
-            message : "请选择设备类别",
+            message : this.$t("iot_plat_select_device_class"),
             trigger : "change"
           }
         ],
         "pic1_fileid.online": [
           {
             required: true,
-            message : "请上传设备在线图片",
+            message : this.$t("iot_plat_upload_device_online_pic"),
             trigger : "change"
           }
         ],
         "pic1_fileid.thumb": [
           {
             required: true,
-            message : "请上传设备缩略图",
+            message : this.$t("iot_plat_upload_device_thumb_pic"),
             trigger : "change"
           }
         ]
@@ -220,14 +248,14 @@ export default {
             const res = await this.$http.post(USER_EQUIPMENT_MODEL_ADD, param);
             loading.close();
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("添加成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_add_success"));
               this.$refs.form.resetFields();
               // 通知父组件获取最新数据
               this.$emit("close", true);
             }
           } catch (e) {
             loading.close();
-            this.vmMsgError("程序错误！");
+            this.vmMsgError(this.$t("iot_plat_program_error"));
           }
         }
       });

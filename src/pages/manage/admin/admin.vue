@@ -2,7 +2,7 @@
   <div class="admin">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">管理员-用户信息</p>
+        <p class="title-cn">{{$t("iot_plat_admin_user_info")}}</p>
         <p class="title-en">ADMIN USER INFORMATION</p>
       </el-col>
     </el-row>
@@ -41,15 +41,15 @@
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection"></el-table-column>
-          <el-table-column type="index" width="100" label="编号"></el-table-column>
-          <el-table-column prop="user_name" label="姓名"></el-table-column>
-          <el-table-column prop="groupName" label="角色"></el-table-column>
-          <el-table-column prop="create_time" label="创建时间"></el-table-column>
-          <el-table-column prop="last_time" label="最后一次登录"></el-table-column>
-          <el-table-column prop label="操作" width="180">
+          <el-table-column type="index" width="100" :label="$t('iot_plat_number')"></el-table-column>
+          <el-table-column prop="user_name" :label="$t('iot_plat_full_name')"></el-table-column>
+          <el-table-column prop="groupName" :label="$t('iot_plat_role')"></el-table-column>
+          <el-table-column prop="create_time" :label="$t('iot_plat_create_time')"></el-table-column>
+          <el-table-column prop="last_time" :label="$t('iot_plat_last_login')"></el-table-column>
+          <el-table-column prop :label="$t('iot_plat_operate')" width="180">
             <template slot-scope="scope">
               <el-button
-                icon="iconfont icon-bianji"
+                icon="iconfont icon-tianjia"
                 class="btn-circle"
                 size="mini"
                 circle
@@ -77,34 +77,39 @@
         ></el-pagination>
       </el-row>
     </el-row>
-    <el-dialog title="添加用户" :visible.sync="dialogVisible" center :before-close="handleClose">
+    <el-dialog :title="$t('iot_plat_add_user')" :visible.sync="dialogVisible" center :before-close="handleClose">
       <el-form label-width="100px" status-icon :model="formAdd" ref="AddForm" :rules="rules">
-        <el-form-item label="用户名" class="form-row" prop="user_name">
+        <el-form-item :label="$t('iot_plat_user_name')" class="form-row" prop="user_name">
           <el-input v-model="formAdd.user_name"></el-input>
         </el-form-item>
-        <el-form-item label="密码" class="form-row" prop="password">
+        <el-form-item :label="$t('iot_plat_password')" class="form-row" prop="password">
           <el-input v-model="formAdd.password"></el-input>
         </el-form-item>
         <el-form-item label style="margin-top: 4.33rem;">
-          <el-button type="primary" class="btn-submit" @click="ensureSubmit()">确 定</el-button>
+          <el-button type="primary" class="btn-submit" @click="ensureSubmit()">{{$t("iot_plat_confirm")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
-    <el-dialog title="添加用户组" :visible.sync="dialogVisible2" center :before-close="handleClose">
+    <el-dialog :title="$t('iot_plat_user_group_add')" :visible.sync="dialogVisible2" center :before-close="handleClose">
       <el-form label-width="100px" status-icon :model="formAdd2" ref="AddForm" :rules="rules">
-        <el-form-item label="用户组" class="form-row" prop="group">
-          <el-select v-model="formAdd2.group" multiple placeholder="请选择">
-            <el-option
-              v-for="item in options"
-              :key="item.group_id"
-              :label="item.group_name"
-              :value="item.group_id"
-              :disabled="item.disabled"
-            ></el-option>
+        <el-form-item :label="$t('iot_plat_user_group')" class="form-row" prop="group">
+          <el-select v-model="formAdd2.group" 
+            :collapse-tags="true" 
+            multiple 
+            :placeholder="$t('iot_plat_select_please')">
+            <template v-for="item in options" >
+              <el-option
+                v-if="!alreadyExistGroup.includes(item.group_id)"
+                :key="item.group_id"
+                :label="item.group_name"
+                :value="item.group_id"
+                :disabled="item.disabled">
+              </el-option>
+            </template>
           </el-select>
         </el-form-item>
         <el-form-item label style="margin-top: 4.33rem;">
-          <el-button type="primary" class="btn-submit" @click="ensureSubmit2()">确 定</el-button>
+          <el-button type="primary" class="btn-submit" @click="ensureSubmit2()">{{$t("iot_plat_confirm")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -125,11 +130,11 @@ export default {
     const validateIsEmpty = (rule, value, callback) => {
       if (value === "") {
         if (rule.field === "user_name") {
-          callback(new Error("请输入用户名"));
+          callback(new Error(this.$t("iot_plat_input_username_please")));
         } else if (rule.field === "password") {
-          callback(new Error("请输入密码"));
+          callback(new Error(this.$t("iot_plat_input_pwd_please")));
         } else if (rule.field === "group") {
-          callback(new Error("请选择用户组"));
+          callback(new Error(this.$t("iot_plat_select_user_group")));
         }
       }
       callback();
@@ -149,6 +154,7 @@ export default {
         password : ""
       },
       formAdd2         : { group: [] },
+      alreadyExistGroup: [],
       options          : [],
       tableData        : [],
       resData          : [],
@@ -200,7 +206,7 @@ export default {
         }
       } catch (error) {
         this.loading = false;
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     ensureSubmit: _.debounce(function() {
@@ -210,7 +216,7 @@ export default {
             const param = this.createFormData(this.formAdd);
             const res = await this.$http.post(ADMIN_USER_ADD, param)
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("操作成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_operating_success"));
               this.dialogVisible = false;
               this.$refs.AddForm.resetFields();
               this.onSubmit();
@@ -218,7 +224,7 @@ export default {
           }
         });
       } catch (error) {
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
     ensureSubmit2: _.debounce(function() {
@@ -231,7 +237,7 @@ export default {
             });
             const res = await this.$http.post(ADMIN_USER_POWER_ADD, param)
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("操作成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_operating_success"));
               this.dialogVisible2 = false;
               this.$refs.AddForm.resetFields();
               this.onSubmit();
@@ -239,12 +245,12 @@ export default {
           }
         });
       } catch (error) {
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
     Delete() {
       if (!this.multipleSelection.length) {
-        this.vmMsgWarning("请选择记录");
+        this.vmMsgWarning(this.$t("iot_plat_select_value_please"));
         return;
       }
       const loading = this.vmLoadingFull();
@@ -255,19 +261,22 @@ export default {
         });
         const param = this.createFormData({ user_name: codeArr });
         this.vmConfirm({
-          msg            : "确定删除该记录？",
+          msg            : this.$t("iot_plat_confirm_delete_data"),
           confirmCallback: async () => {
             const res = await this.$http.post(ADMIN_USER_DEL, param)
             loading.close();
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("删除成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_delete_success"));
               this.onSubmit();
             }
+          },
+          cancelCallback: () => {
+            loading.close()
           }
         });
       } catch (error) {
         loading.close();
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
       
     },
@@ -277,23 +286,24 @@ export default {
     editAdmin(row) {
       this.dialogVisible2 = true;
       this.user_id = row.user_id;
+      this.alreadyExistGroup = row.groupId
     },
     Resetpwd(row) {
       const param = this.createFormData({ user_name: row.user_name });
       this.vmConfirm({
-        msg            : "确定重置该用户密码？",
+        msg            : this.$t("iot_plat_confirm_reset_pwd"),
         confirmCallback: async () => {
           const loading = this.vmLoadingFull();
           try {
             const res = await this.$http.post(ADMIN_USER_RESET_PWD, param)
             loading.close();
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("重置密码成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_reset_pwd_success"));
               this.onSubmit();
             }
           } catch (error) {
             loading.close();
-            this.vmMsgError("程序错误！");
+            this.vmMsgError(this.$t("iot_plat_program_error"));
           }
         }
       });
@@ -302,6 +312,7 @@ export default {
       this.multipleSelection = val;
     },
     handleClose(done) {
+      this.$refs.AddForm.resetFields()
       done();
     }
   }
@@ -311,6 +322,9 @@ export default {
 .admin {
   padding: 1.67rem 2.5rem;
   color: #fff;
+}
+.el-select /deep/ .el-tag__close.el-icon-close {
+  display: none;
 }
 </style>
 <style>

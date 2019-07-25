@@ -1,32 +1,32 @@
 <template>
   <div>
-    <el-dialog title="修改管理" :visible.sync="isVisible" width="50rem" center class="dialog" :before-close="closeDialog">
+    <el-dialog :title="$t('iot_plat_modify_manage')" :visible.sync="isVisible" width="50rem" center class="dialog" :before-close="closeDialog">
       <!-- 内层修改密码dialog -->
       <el-dialog
         width="52rem"
-        title="修改密码"
+        :title="$t('iot_plat_change_pwd')"
         :visible.sync="innerVisible"
         append-to-body
         center>
-        <el-form ref="updateForm" :model="updateForm" :rules="rules" label-width="120px">
-          <el-form-item label="新密码" class="form-row" prop="password">
+        <el-form ref="updateForm" :model="updateForm" :rules="rules" label-width="140px">
+          <el-form-item :label="$t('iot_plat_new_password')" class="form-row" prop="password">
             <el-input v-model="updateForm.password"></el-input>
             <span class="form-tip">*</span>
           </el-form-item>
           <el-form-item label style="margin-top: 4.33rem;">
-            <el-button type="primary" class="btn-submit" @click="submit">确 定</el-button>
+            <el-button type="primary" class="btn-submit" @click="submit">{{$t("iot_plat_confirm")}}</el-button>
           </el-form-item>
         </el-form>
       </el-dialog>
 
       <!-- 外层dialog内容 -->
       <div slot="title">
-        <span class="el-dialog__title">修改管理</span>
-        <el-button type="primary" class="btn" @click="generate">创建</el-button>
+        <span class="el-dialog__title">{{$t("iot_plat_modify_manage")}}</span>
+        <el-button type="primary" class="btn" @click="generate">{{$t("iot_plat_create")}}</el-button>
       </div>
       <TableComponent :options="tableOptions" :data="tableData" v-on:page-change="getBindLists">
         <template slot-scope="scope" slot="updatePass">
-          <a class="success" href="javascript:void(0)" @click="showUpdatePassDialog(scope.row)">修改密码</a>
+          <a class="success" href="javascript:void(0)" @click="showUpdatePassDialog(scope.row)">{{$t("iot_plat_change_pwd")}}</a>
         </template>
       </TableComponent>
     </el-dialog>
@@ -65,12 +65,12 @@ export default {
         },
         columns: [
           {
-            label: "用户名",
+            label: this.$t("iot_plat_user_name"),
             prop : "user_name"
           },
           {
             slotName: "updatePass",
-            label   : "密码"
+            label   : this.$t("iot_plat_password")
           }
         ]
       },
@@ -82,7 +82,7 @@ export default {
       },
       rules: {
         password: [
-          { required: true, message: "请输入新密码", trigger: "blur" }, { min: 6, message: "密码长度应大于6个字符", trigger: "blur" }
+          { required: true, message: this.$t("iot_plat_input_new_password"), trigger: "blur" }, { min: 6, message: this.$t("iot_plat_password_length_limit"), trigger: "blur" }
         ]
       }
     }
@@ -121,12 +121,12 @@ export default {
             const res = await this.$http.post(COOP_DEVICE_BIND_UPDATE, data)
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("修改成功")
+              this.vmMsgSuccess(this.$t("iot_plat_edit_success"))
               this.innerVisible = false
             }
           } catch (error) {
             loading.close()
-            this.vmMsgError("程序错误")
+            this.vmMsgError(this.$t("iot_plat_program_error"));
           }
         }
       });
@@ -147,7 +147,7 @@ export default {
         }
       } catch (error) {
         this.tableOptions.loading = false
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }
   }

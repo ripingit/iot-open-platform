@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="商品促销设置" :visible="isVisible" center @close="dialogClose" @closed="dialogColsed">
+  <el-dialog :title="$t('iot_plat_goods_sales_setting')" :visible="isVisible" center @close="dialogClose" @closed="dialogColsed">
     <div class="panel">
       <el-radio-group v-model="panel">
         <el-radio-button
@@ -19,27 +19,28 @@
       <el-form
         label-position="right"
         status-icon
-        label-width="120px"
+        label-width="150px"
         :model="form"
         :rules="rules"
         ref="goodForm"
+        :hide-required-asterisk="true"
       >
-        <el-form-item class="form-row" label="促销价格" prop="goods_pro_price">
-          <el-input v-model="form.goods_pro_price" auto-complete="off" placeholder="请输入促销价格">
+        <el-form-item class="form-row" :label="$t('iot_plat_sales_price')" prop="goods_pro_price">
+          <el-input v-model="form.goods_pro_price" auto-complete="off" :placeholder="$t('iot_plat_input_sales_price')">
             <template
               slot="append"
-            >{{ isNaN(form.goods_pro_price/100) ? 0 : form.goods_pro_price/100}} 元</template>
+            >{{ isNaN(form.goods_pro_price/100) ? 0 : form.goods_pro_price/100}} {{$t("iot_plat_yuan")}}</template>
           </el-input>
           <span class="form-tip">*</span>
         </el-form-item>
 
-        <el-form-item class="form-row" label="促销时间" required>
+        <el-form-item class="form-row" :label="$t('iot_plat_sales_time')" required>
           <el-form-item prop="goods_pro_start_time">
             <el-date-picker
               v-model="form.goods_pro_start_time"
               :picker-options="disabledDate"
               type="date"
-              placeholder="请选择促销开始时间"
+              :placeholder="$t('iot_plat_select_start_sales_time')"
             ></el-date-picker>
             <span class="form-tip">*</span>
           </el-form-item>
@@ -48,30 +49,30 @@
               v-model="form.goods_pro_end_time"
               :picker-options="disabledDate"
               type="date"
-              placeholder="请选择促销结束时间"
+              :placeholder="$t('iot_plat_select_end_sales_time')"
             ></el-date-picker>
             <span class="form-tip">*</span>
           </el-form-item>
         </el-form-item>
 
-        <el-form-item class="form-row" label="单人购买上限" prop="goods_pro_one_buy_limit">
+        <el-form-item class="form-row" :label="$t('iot_plat_one_person_buy_limit')" prop="goods_pro_one_buy_limit">
           <el-input
             v-model="form.goods_pro_one_buy_limit"
             auto-complete="off"
-            placeholder="请输入单人购买上限"
+            :placeholder="$t('iot_plat_input_one_person_buy_limit')"
           ></el-input>
         </el-form-item>
-        <el-form-item class="form-row" label="促销总数" prop="goods_pro_total">
-          <el-input v-model="form.goods_pro_total" auto-complete="off" placeholder="请输入促销总数"></el-input>
+        <el-form-item class="form-row" :label="$t('iot_plat_sales_total')" prop="goods_pro_total">
+          <el-input v-model="form.goods_pro_total" auto-complete="off" :placeholder="$t('iot_plat_input_sales_total')"></el-input>
         </el-form-item>
-        <el-form-item class="form-row" label="促销状态" prop="is_onsale" v-if="!isNew">
-          <el-select v-model="form.is_onsale" placeholder="请选择促销状态" no-data-text="无数据">
-            <el-option key="1" label="开启" :value="1"></el-option>
-            <el-option key="2" label="关闭" :value="2"></el-option>
+        <el-form-item class="form-row" :label="$t('iot_plat_sales_state')" prop="is_onsale" v-if="!isNew">
+          <el-select v-model="form.is_onsale" :placeholder="$t('iot_plat_select_sales_state')" :no-data-text="$t('iot_plat_none_data')">
+            <el-option key="1" :label="$t('iot_plat_open')" :value="1"></el-option>
+            <el-option key="2" :label="$t('iot_plat_close')" :value="2"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="form-row">
-          <el-button class="btn-submit" type="primary" @click="submit">提交</el-button>
+          <el-button class="btn-submit" type="primary" @click="submit">{{$t("iot_plat_submit")}}</el-button>
         </el-form-item>
       </el-form>
     </template>
@@ -81,7 +82,7 @@
     >
       <TableComponent class="sale-table" :options="tableOptions" :data="tableData">
         <el-table-column
-          label="操作"
+          :label="$t('iot_plat_operate')"
           width="120"
           slot="handler"
           v-if="vmHasAuth(AdminPermissionsLib.PROMOTION_EDIT, auth) || vmHasAuth(AdminPermissionsLib.PROMOTION_DEL, auth)"
@@ -157,7 +158,7 @@ export default {
   data() {
     const validatePrice = (rule, value, callback) => {
       if (isNaN(value / MIN_PRICE)) {
-        callback(new Error("请输入数字"));
+        callback(new Error(this.$t("iot_plat_input_number_please")));
       }
       callback();
     };
@@ -166,8 +167,8 @@ export default {
       // 用于判断促销信息是新增还是编辑, true 新增，false 编辑
       isNew          : true, 
       radioGroupNames: {
-        setting: "设置",
-        history: "历史"
+        setting: this.$t("iot_plat_setting"),
+        history: this.$t("iot_plat_history")
       },
       panel       : "",
       disabledDate: { disabledDate: time => time.getTime() < Date.now() - CONSTANT },
@@ -185,7 +186,7 @@ export default {
         goods_pro_price: [
           {
             required: true,
-            message : "请输入促销价格",
+            message : this.$t("iot_plat_input_sales_price"),
             trigger : "change"
           },
           { validator: validatePrice, trigger: "change" }
@@ -194,7 +195,7 @@ export default {
           {
             type    : "date",
             required: true,
-            message : "请选择促销开始时间",
+            message : this.$t("iot_plat_select_start_sales_time"),
             trigger : "change"
           }
         ],
@@ -202,7 +203,7 @@ export default {
           {
             type    : "date",
             required: true,
-            message : "请选择促销结束时间",
+            message : this.$t("iot_plat_select_end_sales_time"),
             trigger : "change"
           }
         ]
@@ -212,21 +213,21 @@ export default {
         loading: true,
         columns: [
           {
-            label : "开始时间",
+            label : this.$t("iot_plat_start_time"),
             prop  : "goods_pro_start_time",
             width : "150",
             render: value => moment(new Date(value)).format("YYYY-MM-DD")
           },
           {
             prop  : "goods_pro_end_time",
-            label : "结束时间",
+            label : this.$t("iot_plat_end_time"),
             width : "150",
             render: value => moment(new Date(value)).format("YYYY-MM-DD")
           },
           {
             prop  : "goods_pro_price",
-            label : "价格",
-            render: value => `${value / MIN_PRICE}元`
+            label : this.$t("iot_plat_price"),
+            render: value => `${value / MIN_PRICE}${this.$t("iot_plat_yuan")}`
           }
         ]
       }
@@ -270,7 +271,7 @@ export default {
         const wait = this.vmLoadingFull();
         const res = await this.$http.post(url, data);
         if (this.vmResponseHandler(res)) {
-          this.vmMsgSuccess(this.isNew ? "添加成功！" : "更新成功！");
+          this.vmMsgSuccess(this.isNew ? this.$t("iot_plat_add_success") : this.$t("iot_plat_update_success"));
           this.$refs.goodForm.resetFields();
           this.resetForm();
           this.getSalesInfo();
@@ -314,7 +315,7 @@ export default {
 
     deleteSales: _.debounce(function(row) {
       this.vmConfirm({
-        msg            : "确定删除该记录？",
+        msg            : this.$t("iot_plat_confirm_delete_data"),
         confirmCallback: async () => {
           const data = this.createFormData({
             goods_id    : row.goods_id,
@@ -324,7 +325,7 @@ export default {
           const res = await this.$http.post(ADMIN_SALES_DELETE_POST, data);
 
           if (this.vmResponseHandler(res)) {
-            this.vmMsgSuccess("删除成功！");
+            this.vmMsgSuccess(this.$t("iot_plat_delete_success"));
             const sale = this.tableData.find(o => o.goods_pro_id === row.goods_pro_id);
             this.tableData.splice(this.tableData.indexOf(sale), 1);
           }

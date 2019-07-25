@@ -1,14 +1,14 @@
 <template>
   <div class="container">
     <el-row class="h_nav">
-      <h5>概况</h5>
+      <h5>{{$t("iot_plat_overview")}}</h5>
       <p>SURVEY</p>
     </el-row>
     <el-row class="company_name">
       <el-form :inline="true">
-        <el-form-item label="公司：">
-          <el-select v-model="selectParam.query_by_name" placeholder="请选择公司" @change="updateData">
-            <el-option label="全部" value="all"></el-option>
+        <el-form-item :label="$t('iot_plat_company')">
+          <el-select v-model="selectParam.query_by_name" :placeholder="$t('iot_plat_select_company')" @change="updateData">
+            <el-option :label="$t('iot_plat_all')" value="all"></el-option>
             <el-option :label="obj.name" :value="obj.company_code" :key="ix" v-for="(obj,ix) in companyList"></el-option>
           </el-select>
         </el-form-item>
@@ -19,7 +19,7 @@
         <div class="item_section_box">
           <div>
             <el-row type="flex" align="bottom" class="item_tip">
-              <span>今日注册用户</span>
+              <span>{{$t("iot_plat_registered_users_today")}}</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
               <span>{{headerData.reg_today}}</span>
@@ -29,7 +29,7 @@
         <div class="item_section_box">
           <div>
             <el-row type="flex" align="bottom" class="item_tip">
-              <span>总注册用户</span>
+              <span>{{$t("iot_plat_registered_users_total")}}</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
               <span>{{headerData.all_reg}}</span>
@@ -39,7 +39,7 @@
         <div class="item_section_box">
           <div>
             <el-row type="flex" align="bottom" class="item_tip">
-              <span>在线设备</span>
+              <span>{{$t("iot_plat_device_online")}}</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
               <span>{{headerData.online_device}}</span>
@@ -49,7 +49,7 @@
         <div class="item_section_box">
           <div>
             <el-row type="flex" align="bottom" class="item_tip">
-              <span>设备总数</span>
+              <span>{{$t("iot_plat_device_total_number")}}</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
               <span>{{headerData.all_device}}</span>
@@ -59,7 +59,7 @@
         <div class="item_section_box">
           <div>
             <el-row type="flex" align="bottom" class="item_tip">
-              <span>今日下载数</span>
+              <span>{{$t("iot_plat_download_number_today")}}</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
               <span>0</span>
@@ -69,7 +69,7 @@
         <div class="item_section_box">
           <div>
             <el-row type="flex" align="bottom" class="item_tip">
-              <span>APP总下载数</span>
+              <span>{{$t("iot_plat_app_download_total_number")}}</span>
             </el-row>
             <el-row type="flex" justify="center" align="middle" class="item_text">
               <span>0</span>
@@ -85,7 +85,7 @@
               v-model="selectParam.start_time"
               type="date"
               value-format="yyyy-MM-dd"
-              placeholder="选择日期"
+              :placeholder="$t('iot_plat_select_date')"
               @change="loadData">
             </el-date-picker>
           </el-col>
@@ -101,8 +101,8 @@
           </el-col>-->
           <el-col :offset="1" :span="13">
             <el-radio-group v-model="selectParam.type" @change="loadData">
-              <el-radio label="yesterday">前一日</el-radio>
-              <el-radio label="week">上周同期</el-radio>
+              <el-radio label="yesterday">{{$t("iot_plat_preview_day")}}</el-radio>
+              <el-radio label="week">{{$t("iot_plat_last_week")}}</el-radio>
             </el-radio-group>
           </el-col>
         </el-row>
@@ -121,37 +121,37 @@
         style="width: 100%">
         <el-table-column
           prop="create_time"
-          label="时间"
+          :label="$t('iot_plat_time')"
           min-width="120">
         </el-table-column>
         <el-table-column
           prop="new_users"
-          label="新增用户"
+          :label="$t('iot_plat_new_add_user')"
           min-width="100">
         </el-table-column>
         <el-table-column
           prop="all_users"
-          label="用户总数"
+          :label="$t('iot_plat_user_total_number')"
           min-width="100">
         </el-table-column>
         <el-table-column
           prop="new_device"
-          label="新增设备"
+          :label="$t('iot_plat_new_add_device')"
           min-width="100">
         </el-table-column>
         <el-table-column
           prop="all_device"
-          label="设备总数"
+          :label="$t('iot_plat_device_total_number')"
           min-width="100">
         </el-table-column>
         <el-table-column
           prop="active_users"
-          label="活跃用户"
+          :label="$t('iot_plat_active_user')"
           min-width="100">
         </el-table-column>
         <el-table-column
           prop="service_num"
-          label="增值服务"
+          :label="$t('iot_plat_value_added_services')"
           min-width="100">
         </el-table-column>
       </el-table>
@@ -190,7 +190,7 @@ export default {
         },
         legend: {
           textStyle: { color: "#b3b3b3" },
-          data     : [ "设备上线", "今日注册" ]
+          data     : [ this.$t("iot_plat_device_to_online"), this.$t("iot_plat_registered_today") ]
         },
         toolbox: { feature: { saveAsImage: {} } },
         grid   : {
@@ -227,7 +227,7 @@ export default {
         ],
         series: [
           {
-            name      : "设备上线",
+            name      : this.$t("iot_plat_device_to_online"),
             type      : "line",
             // 小圆点形状
             symbol    : "circle",
@@ -250,7 +250,7 @@ export default {
             data: []
           },
           {
-            name      : "今日注册",
+            name      : this.$t("iot_plat_registered_today"),
             type      : "line",
             symbol    : "circle",
             symbolSize: "6",
@@ -296,7 +296,7 @@ export default {
           this.polar.series[1].data = res.data.graph.reg_today
         }
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error")); 
       }
     }
   }

@@ -1,12 +1,15 @@
 /* eslint-disable no-undef */
 import store from "@/store/index"
 import router from "@/router/index"
+import i18n from "@/lang/index"
 import Vue from "vue"
+
+const vm = new Vue({ i18n })
 
 const RoutingInterception = (to, from, next) => {
   const identity = store.getters.getUserIdentity
   if (identity !== Vue.prototype.identityCode.ADMIN) {
-    Vue.prototype.vmMsgError("无访问权限")
+    Vue.prototype.vmMsgError(vm.$t("iot_plat_no_access"))
     router.back(); return
   }
   next()
@@ -20,14 +23,14 @@ export const admin = {
       path       : "resetAdminPass",
       name       : "resetAdminPass",
       component  : resolve => require([ "@/pages/manage/edit-password" ], resolve),
-      meta       : { title: "修改密码", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_change_pwd"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     },
     {
       path       : "home/:index",
       name       : "home",
       component  : resolve => require([ "@/pages/manage/home" ], resolve),
-      meta       : { title: "首页" },
+      meta       : { title: vm.$t("iot_plat_home") },
       beforeEnter: RoutingInterception
     }
   ]
@@ -40,7 +43,7 @@ export const adminRoute = [
       path       : "category/:index",
       name       : "category",
       component  : resolve => require([ "@/pages/manage/device-category/device-category" ], resolve),
-      meta       : { title: "设备类别", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_device_class"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -50,7 +53,7 @@ export const adminRoute = [
       path       : "model/:index",
       name       : "model",
       component  : resolve => require([ "@/pages/manage/device-model/device-model" ], resolve),
-      meta       : { title: "设备型号", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_device_model"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -60,7 +63,7 @@ export const adminRoute = [
       path       : "firmware/:index",
       name       : "firmware",
       component  : resolve => require([ "@/pages/manage/firmware/firmware" ], resolve),
-      meta       : { title: "固件管理", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_fireware_manage"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -70,7 +73,7 @@ export const adminRoute = [
       path       : "cooperation/:index",
       name       : "cooperation",
       component  : resolve => require([ "@/pages/manage/cooperation/cooperation" ], resolve),
-      meta       : { title: "合作", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_coop"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -80,7 +83,7 @@ export const adminRoute = [
       path       : "reviewCompany/:index",
       name       : "reviewCompany",
       component  : resolve => require([ "@/pages/manage/review-manage/company" ], resolve),
-      meta       : { title: "审核管理-公司", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_review_manage_company"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -90,7 +93,7 @@ export const adminRoute = [
       path       : "reviewModel/:index",
       name       : "reviewModel",
       component  : resolve => require([ "@/pages/manage/review-manage/model" ], resolve),
-      meta       : { title: "审核管理-型号", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_review_manage_model"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -100,7 +103,7 @@ export const adminRoute = [
       path       : "reviewFirmware/:index",
       name       : "reviewFirmware",
       component  : resolve => require([ "@/pages/manage/review-manage/firmware" ], resolve),
-      meta       : { title: "审核管理-固件", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_review_manage_fireware"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -110,7 +113,7 @@ export const adminRoute = [
       path       : "reviewCategory/:index",
       name       : "reviewCategory",
       component  : resolve => require([ "@/pages/manage/review-manage/category" ], resolve),
-      meta       : { title: "审核管理-类别", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_review_manage_category"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -120,7 +123,7 @@ export const adminRoute = [
       path       : "appVersion/:index",
       name       : "appVersion",
       component  : resolve => require([ "@/pages/manage/app-version/app-version" ], resolve),
-      meta       : { title: "app版本", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_app_version"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -130,7 +133,7 @@ export const adminRoute = [
       path       : "admins/:index",
       name       : "admins",
       component  : resolve => require([ "@/pages/manage/admin/admin" ], resolve),
-      meta       : { title: "平台用户", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_platform_users"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -140,7 +143,7 @@ export const adminRoute = [
       path       : "coopAuth/:index",
       name       : "coopAuth",
       component  : resolve => require([ "@/pages/manage/admin/coop-auth" ], resolve),
-      meta       : { title: "合作权限", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_coop_permission"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -150,7 +153,7 @@ export const adminRoute = [
       path       : "powerHome/:index",
       name       : "powerHome",
       component  : resolve => require([ "@/pages/manage/admin/powerHome" ], resolve),
-      meta       : { title: "权限设置", identity: 1 },
+      meta       : { title: vm.$t("iot_plat_permission_setting"), identity: 1 },
       beforeEnter: RoutingInterception,
       children   : [ {
         path       : "/",
@@ -178,7 +181,7 @@ export const adminRoute = [
       path       : "userManage/:index",
       name       : "userManage",
       component  : resolve => require([ "@/pages/manage/users/user-manage" ], resolve),
-      meta       : { title: "用户管理", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_user_manage"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -188,7 +191,7 @@ export const adminRoute = [
       path       : "goodsManage/:index",
       name       : "goodsManage",
       component  : resolve => require([ "@/pages/manage/goods-manage/goods-manage" ], resolve),
-      meta       : { title: "商品管理", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_goods_manage"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -198,7 +201,7 @@ export const adminRoute = [
       path       : "ordersManage/:index",
       name       : "ordersManage",
       component  : resolve => require([ "@/pages/manage/goods-manage/order-manage" ], resolve),
-      meta       : { title: "订单管理", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_order_manage"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -208,7 +211,7 @@ export const adminRoute = [
       path       : "deviceProd/:index",
       name       : "deviceProd",
       component  : resolve => require([ "@/pages/manage/equipment-prod/equipment-prod" ], resolve),
-      meta       : { title: "设备生产", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_device_produce"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -218,7 +221,7 @@ export const adminRoute = [
       path       : "deviceBind/:index",
       name       : "deviceBind",
       component  : resolve => require([ "@/pages/manage/device-bind/device-bind" ], resolve),
-      meta       : { title: "设备绑定", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_device_bind"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -228,7 +231,27 @@ export const adminRoute = [
       path       : "coopAdmin/:index",
       name       : "coopAdmin",
       component  : resolve => require([ "@/pages/manage/coop-admin/coop-admin" ], resolve),
-      meta       : { title: "合作商权限", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_partner_permissions"), identity: [ 1 ] },
+      beforeEnter: RoutingInterception
+    }
+  },
+  {
+    id   : 25001,
+    route: {
+      path       : "baseLanguage/:index",
+      name       : "baseLanguage",
+      component  : resolve => require([ "@/pages/manage/admin/language-base" ], resolve),
+      meta       : { title: vm.$t("iot_plat_multi_language_setting"), identity: [ 1 ] },
+      beforeEnter: RoutingInterception
+    }
+  },
+  {
+    id   : 26001,
+    route: {
+      path       : "log/:index",
+      name       : "log",
+      component  : resolve => require([ "@/pages/manage/admin/logs" ], resolve),
+      meta       : { title: vm.$t("iot_plat_operation_log"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   }

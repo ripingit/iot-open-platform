@@ -13,3 +13,5 @@ export const MENU_UPDATE = "MENU_UPDATE"
 export const AUTH_UPDATE = "AUTH_UPDATE"
 
 export const MENU_TOGGLE_UPDATE = "MENU_TOGGLE_UPDATE"
+
+export const LANGUAGE_LIST = "LANGUAGE_LIST"

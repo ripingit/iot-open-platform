@@ -14,7 +14,7 @@
           <el-table-column
             v-if="options.hasNumber"
             type="index"
-            label="编号"
+            :label="$t('iot_plat_number')"
             width="80">
           </el-table-column>
           <template  v-for="(column, index) in options.columns">

@@ -3,7 +3,7 @@
     <el-row class="header">
       <el-col :xl="3" :lg="3">
         <div class="brand">
-          <i class="iconfont icon-wulianwang logo"></i><span class="brand-name">迈科物联</span>
+          <i class="iconfont icon-wulianwang logo"></i><span class="brand-name">{{$t("iot_plat_mktech")}}</span>
         </div>
       </el-col>
       <el-col :xl="21" :lg="21">

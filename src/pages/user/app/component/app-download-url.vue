@@ -1,23 +1,23 @@
 <template>
   <el-dialog
     center
-    title="下载地址"
+    :title="$t('iot_plat_download_address')"
     width="56rem"
     :visible.sync="isVisibleEnable"
     :close-on-click-modal="false"
     :before-close="closeDownloadDialog"
   >
-    <el-form label-width="150px">
+    <el-form label-width="170px">
       <el-form-item
         v-for="(item, index) in data"
         :key="item.id"
-        :label="item.name"
+        :label="$t(item.name)"
         class="form-row"
       >
-        <el-input v-model="data[index].url" placeholder="请输入下载地址"></el-input>
+        <el-input v-model="data[index].url" :placeholder="$t('iot_plat_input_download_addr')"></el-input>
       </el-form-item>
       <el-form-item class="form-row">
-        <el-button type="primary" @click="closeDownloadDialog" class="btn-submit">确定</el-button>
+        <el-button type="primary" @click="closeDownloadDialog" class="btn-submit">{{$t('iot_plat_confirm')}}</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -49,3 +49,10 @@ export default {
   }
 };
 </script>
+<style scoped>
+/* 英文 */
+.el-dialog .el-form-item:nth-child(1) /deep/ .el-form-item__label,
+.el-dialog .el-form-item:nth-child(2) /deep/ .el-form-item__label {
+  line-height: 1.5rem;
+}
+</style>

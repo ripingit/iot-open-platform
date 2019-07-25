@@ -1,32 +1,227 @@
 <template>
-  <el-dialog title="型号配置" :visible.sync="isVisible" center style="margin-top: -6vh;" :before-close="handleClose">
+  <el-dialog :title="$t('iot_plat_model_config')" :visible.sync="isVisible" center style="margin-top: -6vh;" :before-close="handleClose">
     <el-row class="device-model-editdialog">
       <el-col :span="24" style="padding:0 0 1rem 2.5rem;">
-        <div>型号名称：{{data.product_name}}</div>
-        <div>连接方式：{{data.nbi_code}}</div>
+        <div>{{$t("iot_plat_model_name")}}：{{data.product_name}}</div>
+        <div>{{$t("iot_plat_connection_way")}}：{{data.nbi_code}}</div>
       </el-col>
       <el-col :span="24">
         <el-form
-          label-width="100px"
+          label-width="160px"
           :model="formConfig"
           status-icon
           ref="configForm"
           :rules="rules"
         >
           <div v-if="IPCC">
-            <el-col :span="24" class="device-model-editdialog-title">IPC分类（IPCC）</el-col>
-            <el-form-item label="设备分类" class="form-row" prop="class">
-              <el-select v-model="formConfig.class" placeholder="请选择">
+            <el-col :span="24" class="device-model-editdialog-title">{{$t("iot_plat_ipc_class")}}（IPCC）</el-col>
+            <el-form-item :label="$t('iot_plat_device_category')" class="form-row" prop="class">
+              <el-select v-model="formConfig.class" :placeholder="$t('iot_plat_select_please')">
                 <el-option
-                  v-for="item in class_options"
+                  v-for="item in ipccClass"
                   :key="item.value"
-                  :label="item.label"
+                  :label="$t(item.label)"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+              <span class="form-tip">*</span>
+            </el-form-item>
+            <!-- <el-form-item :label="$t('iot_plat_decode_way')" class="form-row" prop="dec">
+              <el-select v-model="formConfig.dec" :placeholder="$t('iot_plat_select_please')">
+                <el-option
+                  v-for="item in dec_options"
+                  :key="item.value"
+                  :label="$t(item.label)"
                   :value="item.value"
                 ></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="解码方式" class="form-row" prop="dec">
-              <el-select v-model="formConfig.dec" placeholder="请选择">
+            <el-form-item :label="$t('iot_plat_device_channel_number')" class="form-row" prop="chans">
+              <el-input v-model="formConfig.chans"></el-input>
+            </el-form-item> -->
+            <el-form-item :label="$t('iot_plat_correction_decoding')" class="form-row" prop="pipc_dv">
+              <el-select v-model="formConfig.pipc_dv" :placeholder="$t('iot_plat_select_please')" :disabled="formConfig.class !== 4">
+                <el-option
+                  v-for="item in pipc_dv_options"
+                  :key="item.value"
+                  :label="$t(item.label)"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+              <span class="form-tip">*</span>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_audio_mode')" class="form-row" prop="audio">
+              <el-select v-model="formConfig.audio" :placeholder="$t('iot_plat_select_please')" :disabled="formConfig.mic !== '1' || formConfig.speaker !== '1'">
+                <el-option
+                  v-for="item in audio_options"
+                  :key="item.value"
+                  :label="$t(item.label)"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+              <span class="form-tip">*</span>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_microphone')" class="form-row" prop="mic">
+              <el-radio v-model="formConfig.mic" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.mic" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_horn')" class="form-row" prop="speaker">
+              <el-radio v-model="formConfig.speaker" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.speaker" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_storage_card')" class="form-row" prop="sdcard">
+              <el-radio v-model="formConfig.sdcard" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.sdcard" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_cloud_storage')" class="form-row" prop="cloud_storage">
+              <el-radio v-model="formConfig.cloud_storage" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.cloud_storage" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_ptz_control')" class="form-row" prop="ptzctrl">
+              <el-radio v-model="formConfig.ptzctrl" label="1">{{$t("iot_plat_horizontal")}}</el-radio>
+              <el-radio v-model="formConfig.ptzctrl" label="2">{{$t("iot_plat_vertical")}}</el-radio>
+              <el-radio v-model="formConfig.ptzctrl" label="3">{{$t("iot_plat_horizontal_and_vertical")}}</el-radio>
+              <el-radio v-model="formConfig.ptzctrl" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_indicator_light')" class="form-row" prop="status_light">
+              <el-radio v-model="formConfig.status_light" label="1">{{$t("iot_plat_have")}}</el-radio>
+              <el-radio v-model="formConfig.status_light" label="0">{{$t("iot_plat_have_not")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_humanoid_detection')" class="form-row" prop="human_detect">
+              <el-radio v-model="formConfig.human_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.human_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_humanoid_tracking')" class="form-row" prop="human_track">
+              <el-radio v-model="formConfig.human_track" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.human_track" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_osd')" class="form-row" prop="osd">
+              <el-radio v-model="formConfig.osd" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.osd" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_move_detection')" class="form-row" prop="motion_detect">
+              <el-radio v-model="formConfig.motion_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.motion_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_area_detection')" class="form-row" prop="area_detect">
+              <el-radio v-model="formConfig.area_detect" label="1" :disabled="formConfig.motion_detect !== '1'">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.area_detect" label="0" :disabled="formConfig.motion_detect !== '1'">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_sound_detection')" class="form-row" prop="voice_detect">
+              <el-radio v-model="formConfig.voice_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.voice_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_cry_detection')" class="form-row" prop="cry_detect">
+              <el-radio v-model="formConfig.cry_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.cry_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_low_power_consumption')" class="form-row" prop="liteos">
+              <el-radio v-model="formConfig.liteos" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.liteos" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_human_body_infrared')" class="form-row" prop="human_body_infrared">
+              <el-radio v-model="formConfig.human_body_infrared" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.human_body_infrared" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_progress_bar')" class="form-row" prop="progress_bar">
+              <el-radio v-model="formConfig.progress_bar" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.progress_bar" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_sos')" class="form-row" prop="sos">
+              <el-radio v-model="formConfig.sos" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.sos" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+          </div>
+
+          <div v-if="NVRX">
+            <el-col :span="24" class="device-model-editdialog-title">NVRX（NVRX）</el-col>
+            <el-form-item :label="$t('iot_plat_device_category')" class="form-row" prop="class">
+              <el-select v-model="formConfig.class" :placeholder="$t('iot_plat_select_please')">
+                <el-option
+                  v-for="item in nvrxClass"
+                  :key="item.value"
+                  :label="$t(item.label)"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+              <span class="form-tip">*</span>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_decode_way')" class="form-row" prop="dec">
+              <el-select v-model="formConfig.dec" :placeholder="$t('iot_plat_select_please')">
+                <el-option
+                  v-for="item in dec_options"
+                  :key="item.value"
+                  :label="$t(item.label)"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+              <span class="form-tip">*</span>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_device_channel_number')" class="form-row" prop="chans">
+              <el-input v-model="formConfig.chans"></el-input>
+              <span class="form-tip">*</span>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_horn')" class="form-row" prop="speaker">
+              <el-radio v-model="formConfig.speaker" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.speaker" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_cloud_storage')" class="form-row" prop="cloud_storage">
+              <el-radio v-model="formConfig.cloud_storage" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.cloud_storage" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_indicator_light')" class="form-row" prop="status_light">
+              <el-radio v-model="formConfig.status_light" label="1">{{$t("iot_plat_have")}}</el-radio>
+              <el-radio v-model="formConfig.status_light" label="0">{{$t("iot_plat_have_not")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_humanoid_detection')" class="form-row" prop="human_detect">
+              <el-radio v-model="formConfig.human_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.human_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_humanoid_tracking')" class="form-row" prop="human_track">
+              <el-radio v-model="formConfig.human_track" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.human_track" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_osd')" class="form-row" prop="osd">
+              <el-radio v-model="formConfig.osd" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.osd" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_area_detection')" class="form-row" prop="area_detect">
+              <el-radio v-model="formConfig.area_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.area_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_sound_detection')" class="form-row" prop="voice_detect">
+              <el-radio v-model="formConfig.voice_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.voice_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_cry_detection')" class="form-row" prop="cry_detect">
+              <el-radio v-model="formConfig.cry_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.cry_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_move_detection')" class="form-row" prop="motion_detect">
+              <el-radio v-model="formConfig.motion_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.motion_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_progress_bar')" class="form-row" prop="progress_bar">
+              <el-radio v-model="formConfig.progress_bar" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.progress_bar" label="0">{{$t("iot_plat_non_support")}}</el-radio>
+            </el-form-item>
+          </div>
+
+          <div v-if="NVRX">
+            <el-col :span="24" class="device-model-editdialog-title">NVRX（NVRX）</el-col>
+            <el-form-item :label="$t('iot_plat_device_category')" class="form-row" prop="class">
+              <el-select v-model="formConfig.class" :placeholder="$t('iot_plat_select_please')">
+                <el-option
+                  v-for="item in nvrxClass"
+                  :key="item.value"
+                  :label="$t(item.label)"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+              <span class="form-tip">*</span>
+            </el-form-item>
+            <el-form-item :label="$t('iot_plat_decode_way')" class="form-row" prop="dec">
+              <el-select v-model="formConfig.dec" :placeholder="$t('iot_plat_select_please')">
                 <el-option
                   v-for="item in dec_options"
                   :key="item.value"
@@ -34,107 +229,77 @@
                   :value="item.value"
                 ></el-option>
               </el-select>
+              <span class="form-tip">*</span>
             </el-form-item>
-            <el-form-item label="设备通道数" class="form-row" prop="chans">
+            <el-form-item :label="$t('iot_plat_device_channel_number')" class="form-row" prop="chans">
               <el-input v-model="formConfig.chans"></el-input>
+              <span class="form-tip">*</span>
             </el-form-item>
-            <el-form-item label="校正解码" class="form-row" prop="pipc_dv">
-              <el-select v-model="formConfig.pipc_dv" placeholder="请选择">
-                <el-option
-                  v-for="item in pipc_dv_options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
+            <el-form-item :label="$t('iot_plat_horn')" class="form-row" prop="speaker">
+              <el-radio v-model="formConfig.speaker" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.speaker" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="音频模式" class="form-row" prop="audio">
-              <el-select v-model="formConfig.audio" placeholder="请选择">
-                <el-option
-                  v-for="item in audio_options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
+            <el-form-item :label="$t('iot_plat_cloud_storage')" class="form-row" prop="cloud_storage">
+              <el-radio v-model="formConfig.cloud_storage" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.cloud_storage" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="麦克风" class="form-row" prop="mic">
-              <el-radio v-model="formConfig.mic" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.mic" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_indicator_light')" class="form-row" prop="status_light">
+              <el-radio v-model="formConfig.status_light" label="1">{{$t("iot_plat_have")}}</el-radio>
+              <el-radio v-model="formConfig.status_light" label="0">{{$t("iot_plat_have_not")}}</el-radio>
             </el-form-item>
-            <el-form-item label="喇叭" class="form-row" prop="speaker">
-              <el-radio v-model="formConfig.speaker" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.speaker" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_humanoid_detection')" class="form-row" prop="human_detect">
+              <el-radio v-model="formConfig.human_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.human_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="存储卡" class="form-row" prop="sdcard">
-              <el-radio v-model="formConfig.sdcard" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.sdcard" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_humanoid_tracking')" class="form-row" prop="human_track">
+              <el-radio v-model="formConfig.human_track" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.human_track" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="云存储" class="form-row" prop="yun">
-              <el-radio v-model="formConfig.yun" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.yun" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_osd')" class="form-row" prop="osd">
+              <el-radio v-model="formConfig.osd" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.osd" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="云台控制" class="form-row" prop="ptzctrl">
-              <el-radio v-model="formConfig.ptzctrl" label="1">水平</el-radio>
-              <el-radio v-model="formConfig.ptzctrl" label="2">垂直</el-radio>
-              <el-radio v-model="formConfig.ptzctrl" label="3">水平+垂直</el-radio>
-              <el-radio v-model="formConfig.ptzctrl" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_move_detection')" class="form-row" prop="motion_detect">
+              <el-radio v-model="formConfig.motion_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.motion_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="指示灯" class="form-row" prop="status_light">
-              <el-radio v-model="formConfig.status_light" label="1">有</el-radio>
-              <el-radio v-model="formConfig.status_light" label="0">没有</el-radio>
+            <el-form-item :label="$t('iot_plat_area_detection')" class="form-row" prop="area_detect">
+              <el-radio v-model="formConfig.area_detect" label="1" :disabled="formConfig.motion_detect !== '1'">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.area_detect" label="0" :disabled="formConfig.motion_detect !== '1'">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="人形检测" class="form-row" prop="human_detect">
-              <el-radio v-model="formConfig.human_detect" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.human_detect" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_sound_detection')" class="form-row" prop="voice_detect">
+              <el-radio v-model="formConfig.voice_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.voice_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="人形跟踪" class="form-row" prop="human_track">
-              <el-radio v-model="formConfig.human_track" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.human_track" label="0">不支持</el-radio>
-            </el-form-item>
-            <el-form-item label="OSD" class="form-row" prop="osd">
-              <el-radio v-model="formConfig.osd" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.osd" label="0">不支持</el-radio>
-            </el-form-item>
-            <el-form-item label="区域侦测" class="form-row" prop="area_detect">
-              <el-radio v-model="formConfig.area_detect" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.area_detect" label="0">不支持</el-radio>
-            </el-form-item>
-            <el-form-item label="声音检测" class="form-row" prop="voice_detect">
-              <el-radio v-model="formConfig.voice_detect" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.voice_detect" label="0">不支持</el-radio>
-            </el-form-item>
-            <el-form-item label="哭声检测" class="form-row" prop="cry_detect">
-              <el-radio v-model="formConfig.cry_detect" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.cry_detect" label="0">不支持</el-radio>
-            </el-form-item>
-            <el-form-item label="移动侦测" class="form-row" prop="motion_detect">
-              <el-radio v-model="formConfig.motion_detect" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.motion_detect" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_cry_detection')" class="form-row" prop="cry_detect">
+              <el-radio v-model="formConfig.cry_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.cry_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
           </div>
 
           <!-- 情景按钮 -->
           <div v-if="BHSC">
-            <el-col :span="24" class="device-model-editdialog-title">情景按钮（BHSC）</el-col>
-            <el-form-item label="按钮数量" class="form-row" prop="num">
+            <el-col :span="24" class="device-model-editdialog-title">{{$t("iot_plat_scene_button")}}（BHSC）</el-col>
+            <el-form-item :label="$t('iot_plat_button_number')" class="form-row" prop="num">
               <el-input v-model="formConfig.num"></el-input>
+              <span class="form-tip">*</span>
             </el-form-item>
           </div>
 
           <!-- 组合开关 -->
           <div v-if="CMSW">
-            <el-col :span="24" class="device-model-editdialog-title">组合开关（CMSW）</el-col>
-            <el-form-item label="开关数量" class="form-row" prop="num2">
+            <el-col :span="24" class="device-model-editdialog-title">{{$t("iot_plat_combination_switch")}}（CMSW）</el-col>
+            <el-form-item :label="$t('iot_plat_switch_number')" class="form-row" prop="num2">
               <el-input v-model="formConfig.num2"></el-input>
+              <span class="form-tip">*</span>
             </el-form-item>
           </div>
 
           <!-- 智能门禁 -->
           <div v-if="VZDB">
-            <el-col :span="24" class="device-model-editdialog-title">智能门禁（VZDB）</el-col>
-            <el-form-item label="解码方式" class="form-row" prop="dec">
-              <el-select v-model="formConfig.dec" placeholder="请选择">
+            <el-col :span="24" class="device-model-editdialog-title">{{$t("iot_plat_smart_access_control")}}（VZDB）</el-col>
+            <el-form-item :label="$t('iot_plat_decode_way')" class="form-row" prop="dec">
+              <el-select v-model="formConfig.dec" :placeholder="$t('iot_plat_select_please')">
                 <el-option
                   v-for="item in dec_options"
                   :key="item.value"
@@ -142,9 +307,10 @@
                   :value="item.value"
                 ></el-option>
               </el-select>
+              <span class="form-tip">*</span>
             </el-form-item>
-            <el-form-item label="音频模式" class="form-row" prop="audio">
-              <el-select v-model="formConfig.audio" placeholder="请选择">
+            <el-form-item :label="$t('iot_plat_audio_mode')" class="form-row" prop="audio">
+              <el-select v-model="formConfig.audio" :placeholder="$t('iot_plat_select_please')" :disabled="formConfig.mic !== '1' || formConfig.speaker !== '1'">
                 <el-option
                   v-for="item in audio_options"
                   :key="item.value"
@@ -152,56 +318,57 @@
                   :value="item.value"
                 ></el-option>
               </el-select>
+              <span class="form-tip">*</span>
             </el-form-item>
-            <el-form-item label="麦克风" class="form-row" prop="mic">
-              <el-radio v-model="formConfig.mic" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.mic" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_microphone')" class="form-row" prop="mic">
+              <el-radio v-model="formConfig.mic" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.mic" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="喇叭" class="form-row" prop="speaker">
-              <el-radio v-model="formConfig.speaker" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.speaker" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_horn')" class="form-row" prop="speaker">
+              <el-radio v-model="formConfig.speaker" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.speaker" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="存储卡" class="form-row" prop="sdcard">
-              <el-radio v-model="formConfig.sdcard" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.sdcard" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_storage_card')" class="form-row" prop="sdcard">
+              <el-radio v-model="formConfig.sdcard" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.sdcard" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="云存储" class="form-row" prop="yun">
-              <el-radio v-model="formConfig.yun" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.yun" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_cloud_storage')" class="form-row" prop="cloud_storage">
+              <el-radio v-model="formConfig.cloud_storage" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.cloud_storage" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="指示灯" class="form-row" prop="status_light">
-              <el-radio v-model="formConfig.status_light" label="1">有</el-radio>
-              <el-radio v-model="formConfig.status_light" label="0">没有</el-radio>
+            <el-form-item :label="$t('iot_plat_indicator_light')" class="form-row" prop="status_light">
+              <el-radio v-model="formConfig.status_light" label="1">{{$t("iot_plat_have")}}</el-radio>
+              <el-radio v-model="formConfig.status_light" label="0">{{$t("iot_plat_have_not")}}</el-radio>
             </el-form-item>
-            <el-form-item label="声音检测" class="form-row" prop="voice_detect">
-              <el-radio v-model="formConfig.voice_detect" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.voice_detect" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_sound_detection')" class="form-row" prop="voice_detect">
+              <el-radio v-model="formConfig.voice_detect" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.voice_detect" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="人体感应" class="form-row" prop="body_induction">
-              <el-radio v-model="formConfig.body_induction" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.body_induction" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_human_body_induction ')" class="form-row" prop="body_induction">
+              <el-radio v-model="formConfig.body_induction" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.body_induction" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
-            <el-form-item label="低功耗" class="form-row" prop="liteos">
-              <el-radio v-model="formConfig.liteos" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.liteos" label="0">不支持</el-radio>
+            <el-form-item :label="$t('iot_plat_low_power_consumption')" class="form-row" prop="liteos">
+              <el-radio v-model="formConfig.liteos" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.liteos" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
           </div>
 
           <!-- 智能音箱 -->
           <div v-if="SSYX">
-            <el-col :span="24" class="device-model-editdialog-title">智能音箱（SSYX）</el-col>
-            <el-form-item label="聊天" class="form-row" prop="chat">
-              <el-radio v-model="formConfig.chat" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.chat" label="0">不支持</el-radio>
+            <el-col :span="24" class="device-model-editdialog-title">{{$t("iot_plat_smart_speaker")}}（SSYX）</el-col>
+            <el-form-item :label="$t('iot_plat_chat')" class="form-row" prop="chat">
+              <el-radio v-model="formConfig.chat" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.chat" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
           </div>
 
           <!-- 故事机 -->
           <div v-if="SYME">
-            <el-col :span="24" class="device-model-editdialog-title">故事机（SYME）</el-col>
-            <el-form-item label="聊天" class="form-row" prop="chat">
-              <el-radio v-model="formConfig.chat" label="1">支持</el-radio>
-              <el-radio v-model="formConfig.chat" label="0">不支持</el-radio>
+            <el-col :span="24" class="device-model-editdialog-title">{{$t("iot_plat_story_machine")}}（SYME）</el-col>
+            <el-form-item :label="$t('iot_plat_chat')" class="form-row" prop="chat">
+              <el-radio v-model="formConfig.chat" label="1">{{$t("iot_plat_support")}}</el-radio>
+              <el-radio v-model="formConfig.chat" label="0">{{$t("iot_plat_non_support")}}</el-radio>
             </el-form-item>
           </div>
         </el-form>
@@ -214,7 +381,7 @@
               class="btn-submit"
               style="margin-top: 4.33rem"
               @click="configSubmit()"
-            >提 交</el-button>
+            >{{$t("iot_plat_submit")}}</el-button>
           </el-form-item>
         </el-form>
       </el-col>
@@ -261,67 +428,71 @@ export default {
     const validateIsEmpty = (rule, value, callback) => {
       if (value === "") {
         if (rule.field === "product_name") {
-          callback(new Error("请输入型号名称"));
+          callback(new Error(this.$t("iot_plat_input_model_name")));
         } else if (rule.field === "product_code") {
-          callback(new Error("请输入型号代码"));
+          callback(new Error(this.$t("iot_plat_input_model_code")));
         } else if (rule.field === "nbi_code") {
-          callback(new Error("请选择连接方式"));
+          callback(new Error(this.$t("iot_plat_select_connection_way")));
         } else if (rule.field === "prodt_code") {
-          callback(new Error("请选择设备类别"));
+          callback(new Error(this.$t("iot_plat_select_device_class")));
         } else if (rule.field === "class") {
-          callback(new Error("请选择设备分类"));
+          callback(new Error(this.$t("iot_plat_select_device_category")));
         } else if (rule.field === "dec") {
-          callback(new Error("请选择解码方式"));
+          callback(new Error(this.$t("iot_plat_select_decoding_way")));
         } else if (rule.field === "chans") {
-          callback(new Error("请输入设备通道数"));
-        } else if (rule.field === "pipc_dv") {
-          callback(new Error("请选择设备通道数"));
-        } else if (rule.field === "audio") {
-          callback(new Error("请选择音频模式"));
+          callback(new Error(this.$t("iot_plat_input_device_aisle_number")));
+        } else if (rule.field === "pipc_dv" && this.formConfig["class"] === Number("4")) {
+          callback(new Error(this.$t("iot_plat_select_correction_decoding")));
+        } else if (rule.field === "audio" && this.formConfig.mic === "1" && this.formConfig.speaker === "1") {
+          callback(new Error(this.$t("iot_plat_select_audio_mode")));
         } else if (rule.field === "num") {
-          callback(new Error("请输入按钮数量"));
+          callback(new Error(this.$t("iot_plat_input_button_number")));
         } else if (rule.field === "num2") {
-          callback(new Error("请输入开关数量"));
+          callback(new Error(this.$t("iot_plat_input_switch_number")));
         }
       } else if (rule.field === "product_code") {
         if (!validateProductCode(value)) {
-          callback(new Error("最大长度不超过6位字符，且只能包含字母和数字"));
+          callback(new Error(this.$t("iot_plat_only_number_letter_and_length_limit")));
         }
       }
       callback();
     };
     return {
-      configItem: [ "mic", "speaker", "sdcard", "yun", "ptzctrl", "status_light", "human_detect", "human_track", "osd", "voice_detect", "body_induction", "cry_detect", "motion_detect", "area_detect", "liteos", "chat" ],
+      configItem: [ "mic", "speaker", "sdcard", "cloud_storage", "ptzctrl", "status_light", "human_detect", "human_track", "osd", "voice_detect", "body_induction", "cry_detect", "motion_detect", "area_detect", "liteos", "chat", "human_body_infrared", "progress_bar", "sos" ],
       IPCC      : false,
       BHSC      : false,
       CMSW      : false,
       VZDB      : false,
       SSYX      : false,
       SYME      : false,
+      NVRX      : false,
       formConfig: {
-        "class"       : "",
-        dec           : "",
-        chans         : "",
-        pipc_dv       : "",
-        audio         : "",
-        num           : "",
-        num2          : "",
-        mic           : "1",
-        speaker       : "1",
-        sdcard        : "1",
-        yun           : "1",
-        ptzctrl       : "1",
-        status_light  : "1",
-        human_detect  : "1",
-        human_track   : "1",
-        osd           : "1",
-        voice_detect  : "1",
-        body_induction: "1",
-        cry_detect    : "1",
-        motion_detect : "1",
-        area_detect   : "1",
-        liteos        : "1",
-        chat          : "1"
+        "class"            : "",
+        dec                : "",
+        chans              : "",
+        pipc_dv            : "",
+        audio              : "",
+        num                : "",
+        num2               : "",
+        mic                : "1",
+        speaker            : "1",
+        sdcard             : "1",
+        cloud_storage      : "1",
+        ptzctrl            : "1",
+        status_light       : "1",
+        human_detect       : "1",
+        human_track        : "1",
+        osd                : "1",
+        voice_detect       : "1",
+        body_induction     : "1",
+        cry_detect         : "1",
+        motion_detect      : "1",
+        area_detect        : "1",
+        liteos             : "0",
+        chat               : "1",
+        human_body_infrared: "0",
+        progress_bar       : "0",
+        sos                : "0"
       },
       rules: {
         product_name: [ { validator: validateIsEmpty, trigger: "blur" } ],
@@ -338,6 +509,14 @@ export default {
       }
     }
   },
+  computed: {
+    nvrxClass () {
+      return this.class_options.filter(item => item.value === Number("2") || item.value === Number("3"))
+    },
+    ipccClass () {
+      return this.class_options.filter(item => item.value === Number("1") || item.value === Number("4"))
+    }
+  },
   watch: {
     data () {
       this.IPCC = this.data.prodt_code.includes("IPCC");
@@ -346,6 +525,7 @@ export default {
       this.VZDB = this.data.prodt_code.includes("VZDB");
       this.SYME = this.data.prodt_code.includes("SYME");
       this.SSYX = this.data.prodt_code.includes("SSYX");
+      this.NVRX = this.data.prodt_code.includes("NVRX");
       if (this.data.config_status) {
         this.formConfig = {};
         const rowData = JSON.parse(this.data.config_status);
@@ -358,6 +538,26 @@ export default {
           return obj
         })
         this.formConfig = tmpConfig[0].conf
+      }
+    },
+    "formConfig.mic" (val) {
+      if (val === "0") {
+        this.formConfig.audio = ""
+      }
+    },
+    "formConfig.speaker" (val) {
+      if (val === "0") {
+        this.formConfig.audio = ""
+      }
+    },
+    "formConfig.motion_detect" (val) {
+      if (val === "0") {
+        this.formConfig.area_detect = "0"
+      }
+    },
+    "formConfig.class" (val) {
+      if (val === 1) {
+        this.formConfig.pipc_dv = ""
       }
     }
   },
@@ -377,10 +577,10 @@ export default {
       this.$emit("close");
     },
     configSubmit: _.debounce(function() {
-      const loading = this.vmLoadingFull();
-      try {
-        this.$refs.configForm.validate(async valid => {
-          if (valid) {
+      this.$refs.configForm.validate(async valid => {
+        if (valid) {
+          const loading = this.vmLoadingFull();
+          try {
             let postData = null;
             const params = {
               product_code: this.data.product_code,
@@ -396,25 +596,32 @@ export default {
             this.VZDB && (tmpData[0].prodt_code = "VZDB")
             this.SSYX && (tmpData[0].prodt_code = "SSYX")
             this.SYME && (tmpData[0].prodt_code = "SYME")
+            this.NVRX && (tmpData[0].prodt_code = "NVRX")
             Object.keys(this.formConfig).forEach(key => {
-              tmpData[0].conf[key] = this.formConfig[key] && parseInt(this.formConfig[key])
+              tmpData[0].conf[key] = this.formConfig[key] ? parseInt(this.formConfig[key]) : 0
             })
+            // 云储存 字段有 yun 改为 cloud_storage，此处代码为兼容以前的 yun 字段
+            if (this.formConfig.cloud_storage) {
+              tmpData[0].conf.yun = parseInt(this.formConfig.cloud_storage)
+            }
+            
             params.config = JSON.stringify(tmpData)
             postData = this.createFormData(params)
 
             const res = await this.$http.post(COOP_DEVICE_MODEL_SET, postData)
             loading.close();
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("操作成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_operating_success"));
               this.$refs.configForm.resetFields();
               this.$emit("close", true);
             }
+          } catch (e) {
+            loading.close();
+            this.vmMsgError(this.$t("iot_plat_program_error"));
           }
-        });
-      } catch (e) {
-        loading.close();
-        this.vmMsgError("程序错误！");
-      }
+          
+        }
+      });
     }, this.DEBOUNCE_TIME)
   }
 }

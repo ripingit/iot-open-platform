@@ -2,7 +2,7 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">商品管理</p>
+        <p class="title-cn">{{$t("iot_plat_goods_manage")}}</p>
         <p class="title-en">THE COMMODITY MANAGEMENT</p>
       </el-col>
     </el-row>
@@ -13,7 +13,7 @@
           <el-row>
             <el-col :span="24">
               <el-select v-model="classId">
-                <el-option label="请选择" value></el-option>
+                <el-option :label="$t('iot_plat_select_please')" value></el-option>
                 <el-option
                   v-for="item in tableData.class"
                   :key="item.class_id"
@@ -22,20 +22,20 @@
                 ></el-option>
               </el-select>
               <el-select v-model="isOnSale">
-                <el-option label="请选择" value></el-option>
-                <el-option label="已上架" :value="1"></el-option>
-                <el-option label="已下架" :value="2"></el-option>
+                <el-option :label="$t('iot_plat_select_please')" value></el-option>
+                <el-option :label="$t('iot_plat_already_shelf')" :value="1"></el-option>
+                <el-option :label="$t('iot_plat_already_obtained')" :value="2"></el-option>
               </el-select>
-              <el-select v-model="country">
+              <el-select v-model="country" :placeholder="$t('iot_plat_select_please')">
                 <el-option
                   v-for="(item, index) in countryWithCode"
                   :key="index"
-                  :label="item.name"
+                  :label="$t(item.name)"
                   :value="item.code"
                 ></el-option>
               </el-select>
-              <el-input placeholder="请输入商品ID" v-model="goodId" clearable></el-input>
-              <el-button class="btn-search" type="primary" @click="getGoodLists(1)">查询</el-button>
+              <el-input :placeholder="$t('iot_plat_input_goods_id')" v-model="goodId" clearable></el-input>
+              <el-button class="btn-search" type="primary" @click="getGoodLists(1)">{{$t("iot_plat_query")}}</el-button>
               <el-button
                 v-if="vmHasAuth(AdminPermissionsLib.GOODS_ADD, tableData.res)"
                 class="btn-circle-delete el-button--primary is-circle"
@@ -49,40 +49,40 @@
           <el-row>
             <el-col :span="24">
               <el-table v-loading="loading" :data="tableData.data" style="width: 100%">
-                <el-table-column type="index" label="编号" width="80"></el-table-column>
-                <el-table-column prop="goods_name" label="名称"></el-table-column>
-                <el-table-column prop="country" label="地区">
+                <el-table-column type="index" :label="$t('iot_plat_number')" width="80"></el-table-column>
+                <el-table-column prop="goods_name" :label="$t('iot_plat_name')" width="90"></el-table-column>
+                <el-table-column prop="country" :label="$t('iot_plat_area')">
                   <template
                     slot-scope="scope"
-                  >{{ countryWithCode.find(o=>o.code === scope.row.country).name }}</template>
+                  >{{ $t(countryWithCode.find(o=>o.code === scope.row.country).name) }}</template>
                 </el-table-column>
-                <el-table-column prop="class_name" label="类型">
+                <el-table-column prop="class_name" :label="$t('iot_plat_category')">
                   <template
                     slot-scope="scope"
                   >{{ tableData.class.find(o => o.class_name === scope.row.class_name).class_desc }}</template>
                 </el-table-column>
-                <el-table-column prop="goods_lasteddate" label="规格">
-                  <template slot-scope="scope">{{ scope.row.goods_lasteddate >= 30 ? (scope.row.goods_lasteddate / 30) + '月' : scope.row.goods_lasteddate + '天' }}</template>
+                <el-table-column prop="goods_lasteddate" :label="$t('iot_plat_specification')">
+                  <template slot-scope="scope">{{ scope.row.goods_lasteddate >= 30 ? (scope.row.goods_lasteddate / 30) + $t("iot_plat_month") : scope.row.goods_lasteddate + $t("iot_plat_day") }}</template>
                 </el-table-column>
-                <el-table-column prop="price" label="价格">
-                  <template slot-scope="scope">{{ scope.row.price / 100}}元</template>
+                <el-table-column prop="price" :label="$t('iot_plat_price')">
+                  <template slot-scope="scope">{{ scope.row.price / 100}}{{$t("iot_plat_yuan")}}</template>
                 </el-table-column>
-                <el-table-column prop="unit" label="币种"></el-table-column>
-                <el-table-column prop="goods_adddate" label="创建时间" width="200">
+                <el-table-column prop="unit" :label="$t('iot_plat_currency_category')"></el-table-column>
+                <el-table-column prop="goods_adddate" :label="$t('iot_plat_create_time')" width="180">
                   <template
                     slot-scope="scope"
-                  >{{ dateFormat(new Date(scope.row.goods_adddate * 1000), 'yyyy-MM-dd hh:mm:ss') }}</template>
+                  >{{ formatDate(new Date(scope.row.goods_adddate * 1000), 'yyyy-MM-dd hh:mm:ss') }}</template>
                 </el-table-column>
-                <el-table-column prop="goods_sale_all" label="总销量"></el-table-column>
-                <el-table-column prop="goods_sale_month" label="月销量"></el-table-column>
-                <el-table-column prop="is_onsale" label="商品状态">
-                  <template slot-scope="scope">{{ goodSaleCode[scope.row.is_onsale] }}</template>
+                <el-table-column prop="goods_sale_all" :label="$t('iot_plat_total_sales')"></el-table-column>
+                <el-table-column prop="goods_sale_month" :label="$t('iot_plat_month_sales')" width="145"></el-table-column>
+                <el-table-column prop="is_onsale" :label="$t('iot_plat_goods_status')" width="140">
+                  <template slot-scope="scope">{{ $t(goodSaleCode[scope.row.is_onsale]) }}</template>
                 </el-table-column>
                 <!-- <el-table-column prop="is_promotion" label="促销状态">
                   <template slot-scope="scope">{{ goodPromotionCode[scope.row.is_promotion] }}</template>
                 </el-table-column>-->
                 <el-table-column
-                  label="操作"
+                  :label="$t('iot_plat_operate')"
                   width="160"
                   v-if="vmHasAuth(AdminPermissionsLib.GOODS_ADD, tableData.res)"
                 >
@@ -142,13 +142,13 @@
       <el-form
         label-position="right"
         status-icon
-        label-width="100px"
+        label-width="150px"
         :model="goodForm"
         :rules="rules"
         ref="goodForm"
       >
-        <el-form-item class="form-row" label="类型" prop="goods_class_id">
-          <el-select v-model="goodForm.goods_class_id" placeholder="请选择商品类型" no-data-text="无数据">
+        <el-form-item class="form-row" :label="$t('iot_plat_category')" prop="goods_class_id">
+          <el-select v-model="goodForm.goods_class_id" :placeholder="$t('iot_plat_select_goods_category')" :no-data-text="$t('iot_plat_none_data')">
             <el-option
               v-for="item in tableData.class"
               :key="item.class_id"
@@ -158,86 +158,93 @@
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="销售区域" prop="country">
-          <el-select v-model="goodForm.country" placeholder="请选择销售区域" no-data-text="无数据">
+        <el-form-item class="form-row" :label="$t('iot_plat_sales_area')" prop="country">
+          <el-select v-model="goodForm.country" :placeholder="$t('iot_plat_select_sales_area')" :no-data-text="$t('iot_plat_none_data')">
             <el-option
               v-for="(item, index) in countryWithCode"
               :key="index"
-              :label="item.name"
+              :label="$t(item.name)"
               :value="item.code"
             ></el-option>
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="商品名称" prop="goods_name">
-          <el-select v-model="goodForm.goods_name" placeholder="请选择商品名称" no-data-text="无数据">
-            <el-option :key="1" label="3*24小时" value="3*24"></el-option>
-            <el-option :key="2" label="7*24小时" value="7*24"></el-option>
-            <el-option :key="3" label="新用户专享" value="新用户专享"></el-option>
+        <el-form-item class="form-row" :label="$t('iot_plat_goods_name')" prop="goods_name">
+          <el-select v-model="goodForm.goods_name" :placeholder="$t('iot_plat_select_goods_name')" :no-data-text="$t('iot_plat_none_data')">
+            <el-option :key="1" :label="$t('iot_plat_324_hour')" value="3"></el-option>
+            <el-option :key="2" :label="$t('iot_plat_724_hour')" value="7"></el-option>
+            <el-option :key="3" :label="$t('iot_plat_new_user_exclusive')" :value="$t('iot_plat_new_user_exclusive')"></el-option>
           </el-select>
           <!-- <el-input v-model="goodForm.goods_name" auto-complete="off" placeholder="请输入商品名称"></el-input> -->
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="商品价格" prop="goods_price">
-          <el-input v-model="goodForm.goods_price" auto-complete="off" placeholder="请输入商品价格">
+        <el-form-item class="form-row" :label="$t('iot_plat_alarm_freq')" prop="rech" v-if="goodForm.goods_class_id === 3">
+          <el-select v-model="rech" :no-data-text="$t('iot_plat_none_data')">
+            <el-option :key="1" :label="$t('iot_plat_alarm_freq_desc1')" value="60"></el-option>
+            <el-option :key="2" :label="$t('iot_plat_alarm_freq_desc2')" value="180"></el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item class="form-row" :label="$t('iot_plat_goods_price')" prop="goods_price">
+          <el-input v-model="goodForm.goods_price" auto-complete="off" :placeholder="$t('iot_plat_input_goods_price')">
             <template
               slot="append"
-            >{{ isNaN(goodForm.goods_price/100) ? 0 : goodForm.goods_price/100}} 元</template>
+            >{{ isNaN(goodForm.goods_price/100) ? 0 : goodForm.goods_price/100}} {{$t("iot_plat_yuan")}}</template>
           </el-input>
 
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="币种" prop="unit">
-          <el-select v-model="goodForm.unit" placeholder="请选择币种" no-data-text="无数据">
+        <el-form-item class="form-row" :label="$t('iot_plat_currency_category')" prop="unit">
+          <el-select v-model="goodForm.unit" :placeholder="$t('iot_plat_select_currency_class')" :no-data-text="$t('iot_plat_none_data')">
             <el-option
               v-for="(item, index) in currencyWithCode"
               :key="index"
-              :label="item.currency"
+              :label="$t(item.currency)"
               :value="item.code"
             ></el-option>
             <!-- <el-option :key="2" label="美元" value="USD"></el-option> -->
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="规格" prop="goods_lasteddate">
-          <el-select v-model="goodForm.goods_lasteddate" placeholder="请输入商品规格" no-data-text="无数据">
-            <el-option key="7天" label="7天" :value="7"></el-option>
-            <el-option key="15天" label="15天" :value="15"></el-option>
-            <el-option key="1个月" label="1个月" :value="30"></el-option>
-            <el-option key="2个月" label="6个月" :value="180"></el-option>
-            <el-option key="3个月" label="12个月" :value="360"></el-option>
+        <el-form-item class="form-row" :label="$t('iot_plat_specification')" prop="goods_lasteddate">
+          <el-select v-model="goodForm.goods_lasteddate" :placeholder="$t('iot_plat_input_goods_norm')" :no-data-text="$t('iot_plat_none_data')">
+            <el-option key="7天" :label="$t('iot_plat_seven_day')" :value="7"></el-option>
+            <el-option key="15天" :label="$t('iot_plat_fifteen_day')" :value="15"></el-option>
+            <el-option key="1个月" :label="$t('iot_plat_one_month')" :value="30"></el-option>
+            <el-option key="2个月" :label="$t('iot_plat_six_month')" :value="180"></el-option>
+            <el-option key="3个月" :label="$t('iot_plat_twelve_month')" :value="360"></el-option>
           </el-select>
           <!-- <el-input v-model="goodForm.goods_lasteddate" auto-complete="off" placeholder="请输入商品规格"></el-input> -->
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="状态" prop="is_onsale" v-if="goodForm.is_onsale">
-          <el-select v-model="goodForm.is_onsale" placeholder="请选择商品状态" no-data-text="无数据">
-            <el-option :key="1" label="上架" :value="1"></el-option>
-            <el-option :key="2" label="下架" :value="2"></el-option>
+        <el-form-item class="form-row" :label="$t('iot_plat_state')" prop="is_onsale" v-if="goodForm.is_onsale">
+          <el-select v-model="goodForm.is_onsale" :placeholder="$t('iot_plat_select_goods_state')" :no-data-text="$t('iot_plat_none_data')">
+            <el-option :key="1" :label="$t('iot_plat_shelf')" :value="1"></el-option>
+            <el-option :key="2" :label="$t('iot_plat_obtained')" :value="2"></el-option>
           </el-select>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="商品图片" prop="goods_picture">
+        <el-form-item class="form-row" :label="$t('iot_plat_goods_picture')" prop="goods_picture">
           <div class="form-btn-upload">
             <UploadComponent
               ref="uploaderGoodPic"
               :path="uploadPath"
               :previewPath="goodForm.goods_picture"
-              :accept="['.jpg', '.jpeg', '.png']"
+              :accept="['image/jpeg', 'image/png']"
               :size="2"
               model="preview"
-              condition="格式为 jpg\jpeg\png 且小于2M"
+              :condition="$t('iot_plat_image_file_limit_desc')"
               @response="getUploadResult"
             ></UploadComponent>
           </div>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item class="form-row" label="描述" prop="goods_desc">
-          <el-input type="textarea" :rows="6" v-model="goodForm.goods_desc" placeholder="请输入商品描述"></el-input>
+        <el-form-item class="form-row" :label="$t('iot_plat_desc')" prop="goods_desc">
+          <el-input type="textarea" :rows="6" v-model="goodForm.goods_desc" :placeholder="$t('iot_plat_input_goods_desc')"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
         <el-form-item class="form-row">
-          <el-button class="btn-submit" type="primary" @click="submit">提交</el-button>
+          <el-button class="btn-submit" type="primary" @click="submit">{{$t("iot_plat_submit")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -263,28 +270,29 @@ export default {
     const validateIsEmpty = (rule, value, callback) => {
       if (value === "") {
         if (rule.field === "goods_name") {
-          callback(new Error("请输入商品名称"));
+          callback(new Error(this.$t("iot_plat_input_goods_name")));
         } else if (rule.field === "goods_class_id") {
-          callback(new Error("请选择类型"));
+          callback(new Error(this.$t("iot_plat_select_goods_category")));
         } else if (rule.field === "goods_price") {
-          callback(new Error("请输入商品价格"));
+          callback(new Error(this.$t("iot_plat_input_goods_price")));
         } else if (rule.field === "unit") {
-          callback(new Error("请选择币种"));
+          callback(new Error(this.$t("iot_plat_select_currency_class")));
         } else if (rule.field === "country") {
-          callback(new Error("请选择销售区域"));
+          callback(new Error(this.$t("iot_plat_select_sales_area")));
         } else if (rule.field === "goods_lasteddate") {
-          callback(new Error("请输入商品有效时长"));
+          callback(new Error(this.$t("iot_plat_input_goods_effective_duration")));
         } else if (rule.field === "goods_desc") {
-          callback(new Error("请输入商品描述"));
+          callback(new Error(this.$t("iot_plat_input_goods_desc")));
         } else if (rule.field === "goods_picture") {
-          callback(new Error("请上传商品图片"));
+          callback(new Error(this.$t("iot_plat_upload_goods_picture")));
         } else if (rule.field === "is_onsale") {
-          callback(new Error("请选择商品状态"));
+          callback(new Error(this.$t("iot_plat_select_goods_state")));
         }
       }
       callback();
     };
     return {
+      rech               : "",
       loading            : false,
       title              : "",
       isDialogVisibleList: false,
@@ -353,7 +361,7 @@ export default {
     },
     updateGood(index, row) {
       const classType = this.tableData["class"].find(o => o.class_name === row.class_name);
-      this.title = "更新商品";
+      this.title = this.$t("iot_plat_update_goods");
       this.goodForm.goods_id = row.goods_id;
       this.goodForm.goods_name = row.goods_name;
       this.goodForm.goods_class_id = classType ? classType.class_id : "";
@@ -361,10 +369,11 @@ export default {
       this.goodForm.unit = row.unit;
       this.goodForm.country = row.country;
       this.goodForm.goods_lasteddate = row.goods_lasteddate;
-      this.goodForm.goods_desc = row.goods_desc;
+      this.goodForm.goods_desc = this.isJsonString(row.goods_desc) ? JSON.parse(row.goods_desc).goods_desc : row.goods_desc;
       this.goodForm.goods_picture = row.goods_picture;
       this.goodForm.is_onsale = row.is_onsale;
       this.goodForm.url_old = row.goods_picture;
+      this.rech = this.isJsonString(row.goods_desc) ? JSON.parse(row.goods_desc).rech : "";
       this.isDialogVisibleAdd = true;
     },
 
@@ -395,7 +404,7 @@ export default {
         this.loading = false;
       } catch (error) {
         this.loading = false;
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error")); 
       }
     }, this.DEBOUNCE_TIME),
 
@@ -405,7 +414,7 @@ export default {
       }
     },
     addGoods() {
-      this.title = "添加商品";
+      this.title = this.$t("iot_plat_add_goods");
       Object.keys(this.goodForm).forEach(o => {
         this.goodForm[o] = "";
       });
@@ -416,11 +425,13 @@ export default {
       try {
         this.$refs.goodForm.validate(async valid => {
           if (valid) {
-            const url = this.title === "添加商品" ? ADD_GOOD_POST : UPDATE_GOOD_POST;
-            this.goodForm.url_old = this.title === "添加商品" ? "" : this.goodForm.url_old;
-            const res = await this.$http.post(url, this.createFormData(this.goodForm))
+            const url = this.title === this.$t("iot_plat_add_goods") ? ADD_GOOD_POST : UPDATE_GOOD_POST;
+            this.goodForm.url_old = this.title === this.$t("iot_plat_add_goods") ? "" : this.goodForm.url_old;
+            const postData = _.cloneDeep(this.goodForm)
+            postData.goods_desc = { rech: this.rech, goods_desc: this.goodForm.goods_desc, goods_name: this.goodForm.goods_name }
+            const res = await this.$http.post(url, this.createFormData(postData))
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("提交成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_submit_success"));
               this.isDialogVisibleAdd = false;
               this.getGoodLists(this.tableData.page);
               this.$refs.goodForm.resetFields();
@@ -431,14 +442,14 @@ export default {
         });  
       } catch (error) {
         wait.close();
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
     deleteGood: _.debounce(function(row) {
       const wait = this.vmLoadingFull();
       try {
         this.vmConfirm({
-          msg            : "确定删除该记录？",
+          msg            : this.$t("iot_plat_confirm_delete_data"),
           confirmCallback: async () => {
             const data = this.createFormData({
               goods_id: row.goods_id,
@@ -446,15 +457,18 @@ export default {
             });
             const res = await this.$http.post(DELETE_GOOD_POST, data)
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("删除成功！");
+              this.vmMsgSuccess(this.$t("iot_plat_delete_success"));
               this.getGoodLists(this.tableData.page);
             }
             wait.close();
+          },
+          cancelCallback: () => {
+            wait.close()
           }
         });  
       } catch (error) {
         wait.close();
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME)
   }

@@ -1,17 +1,17 @@
 <template>
-  <el-dialog title="设置回调" :visible.sync="isVisible" width="50rem" center :before-close="close">
-    <el-form label-width="120px" status-icon :model="notifyForm" ref="notifyForm">
-      <el-form-item label="ID" class="form-row" prop="client_id">
+  <el-dialog :title="$t('iot_plat_set_callback')" :visible.sync="isVisible" width="50rem" center :before-close="close">
+    <el-form label-width="165px" status-icon :model="notifyForm" ref="notifyForm">
+      <el-form-item :label="$t('iot_plat_id')" class="form-row" prop="client_id">
         <el-input v-model="notifyForm.client_id" readonly></el-input>
       </el-form-item>
-      <el-form-item label="通知回调URL" class="form-row" prop="notify_url">
-        <el-input v-model="notifyForm.notify_url" placeholder="请输入支持post请求的URL"></el-input>
+      <el-form-item :label="$t('iot_plat_notify_callback_url')" class="form-row" prop="notify_url">
+        <el-input v-model="notifyForm.notify_url" :placeholder="$t('iot_plat_input_post_request_url')"></el-input>
       </el-form-item>
-      <el-form-item label="鉴权回调URL" class="form-row" prop="chat_auth_url">
-        <el-input v-model="notifyForm.chat_auth_url" placeholder="请输入支持post请求的URL"></el-input>
+      <el-form-item :label="$t('iot_plat_auth_callback_url')" class="form-row" prop="chat_auth_url">
+        <el-input v-model="notifyForm.chat_auth_url" :placeholder="$t('iot_plat_input_post_request_url')"></el-input>
       </el-form-item>
       <el-form-item label style="margin-top: 4.33rem;">
-        <el-button type="primary" class="btn-submit" @click="submitNotifyUrl()">确 定</el-button>
+        <el-button type="primary" class="btn-submit" @click="submitNotifyUrl()">{{$t("iot_plat_confirm")}}</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -60,7 +60,7 @@ export default {
             const param = this.createFormData(this.notifyForm);
             const res = await this.$http.post(SET_NOTIFY_URL_POST, param)
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("设置成功");
+              this.vmMsgSuccess(this.$t("iot_plat_set_success"));
               this.notifyForm.notify_url = "";
               this.$emit("close", true)
             }
@@ -69,7 +69,7 @@ export default {
         });
       } catch (error) {
         loading.close();
-        this.vmMsgError("程序错误！");
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME)
   }

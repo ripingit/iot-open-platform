@@ -1,5 +1,9 @@
 <template>
   <div class="container">
+    <el-select class="lang-select" v-model="lang" @change="onLanguageChange">
+      <el-option label="中文" value="CN"></el-option>
+      <el-option label="English" value="EN"></el-option>
+    </el-select>
     <div class="panel">
       <div class="panel-pos">
         <el-row>
@@ -7,7 +11,7 @@
             <div class="brand">
               <p>
                 <i class="iconfont icon-wulianwang logo"></i>
-                <span>迈科物联开放平台</span>
+                <span>{{$t("iot_plat_mk_open_iot")}}</span>
               </p>
               <p>
                 <i class="iconfont placeholder"></i>
@@ -21,7 +25,7 @@
             <el-form :model="formData" status-icon :show-message="false" :rules="rules" ref="loginForm">
               <el-form-item prop="account">
                 <el-input
-                  placeholder="请输入账号"
+                  :placeholder="$t('iot_plat_input_account')"
                   v-model="formData.account"
                   clearable>
                   <i slot="prefix" class="iconfont icon-yonghuming"></i>
@@ -30,7 +34,7 @@
               <el-form-item prop="password">
                 <el-input
                   type="password"
-                  placeholder="请输入密码"
+                  :placeholder="$t('iot_plat_input_pwd_please')"
                   v-model="formData.password">
                   <i slot="prefix" class="iconfont icon-mima"></i>
                   <i slot="suffix" class="iconfont icon-chakanmima_guan"></i>
@@ -41,18 +45,18 @@
         </el-row>
         <el-row>
           <el-col :span="24" class="forgot">
-             <el-checkbox v-model="pwChecked" @click="rememberPass">记住密码</el-checkbox>
-             <a @click="forgotPass">忘记密码？</a>
+             <el-checkbox v-model="pwChecked" @click="rememberPass">{{$t("iot_plat_remember_password")}}</el-checkbox>
+             <a @click="forgotPass">{{$t("iot_plat_forget_password")}}</a>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
-             <el-button type="primary" @click="signIn">登录</el-button>
+             <el-button type="primary" @click="signIn">{{$t("iot_plat_login")}}</el-button>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
-             <router-link to="/signup" class="sign-up">还没账号？去注册</router-link>
+             <router-link to="/signup" class="sign-up">{{$t("iot_plat_none_account_and_registered")}}</router-link>
           </el-col>
         </el-row>
       </div>
@@ -68,59 +72,16 @@ YUCnRYiiN30nW7KNiuD6XigaiNQ/hTwBPWPykUKXTiC3tzA06iyVcyts+rIFlUJR
 -----END PUBLIC KEY-----
 </textarea>
 
-    <el-dialog
-      title="找回密码"
-      :visible.sync="isForgotVisible"
-      width="50rem"
-      center>
-      <p class="note">* 管理员分配的账号请找管理员重置</p>
-      <el-form :model="formDataCheck" status-icon ref="checkForm" :rules="rulesCheck" label-position="right" label-width="100px">
-        <el-form-item label="账号" prop="user_name" class="form-row">
-          <el-input
-            placeholder="请输入手机号/邮箱"
-            v-model="formDataCheck.user_name"
-            clearable>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="验证码" prop="vcode" class="form-row">
-          <el-input
-            placeholder="请输入验证码"
-            v-model="formDataCheck.vcode"
-            clearable
-            style="width: 15rem">
-          </el-input>
-          <CheckCodeComponent class="btn-code" :isReset="toResetBtnCode" v-on:emit-statu="getCheckCode"></CheckCodeComponent>
-        </el-form-item>
-        <el-form-item label="新密码" prop="new_pass" class="form-row">
-          <el-input
-            type="password"
-            placeholder="请输入新密码"
-            v-model="formDataCheck.new_pass"
-            clearable>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="确认新密码" prop="confirmPass" class="form-row">
-          <el-input
-            type="password"
-            placeholder="请再次输入新密码"
-            v-model="formDataCheck.confirmPass"
-            clearable>
-          </el-input>
-        </el-form-item>
-        <el-form-item class="form-row" style="margin-top: 2rem">
-          <el-button type="primary" class="btn-submit" @click="changePassword">确定</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
+  <RetrievePassComponent ref="retrievePassComponent"></RetrievePassComponent>
+
   </div>
 </template>
 
 <script>
-import CheckCodeComponent from "@/components/veritificate-code/verificate-code.vue"
 import VersionComponent from "@/components/version.vue"
+import RetrievePassComponent from "./retrieve-pass.vue"
 import JSEncrypt from "jsencrypt"
-import { validateEmail, validatePhone } from "@/lib/validate.js"
-import { SIGNIN_POST, TOKEN_POST, LOST_PASS_POST, CODE_POST } from "@/lib/api.js"
+import { SIGNIN_POST, TOKEN_POST, SYSTEM_LANGUAGE } from "@/lib/api.js"
 import { AUTH_CHANGE, IDENTITY_UPDATE, AUTH_UPDATE } from "@/store/mutations-type"
 import { createRoutes } from "@/router/routes/index"
 import { generateMenus, coopMenuRouteMap, adminMenuRouteMap } from "@/lib/route-menu-map"
@@ -129,78 +90,27 @@ import { getState } from "@/lib/mixins"
 import _ from "lodash"
 export default {
   mixins    : [ { methods: { getState } } ],
-  components: { CheckCodeComponent, VersionComponent },
+  components: { VersionComponent, RetrievePassComponent },
   data () {
-    const validatePass = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请再次输入密码"))
-      } else if (value !== this.formDataCheck.new_pass) {
-        callback(new Error("两次输入密码不一致!"))
-      } else {
-        callback()
-      }
-    }
-    const validateIsEmpty = (rule, value, callback) => {
-      if (value === "") {
-        if (rule.field === "vcode") {
-          callback(new Error("请输入验证码"))
-        } else if (rule.field === "confirmPass" || rule.field === "new_pass") {
-          callback(new Error("请输入密码"))
-        }
-      }
-      callback()
-    }
-    const validateAccount = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入账号"))
-      } else {
-        const isEmail = validateEmail(value)
-        const isPhone = validatePhone(value)
-        if (!isEmail && !isPhone) {
-          callback(new Error("请输入正确的账号"))
-        }
-        callback()
-      }
-    }
     return {
-      isForgotVisible: false,
-      toResetBtnCode : false,
-      formData       : {
+      lang    : "",
+      formData: {
         account : "",
         password: ""
-      },
-      formDataCheck: {
-        user_name  : "",
-        vcode      : "",
-        new_pass   : "",
-        confirmPass: ""
       },
       pwChecked: true,
       rules    : {
         account: [
-          { required: true, message: "请输入账号", trigger: "blur" }
+          { required: true, message: this.$t("iot_plat_input_account"), trigger: "blur" }
         ],
         password: [
-          { required: true, message: "请输入密码", trigger: "blur" }
-        ]
-      },
-      rulesCheck: {
-        user_name: [
-          { validator: validateAccount, trigger: "blur" }
-        ],
-        new_pass: [
-          { validator: validateIsEmpty, trigger: "blur" }, { min: 8, max: 30, message: "长度在 8 到 30 个字符", trigger: "blur" }
-        ],
-        confirmPass: [
-          { validator: validatePass, trigger: "blur" }
-        ],
-        vcode: [
-          { validator: validateIsEmpty, trigger: "blur" }
+          { required: true, message: this.$t("iot_plat_input_pwd_please"), trigger: "blur" }
         ]
       }
     }
   },
   created () {
+    this.lang = localStorage.getItem("lang") || this.getSystemLanguage()
     const pwdChecked = localStorage.getItem("_ck")
     this.pwChecked = pwdChecked === void 0 ? true : Boolean(pwdChecked)
 
@@ -209,6 +119,7 @@ export default {
     }
 
     this.getToken()
+    this.onLanguageChange()
 
     document.body.addEventListener("keydown", this.keyCodeDown, false)
   },
@@ -228,6 +139,14 @@ export default {
     rememberPass () {
       localStorage.setItem("_ck", this.pwChecked)
     },
+
+    async onLanguageChange (val) {
+      this.$i18n.locale = this.lang;
+      localStorage.setItem("lang", this.lang)
+      await this.$http.post(SYSTEM_LANGUAGE, this.createFormData({ lang: this.lang }))
+      if (val) { location.reload() }
+    },
+
     async getToken () {
       try {
         const res = await this.$http.post(TOKEN_POST)
@@ -235,14 +154,14 @@ export default {
           sessionStorage.token = res.data.token
         }
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     signIn: _.debounce(function () {
-      const loading = this.vmLoadingFull()
-      try {
-        this.$refs.loginForm.validate(async valid => {
-          if (valid) {
+      this.$refs.loginForm.validate(async valid => {
+        if (valid) {
+          const loading = this.vmLoadingFull()
+          try {
             localStorage.setItem("_acd", this.formData.account)
 
             const encrypt = new JSEncrypt()
@@ -256,6 +175,7 @@ export default {
             const res = await this.$http.post(SIGNIN_POST, data)
             loading.close()
             if (this.vmResponseHandler(res)) {
+              this.$store.dispatch("getLanguages", { identity: res.data.client_id })
               if (res.data.client_id === this.identityCode.ADMIN) {
                 this.$store.commit(IDENTITY_UPDATE, { identity: res.data.client_id })
                 this.$store.commit(AUTH_UPDATE, { menus: generateMenus(res.data.title, adminMenuRouteMap) })
@@ -271,7 +191,12 @@ export default {
                   if (response[0] && response[0].data.company_status === this.authCode.NO_SUBMIT && (response[1] && !response[1].data.DealerAndCompanys)) {
                     this.$router.push("/manage/coopApply")
                   } else {
-                    if (response[0] && response[0].data.company_status !== this.authCode.NO_SUBMIT) {
+                    // 通过审核的合作商登陆后进入主页
+                    if (response[0] && response[0].data.company_status === this.authCode.PASS) {
+                      this.$router.push("/manage/user/home/1"); return
+                    }
+                    // 未提交认证、提交认证尚未通过审核的合作商登陆后进入认证页
+                    if (response[0] && response[0].data.company_status !== this.authCode.PASS) {
                       this.$router.push("/manage"); return
                     }
                     this.$store.commit(IDENTITY_UPDATE, { identity: this.identityCode.DEALER })
@@ -280,53 +205,17 @@ export default {
                 })
               }
             }
+          } catch (error) {
+            loading.close()
+            this.vmMsgError(this.$t("iot_plat_program_error"));
           }
-        })
-      } catch (error) {
-        loading.close()
-        this.vmMsgError("程序错误！")
-      }
+        }
+      })
     }, this.DEBOUNCE_TIME),
 
     forgotPass () {
-      this.isForgotVisible = true
-    },
-    getCheckCode: _.debounce(async function () {
-      if (!this.formDataCheck.user_name) {
-        this.toResetBtnCode = !this.toResetBtnCode
-        return this.vmMsgWarning("请填写手机号或邮箱");
-      }
-      try {
-        const data = this.createFormData({
-          type     : 2,
-          user_name: this.formDataCheck.user_name
-        })
-        const res = await this.$http.post(CODE_POST, data)
-        if (this.vmResponseHandler(res)) {
-          this.vmMsgSuccess("验证码已发送！")
-        } else {
-          this.toResetBtnCode = !this.toResetBtnCode
-        }  
-      } catch (error) {
-        this.vmMsgError("程序错误！")
-        this.toResetBtnCode = !this.toResetBtnCode
-      }
-    }, this.DEBOUNCE_TIME),
-    changePassword: _.debounce(function () {
-      try {
-        this.$refs.checkForm.validate(async valid => {
-          if (valid) {
-            const res = await this.$http.post(LOST_PASS_POST, this.createFormData(this.formDataCheck))
-            if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("您的密码已成功重置！")
-              this.isForgotVisible = false
-            }
-          }
-        })  
-      } catch (error) {
-        this.vmMsgError("程序错误！")
-      }
-    }, this.DEBOUNCE_TIME)
+      this.$refs.retrievePassComponent.isForgotVisible = true
+    }
   }
 }
 </script>
@@ -338,11 +227,25 @@ export default {
   }
 }
 
+.lang-select {
+  position: absolute;
+  right: 100px;
+  top: 60px;
+  border: none;
+  background: #c0c0c0;
+}
+.lang-select.el-select /deep/ .el-input__inner {
+  color: #1c1a1b;
+}
+.lang-select.el-select /deep/ .el-input .el-select__caret {
+  color: #1c1c1c;
+}
+
 /* @media (min-width: 720px) { */
 .container {
   height: 100%;
   position: relative;
-  background: url("../../assets/img/bg.jpg") no-repeat;
+  background: url("../assets/img/bg.jpg") no-repeat;
   background-size: cover;
 }
 .panel {
@@ -410,22 +313,7 @@ export default {
 }
 /* } */
 
-.btn-code {
-  width: 9.7rem;
-  height: 3.33rem;
-  margin: 0;
-}
 #rsakey {
   display: none;
-}
-
-.el-dialog .note {
-  position: absolute;
-  top: 5rem;
-  width: 100%;
-  left: 0;
-  text-align: center;
-  color: #e36068;
-  font-size: 1rem;
 }
 </style>

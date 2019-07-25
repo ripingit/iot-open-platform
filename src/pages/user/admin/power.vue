@@ -2,7 +2,7 @@
   <div class="admin">
     <el-row>
       <el-col :span="24">
-        <p class="title-cn">管理员-权限管理</p>
+        <p class="title-cn">{{$t("iot_plat_admin_permission_manage")}}</p>
         <p class="title-en">ADMIN POWER MANAGE</p>
       </el-col>
     </el-row>
@@ -35,41 +35,42 @@
           <el-table-column
             type="index"
             align="center"
-            label="编号">
+            width="80"
+            :label="$t('iot_plat_number')">
           </el-table-column>
           <el-table-column
             prop="group_name"
             align="center"
-            label="角色">
+            :label="$t('iot_plat_role')">
           </el-table-column>
           <el-table-column
             prop=""
             v-if="vmHasAuth(CoopPermissionsLib.USER_GROUP_AUTH, resData.res) || vmHasAuth(CoopPermissionsLib.AUTH_USER, resData.res)"
             align="center"
-            label="授权">
+            :label="$t('iot_plat_auth')">
             <template slot-scope="scope">
               <span class="admin-power"
                     v-if="vmHasAuth(CoopPermissionsLib.USER_GROUP_AUTH, resData.res)"
-                    @click="VisitPower(scope.row)">访问授权</span>
+                    @click="VisitPower(scope.row)">{{$t("iot_plat_visit_auth")}}</span>
               <span class="admin-power"
                     style="margin-left: 1rem;"
                     v-if="vmHasAuth(CoopPermissionsLib.AUTH_USER, resData.res)"
-                    @click="memberPower(scope.row)">成员授权</span>
+                    @click="memberPower(scope.row)">{{$t("iot_plat_member_auth")}}</span>
             </template>
           </el-table-column>
           <el-table-column
             prop="enable"
             align="center"
-            label="当前状态">
+            :label="$t('iot_plat_current_state')">
             <template slot-scope="scope">
-              <span v-if="scope.row.enable===1" style="color: #2acba7">可用</span>
-              <span v-if="scope.row.enable===2" style="color: #ff5d66">禁用</span>
+              <span v-if="scope.row.enable===1" style="color: #2acba7">{{$t("iot_plat_available")}}</span>
+              <span v-if="scope.row.enable===2" style="color: #ff5d66">{{$t("iot_plat_disable")}}</span>
             </template>
           </el-table-column>
           <el-table-column
             prop=""
             align="center"
-            label="操作"
+            :label="$t('iot_plat_operate')"
             width="180">
             <template slot-scope="scope">
               <el-button icon="iconfont icon-bianji"
@@ -98,27 +99,27 @@
       </el-row>
     </el-row>
     <el-dialog
-      title="添加用户组"
+      :title="$t('iot_plat_user_group_add')"
       :visible.sync="dialogVisible"
       center
       :before-close="handleClose">
       <el-form label-width="100px" status-icon :model="formAdd" ref="AddForm" :rules="rules">
-        <el-form-item label="用户组" class="form-row" prop="group_name">
+        <el-form-item :label="$t('iot_plat_user_group')" class="form-row" prop="group_name">
           <el-input v-model="formAdd.group_name"></el-input>
         </el-form-item>
         <el-form-item label="" style="margin-top: 4.33rem;">
-          <el-button type="primary" class="btn-submit" @click="addUserGroup()">确 定</el-button>
+          <el-button type="primary" class="btn-submit" @click="addUserGroup()">{{$t("iot_plat_confirm")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
     <el-dialog
-      title="编辑用户组"
+      :title="$t('iot_plat_edit_user_group')"
       :visible.sync="dialogVisible2"
       center
       :before-close="handleClose">
-      <el-form label-width="100px" status-icon :model="formAdd2" ref="AddForm" :rules="rules">
-        <el-form-item label="当前状态" class="form-row" prop="enable">
-          <el-select v-model="formAdd2.enable" placeholder="请选择">
+      <el-form label-width="120px" status-icon :model="formAdd2" ref="AddForm" :rules="rules">
+        <el-form-item :label="$t('iot_plat_current_state')" class="form-row" prop="enable">
+          <el-select v-model="formAdd2.enable" :placeholder="$t('iot_plat_select_please')">
             <el-option
               v-for="item in options"
               :key="item.value"
@@ -128,7 +129,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="" style="margin-top: 4.33rem;">
-          <el-button type="primary" class="btn-submit" @click="setUserGroup()">确 定</el-button>
+          <el-button type="primary" class="btn-submit" @click="setUserGroup()">{{$t('iot_plat_confirm')}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -148,9 +149,9 @@ export default {
     const validateIsEmpty = (rule, value, callback) => {
       if (value === "") {
         if (rule.field === "group_name") {
-          callback(new Error("请输入用户组"))
+          callback(new Error(this.$t("iot_plat_input_user_group")))
         } else if (rule.field === "enable") {
-          callback(new Error("请选择当前状态"))
+          callback(new Error(this.$t("iot_plat_select_current_state_please")))
         }
       }
       callback()
@@ -173,11 +174,11 @@ export default {
       formAdd2      : { enable: "" },
       options       : [ {
         value: 1,
-        label: "可用"
+        label: this.$t("iot_plat_available")
       },
       {
         value: 2,
-        label: "禁用"
+        label: this.$t("iot_plat_disable")
       } ],
       tableData        : [],
       resData          : [],
@@ -221,7 +222,7 @@ export default {
         }
       } catch (error) {
         this.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     addUserGroup: _.debounce(function () {
@@ -234,7 +235,7 @@ export default {
             const res = await this.$http.post(ADD_COOP_USERGROUP_POST, param)
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("操作成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_operating_success"))
               this.dialogVisible = false
               this.$refs.AddForm.resetFields()
               this.onSubmit()
@@ -243,7 +244,7 @@ export default {
         })
       } catch (error) {
         loading.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
     setUserGroup: _.debounce(function () {
@@ -260,7 +261,7 @@ export default {
             const res = await this.$http.post(SET_GROUP_POST, param)
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("操作成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_operating_success"))
               this.dialogVisible2 = false
               this.$refs.AddForm.resetFields()
               this.onSubmit()
@@ -269,7 +270,7 @@ export default {
         })
       } catch (error) {
         loading.close()
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
     Delete (row) {
@@ -278,19 +279,19 @@ export default {
         group_name: row.group_name
       })
       this.vmConfirm({
-        msg            : "确定删除该记录？",
+        msg            : this.$t("iot_plat_confirm_delete_data"),
         confirmCallback: async () => {
           const loading = this.vmLoadingFull()
           try {
             const res = await this.$http.post(DELETE_USERGROUP_POST, param)
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("删除成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_delete_success"))
               this.onSubmit()
             }
           } catch (error) {
             loading.close()
-            this.vmMsgError("程序错误！")
+            this.vmMsgError(this.$t("iot_plat_program_error"));
           }
         }
       })

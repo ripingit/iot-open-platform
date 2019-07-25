@@ -1,17 +1,20 @@
 /* eslint-disable no-undef */
 import store from "@/store/index"
 import router from "@/router/index"
+import i18n from "@/lang/index"
 import Vue from "vue"
+
+const vm = new Vue({ i18n })
 
 const RoutingInterception = (to, from, next) => {
   const authState = store.getters.getAuthState
   const identity = store.getters.getUserIdentity
   if (identity !== Vue.prototype.identityCode.COOP && identity !== Vue.prototype.identityCode.DEALER) {
-    Vue.prototype.vmMsgError("无访问权限")
+    Vue.prototype.vmMsgError(vm.$t("iot_plat_no_access"))
     router.back(); return
   }
   if (identity === Vue.prototype.identityCode.COOP && authState !== Vue.prototype.authCode.PASS) {
-    Vue.prototype.vmMsgWarning("未通过认证，无法使用！"); return
+    Vue.prototype.vmMsgWarning(vm.$t("iot_plat_not_available_none_cert")); return
   }
   next()
 }
@@ -24,13 +27,13 @@ export const user = {
       path     : "resetPass",
       name     : "resetPass",
       component: resolve => require([ "@/pages/user/edit-password" ], resolve),
-      meta     : { title: "修改密码", identity: [ 0 ] }
+      meta     : { title: vm.$t("iot_plat_change_pwd"), identity: [ 0 ] }
     },
     {
       path     : "authention",
       name     : "authention",
       component: resolve => require([ "@/pages/user/auth" ], resolve),
-      meta     : { title: "用户认证", identity: [ 0 ] }
+      meta     : { title: vm.$t("iot_plat_user_cert"), identity: [ 0 ] }
     }
   ]
 }
@@ -42,7 +45,7 @@ export const userRoute = [
       path     : "home/:index",
       name     : "home",
       component: resolve => require([ "@/pages/user/home" ], resolve),
-      meta     : { title: "首页" }
+      meta     : { title: vm.$t("iot_plat_home") }
     }
   },
   {
@@ -51,7 +54,7 @@ export const userRoute = [
       path       : "model/:index",
       name       : "model",
       component  : resolve => require([ "@/pages/user/device-model/device-model" ], resolve),
-      meta       : { title: "设备型号", identity: [ 0 ] },
+      meta       : { title: vm.$t("iot_plat_device_model"), identity: [ 0 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -61,7 +64,7 @@ export const userRoute = [
       path       : "firmware/:index",
       name       : "firmware",
       component  : resolve => require([ "@/pages/user/firmware/firmware" ], resolve),
-      meta       : { title: "固件管理", identity: [ 0 ] },
+      meta       : { title: vm.$t("iot_plat_fireware_manage"), identity: [ 0 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -71,7 +74,7 @@ export const userRoute = [
       path       : "appVersion/:index",
       name       : "appVersion",
       component  : resolve => require([ "@/pages/user/app/app-manage" ], resolve),
-      meta       : { title: "app版本", identity: [ 0 ] },
+      meta       : { title: vm.$t("iot_plat_app_version"), identity: [ 0 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -81,7 +84,7 @@ export const userRoute = [
       path       : "reviewFirmware/:index",
       name       : "reviewFirmware",
       component  : resolve => require([ "@/pages/user/review-manage/firmware" ], resolve),
-      meta       : { title: "固件审核", identity: [ 0 ] },
+      meta       : { title: vm.$t("iot_plat_fireware_review"), identity: [ 0 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -91,7 +94,7 @@ export const userRoute = [
       path       : "userManagement/:index",
       name       : "userManagement",
       component  : resolve => require([ "@/pages/user/users/user-manage" ], resolve),
-      meta       : { title: "用户管理", identity: [ 0 ] },
+      meta       : { title: vm.$t("iot_plat_user_manage"), identity: [ 0 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -101,7 +104,7 @@ export const userRoute = [
       path       : "key/:index",
       name       : "key",
       component  : resolve => require([ "@/pages/user/key/key" ], resolve),
-      meta       : { title: "KEY管理", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_key_manage"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -111,7 +114,7 @@ export const userRoute = [
       path       : "dealer/:index",
       name       : "key",
       component  : resolve => require([ "@/pages/user/dealer/dealer" ], resolve),
-      meta       : { title: "合作伙伴", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_partner"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -121,7 +124,7 @@ export const userRoute = [
       path       : "deviceProd/:index",
       name       : "deviceProd",
       component  : resolve => require([ "@/pages/user/equipment-prod/equipment-prod" ], resolve),
-      meta       : { title: "设备生产", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_device_produce"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -131,7 +134,7 @@ export const userRoute = [
       path       : "deviceBind/:index",
       name       : "deviceBind",
       component  : resolve => require([ "@/pages/user/device-manage/device-bind" ], resolve),
-      meta       : { title: "设备绑定", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_device_bind"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -141,7 +144,7 @@ export const userRoute = [
       path       : "admins/:index",
       name       : "admins",
       component  : resolve => require([ "@/pages/user/admin/admin" ], resolve),
-      meta       : { title: "平台用户", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_platform_users"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -151,7 +154,7 @@ export const userRoute = [
       path     : "powerHome/:index",
       name     : "powerHome",
       component: resolve => require([ "@/pages/user/admin/powerHome" ], resolve),
-      meta     : { title: "权限设置", identity: 1 },
+      meta     : { title: vm.$t("iot_plat_permission_setting"), identity: 1 },
       children : [ {
         path     : "/",
         name     : "power",
@@ -176,7 +179,7 @@ export const userRoute = [
       path       : "deviceManage/:index",
       name       : "deviceManage",
       component  : resolve => require([ "@/pages/user/device-manage/device-statistics" ], resolve),
-      meta       : { title: "设备管理", identity: [ 1 ] },
+      meta       : { title: vm.$t("iot_plat_device_manage"), identity: [ 1 ] },
       beforeEnter: RoutingInterception
     }
   },
@@ -186,7 +189,7 @@ export const userRoute = [
       path     : "orderManage/:index",
       name     : "orderManage",
       component: resolve => require([ "@/pages/user/goods-manage/order-manage" ], resolve),
-      meta     : { title: "订单管理", identity: [ 1 ] }
+      meta     : { title: vm.$t("iot_plat_order_manage"), identity: [ 1 ] }
     }
   },
   {
@@ -195,7 +198,7 @@ export const userRoute = [
       path     : "productData/:index",
       name     : "productData",
       component: resolve => require([ "@/pages/user/product-data/product-data" ], resolve),
-      meta     : { title: "生产数据", identity: [ 1 ] }
+      meta     : { title: vm.$t("iot_plat_produce_data"), identity: [ 1 ] }
     }
   },
   {
@@ -204,7 +207,7 @@ export const userRoute = [
       path     : "multiLanguage/:index",
       name     : "multiLanguage",
       component: resolve => require([ "@/pages/user/multi-language/multi-language" ], resolve),
-      meta     : { title: "多语言", identity: [ 1 ] }
+      meta     : { title: vm.$t("iot_plat_multi_language"), identity: [ 1 ] }
     }
   }
 ]

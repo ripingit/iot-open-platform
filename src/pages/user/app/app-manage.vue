@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <el-row class="app_nav">
-      <h5>APP版本</h5>
+      <h5>{{$t("iot_plat_app_version")}}</h5>
       <p>THE APP VERSION</p>
     </el-row>
     <el-row class="table">
@@ -33,13 +33,13 @@
             v-on:page-change="loadData"
             v-on:selection="handleSelectionChange">
           <template slot-scope="scope" slot="QrcodeUrl">
-            <ScaleImgComponent :path="scope.row.QrcodeUrl" style="width:5rem;height:5rem" alt="二维码"></ScaleImgComponent>
-            <p class="download" style="font-size: 12px; cursor: pointer" @click="download(scope.row.QrcodeUrl)">下载二维码</p>
+            <ScaleImgComponent :path="scope.row.QrcodeUrl" style="width:5rem;height:5rem" :alt="$t('iot_plat_qrcode')"></ScaleImgComponent>
+            <p class="download" style="font-size: 12px; cursor: pointer" @click="download(scope.row.QrcodeUrl)">{{$t("iot_plat_download_qrcode")}}</p>
           </template>
           <template slot-scope="scope" slot="app_logo_url">
-            <ScaleImgComponent :path="scope.row.app_logo_url" style="width:5rem;height:5rem" alt="logo"></ScaleImgComponent>
+            <ScaleImgComponent :path="scope.row.app_logo_url" style="width:5rem;height:5rem" :alt="$t('iot_plat_logo')"></ScaleImgComponent>
           </template>
-          <el-table-column label="操作" width="150" slot="handler">
+          <el-table-column :label="$t('iot_plat_operate')" width="150" slot="handler">
             <template slot-scope="scope">
               <el-button
                 class="btn-circle"
@@ -67,70 +67,77 @@
       </el-row>
     </el-row>
     <el-dialog
-      title="APP升级"
+      :title="$t('iot_plat_app_upgrade')"
       center
       :visible.sync="dialogVisible"
       :close-on-click-modal="false">
-      <el-form status-icon :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" label-width="100px" :hide-required-asterisk="true">
-        <el-form-item label="APP名称" prop="app_name" class="form-row">
+      <el-form status-icon :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" label-width="140px" :hide-required-asterisk="true">
+        <el-form-item :label="$t('iot_plat_app_name')" prop="app_name" class="form-row">
           <el-input v-model="ruleForm.app_name" readonly></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="APP ID" prop="client_id" class="form-row">
+        <el-form-item :label="$t('iot_plat_app_id')" prop="client_id" class="form-row">
           <el-input v-model="ruleForm.client_id" readonly></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="版本" prop="ver" class="form-row">
-          <el-input v-model="ruleForm.ver" placeholder="请输入app版本"></el-input>
+        <el-form-item :label="$t('iot_plat_version')" prop="ver" class="form-row">
+          <el-input v-model="ruleForm.ver" :placeholder="$t('iot_plat_input_app_version')"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="下载地址" prop="" class="form-row code-panel">
-          <el-select v-model="storeName" placeholder="请选择应用商店" no-data-text="无数据" @change="appStoreChange">
+        <el-form-item class="form-row" :label="$t('iot_plat_update_type')" prop="is_force_upd">
+          <el-select v-model="ruleForm.is_force_upd" :placeholder="$t('iot_plat_select_update_type')" :no-data-text="$t('iot_plat_none_data')">
+            <el-option :label="$t('iot_plat_force_update')" :value="1"></el-option>
+            <el-option :label="$t('iot_plat_not_force_update')" :value="0"></el-option>
+          </el-select>
+          <span class="form-tip">*</span>
+        </el-form-item>
+        <el-form-item :label="$t('iot_plat_download_address')" prop="" class="form-row code-panel">
+          <el-select v-model="storeName" :placeholder="$t('iot_plat_select_app_store')" :no-data-text="$t('iot_plat_none_data')" @change="appStoreChange">
             <el-option
               v-for="(item, index) in appStore"
               :key="index"
-              :label="item.name"
+              :label="$t(item.name)"
               :value="item.id"></el-option>
           </el-select>
-          <el-button @click="loadDownloadDialog" size="medium" type="primary">更多</el-button>
+          <el-button @click="loadDownloadDialog" size="medium" type="primary">{{$t("iot_plat_more")}}</el-button>
           <div class="split-line"></div>
-          <el-input v-model="storeUrl" placeholder="请输入app下载地址" @change="downloadUrlSet"></el-input>
+          <el-input v-model="storeUrl" :placeholder="$t('iot_plat_input_app_store')" @change="downloadUrlSet"></el-input>
           <UploadComponent
             v-if="vmHasAuth(CoopPermissionsLib.UPLOAD_APP, tableData.res)"
             class="uploader"
             ref="uploaderApp"
             :path="uploadPath"
-            :accept="['.apk']"
+            :accept="['application/vnd.android.package-archive']"
             :size="200"
             model="btn"
-            condition="请上传小于200M的apk文件" @response="getUploadResult"></UploadComponent>
+            :condition="$t('iot_plat_upload_apk_desc')" @response="getUploadResult"></UploadComponent>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="MD5值" prop="md5" class="form-row">
-          <el-input v-model="ruleForm.md5" placeholder="请输入app MD5值"></el-input>
+        <el-form-item :label="$t('iot_plat_md5_value')" prop="md5" class="form-row">
+          <el-input v-model="ruleForm.md5" :placeholder="$t('iot_plat_input_app_md5')"></el-input>
           <span class="form-tip">*</span>
         </el-form-item>
-        <el-form-item label="升级描述" prop="change_log" class="form-row">
-          <DescComponent v-model="ruleForm.change_log" placeholder="请输入升级描述"></DescComponent>
+        <el-form-item :label="$t('iot_plat_upgrade_desc')" prop="change_log" class="form-row">
+          <DescComponent v-model="ruleForm.change_log" :placeholder="$t('iot_plat_input_upgrade_desc')"></DescComponent>
         </el-form-item>
         <el-form-item class="form-row">
-          <el-button type="primary" @click="submitForm" class="btn-submit">提交</el-button>
+          <el-button type="primary" @click="submitForm" class="btn-submit">{{$t("iot_plat_submit")}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
     <el-dialog
-      title="APP升级详情"
+      :title="$t('iot_plat_app_upgrade_detail')"
       center
       :visible.sync="detailDialogVisible"
       :close-on-click-modal="false">
       <el-form label-width="100px">
-        <el-form-item label="APP名称">
+        <el-form-item :label="$t('iot_plat_app_name')">
           <span class="detail_item">{{detailData.app_name}}</span>
         </el-form-item>
-        <el-form-item label="版本">
+        <el-form-item :label="$t('iot_plat_version')">
           <span class="detail_item">{{detailData.ver}}</span>
         </el-form-item>
-        <el-form-item label="MD5值">
+        <el-form-item :label="$t('iot_plat_md5_value')">
           <span class="detail_item">{{detailData.md5}}</span>
         </el-form-item>
         <!--<el-form-item label="升级描述">
@@ -141,17 +148,17 @@
 
     <el-dialog
       center
-      title="下载地址"
+      :title="$t('iot_plat_download_address')"
       width="56rem"
       :visible.sync="isDownloadDialogShow"
       :close-on-click-modal="false"
       :before-close="closeDownloadDialog">
       <el-form label-width="150px">
-        <el-form-item v-for="(item, index) in appStore" :key="item.id" :label="item.name" class="form-row">
-          <el-input v-model="ruleForm.url[index].url" placeholder="请输入下载地址"></el-input>
+        <el-form-item v-for="(item, index) in appStore" :key="item.id" :label="$t(item.name)" class="form-row">
+          <el-input v-model="ruleForm.url[index].url" :placeholder="$t('iot_plat_input_download_addr')"></el-input>
         </el-form-item>
         <el-form-item class="form-row">
-          <el-button type="primary" @click="closeDownloadDialog" class="btn-submit">确定</el-button>
+          <el-button type="primary" @click="closeDownloadDialog" class="btn-submit">{{$t('iot_plat_confirm')}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -167,12 +174,13 @@ import TableComponent from "@/components/table/table.vue";
 import AppEditComponent from "./component/app-edit.vue"
 import DescComponent from "@/components/multi-language-textarea/multi-language-textarea.vue"
 import { APP_SELECT_POST, APP_ADD_POST, APP_DEL_POST, GET_CLIENT_NAME_POST, COOP_APP_UPLOAD_POST } from "@/lib/api.js"
-import { appStore } from "@/lib/const"
+import { appStore, noPicture } from "@/lib/const"
 import _ from "lodash"
 export default {
   components: { ScaleImgComponent, UploadComponent, TableComponent, AppEditComponent, DescComponent },
   data () {
     return {
+      noPicturePath    : noPicture,
       appStore         : appStore,
       inputVal         : "",
       multipleSelection: [],
@@ -192,33 +200,41 @@ export default {
         },
         columns: [
           {
-            label: "APP名称",
+            label: this.$t("iot_plat_app_name"),
             prop : "app_name",
             width: "120"
           },
           {
-            label   : "LOGO",
+            label   : this.$t("iot_plat_logo"),
             prop    : "app_logo_url",
             slotName: "app_logo_url"
           },
           {
             prop : "ver",
-            label: "版本号",
-            width: "120"
+            label: this.$t("iot_plat_version_number"),
+            width: "130"
           },
           {
             prop : "add_time",
-            label: "添加时间",
+            label: this.$t("iot_plat_add_time"),
             width: 150
           },
           {
             prop : "client_id",
-            label: "使用KEY",
-            width: "200"
+            label: this.$t("iot_plat_used_key"),
+            width: "280"
+          },
+          {
+            prop  : "is_force_upd",
+            label : this.$t("iot_plat_update_type"),
+            width : 120,
+            render: value => {
+              value === 0 ? this.$t("iot_plat_not_force_update") : this.$t("iot_plat_force_update");
+            }
           },
           {
             prop    : "QrcodeUrl",
-            label   : "二维码",
+            label   : this.$t("iot_plat_qrcode"),
             slotName: "QrcodeUrl"
           }
         ]
@@ -233,25 +249,26 @@ export default {
       isAppUpdateDialogVisible: false,
       updateData              : {},
       ruleForm                : {
-        client_id : "",
-        app_name  : "",
-        ver       : "",
-        change_log: {},
-        url       : appStore,
-        md5       : ""
+        client_id   : "",
+        app_name    : "",
+        ver         : "",
+        change_log  : {},
+        url         : appStore,
+        md5         : "",
+        is_force_upd: 0
       },
 
       bootAnimations: { pic1: "", url1: "", pic2: "", url2: "", pic3: "", url3: "" },
       updateStyle   : "update",
       rules         : {
         app_name: [
-          { required: true, message: "请输入APP名称", trigger: "input" }, { min: 3, max: 20, message: "长度在 3 到 20 个字符", trigger: "change" }
+          { required: true, message: this.$t("iot_plat_input_app_name"), trigger: "input" }, { min: 3, max: 20, message: this.$t("iot_plat_str_length_limit_01"), trigger: "change" }
         ],
         change_log: [
           {
             validator: (rule, value, callback) => {
               if (!value.CN || !value.EN) {
-                callback(new Error("请输入中文和英文描述"))
+                callback(new Error(this.$t("iot_plat_input_chinese_and_english_desc")))
               } else {
                 callback()
               }
@@ -260,13 +277,13 @@ export default {
           }
         ],
         client_id: [
-          { required: true, message: "请输入APP ID", trigger: "input" }
+          { required: true, message: this.$t("iot_plat_input_app_id"), trigger: "input" }
         ],
         ver: [
-          { required: true, message: "请输入版本号", trigger: "input" }
+          { required: true, message: this.$t("iot_plat_input_version_number"), trigger: "input" }
         ],
         md5: [
-          { required: true, message: "请输入MD5值", trigger: "input" }
+          { required: true, message: this.$t("iot_plat_input_md5_value"), trigger: "input" }
         ]
       },
       detailData : {},
@@ -304,7 +321,7 @@ export default {
           this.clientNames = res.data.data
         }
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
     searchData () {
@@ -322,23 +339,23 @@ export default {
           ary.push(obj.client_id)
         }
         if (ary.length === 0) {
-          return this.vmMsgWarning("请选择需要删除的app！")
+          return this.vmMsgWarning(this.$t("iot_plat_select_ready_delete_app"))
         }
         const data = this.createFormData({ client_id: ary })
         this.vmConfirm({
-          msg            : "确定删除该记录？",
+          msg            : this.$t("iot_plat_confirm_delete_data"),
           confirmCallback: async () => {
             const loading = this.vmLoadingFull()
             const res = await this.$http.post(APP_DEL_POST, data)
             loading.close()
             if (this.vmResponseHandler(res)) {
-              this.vmMsgSuccess("删除成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_delete_success"))
               this.loadData()
             }
           }
         })
       } catch (error) {
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     },
 
@@ -349,6 +366,7 @@ export default {
       this.ruleForm.change_log = !this.isJsonString(row.change_log) ? { CN: row.change_log } : JSON.parse(row.change_log)
       this.ruleForm.md5 = row.md5
       this.ruleForm.client_id = row.client_id
+      this.ruleForm.is_force_upd = row.is_force_upd
       if (this.isJsonString(row.url)) {
         const parseObj = JSON.parse(row.url)
         for (const item of parseObj) {
@@ -392,7 +410,7 @@ export default {
     },
 
     submitForm: _.debounce(function () {
-      if (!this.ruleForm.url[0].url) { this.vmMsgError("安卓通用下载地址为必填！"); }
+      if (!this.ruleForm.url[0].url) { this.vmMsgError(this.$t("iot_plat_android_universal_download_addr_required")); }
       this.$refs.ruleForm.validate(async valid => {
         if (valid) {
           // 转成字符串传给后台
@@ -408,12 +426,12 @@ export default {
             if (this.vmResponseHandler(res)) {
               this.dialogVisible = false
               this.$refs.ruleForm.resetFields()
-              this.vmMsgSuccess("操作成功！")
+              this.vmMsgSuccess(this.$t("iot_plat_operating_success"))
               this.loadData()
             }
           } catch (error) {
             loading.close()
-            this.vmMsgError("程序错误！")
+            this.vmMsgError(this.$t("iot_plat_program_error"));
           }
         }
       })
@@ -428,18 +446,22 @@ export default {
         const res = await this.$http.post(APP_SELECT_POST, data)
         if (this.vmResponseHandler(res)) {
           this.tableData = res.data
+          this.tableData.data = this.tableData.data.map(o => {
+            if (!o.app_logo_url) { o.app_logo_url = this.noPicturePath }
+            return o
+          })
           this.tableOptions.pageOptions.total = res.data.total
         }
         this.tableOptions.loading = false
       } catch (error) {
         this.tableOptions.loading = false
-        this.vmMsgError("程序错误！")
+        this.vmMsgError(this.$t("iot_plat_program_error"));
       }
     }, this.DEBOUNCE_TIME),
 
     // 下载图片
     download (data) {
-      this.downloadFile("二维码.png", data)
+      this.downloadFile(`${this.$t("iot_plat_qrcode")}.png`, data)
     },
 
     downloadFile (fileName, content) {
